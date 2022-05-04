@@ -2,20 +2,32 @@
 
 (module reader racket
   (require syntax/strip-context)
- 
+
   (provide (rename-out [my-read read]
                        [my-read-syntax read-syntax]))
- 
+
+  (require "parse.rkt")
+  (require "show.rkt")
+  (require "interp-small-step.rkt")
+
+  (define (run e)
+    (define results (show (eval (parse e))))
+    (for ([x results])
+      (writeln x)))
+
   (define (my-read in)
     (syntax->datum
      (my-read-syntax #f in)))
- 
+
   (define (my-read-syntax src in)
-    (with-syntax ([str (port->string in)])
+    (with-syntax ([program (let loop ([xs empty])
+                             (let ([x (read-syntax 'whatever in)])
+                               (if (eof-object? x)
+                                   (reverse xs)
+                                   (loop (cons x xs)))))])
       (strip-context
-       #'(module anything racket
-           (provide data)
-           (define data 'str))))))
+       #`(module anything racket
+           ('#,run 'program))))))
 
 (module+ test
   (require rackunit))
@@ -61,8 +73,8 @@
   (require racket/cmdline)
   (define who (box "world"))
   (command-line
-    #:program "my-program"
-    #:once-each
-    [("-n" "--name") name "Who to say hello to" (set-box! who name)]
-    #:args ()
-    (printf "hello ~a~n" (unbox who))))
+   #:program "my-program"
+   #:once-each
+   [("-n" "--name") name "Who to say hello to" (set-box! who name)]
+   #:args ()
+   (printf "hello ~a~n" (unbox who))))

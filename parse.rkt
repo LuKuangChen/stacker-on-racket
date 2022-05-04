@@ -1,0 +1,105 @@
+#lang racket
+(provide parse)
+(require "io.rkt")
+(require syntax/parse)
+
+(define-syntax-class constant
+  (pattern x:string)
+  (pattern x:number)
+  (pattern x:boolean)
+  (pattern ((~datum quote) #(c:constant ...)))
+  (pattern ((~datum quote) (c:constant ...))))
+(define-syntax-class d
+  (pattern ((~datum defvar) x:identifier e:e))
+  (pattern ((~datum deffun) (x1:identifier x2:identifier ...) d1:d ... e1:e ... e2:e)))
+(define-syntax-class e
+  (pattern x:identifier)
+  (pattern ((~datum lambda) (x:identifier ...) d:d ... e:e))
+  (pattern (e1:e e2:e ...))
+  (pattern ((~datum let) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e))
+  (pattern ((~datum let*) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e))
+  (pattern ((~datum letrec) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e))
+  (pattern ((~datum begin) e1:e ... e2:e))
+  (pattern ((~datum set!) x:identifier e))
+  (pattern ((~datum if) e1:e e2:e e3:e))
+  (pattern c:constant))
+(define-syntax-class p
+  (pattern (d:d ... e:e ...)))
+
+(define (parse prog)
+  (syntax-parse prog
+    [(d:d ... e:e ...)
+     (program (parse-d* #'(d ...))
+              (parse-e* #'(e ...)))]))
+(define (parse-x* x*) (map parse-x (syntax-e x*)))
+(define (parse-x x) (syntax->datum x))
+(define (parse-e* expr*)
+  (map parse-e (syntax-e expr*)))
+(define (parse-x&e* x&e*)
+  (map parse-x&e (syntax-e x&e*)))
+(define (parse-x&e x&e)
+  (syntax-parse x&e
+    [[x e]
+     (bind (parse-x #'x)
+           (parse-e #'e))]))
+(define (parse-d* d)
+  (map parse-d (syntax-e d)))
+(define (parse-d def)
+  (syntax-parse def
+    [((~datum defvar) x e)
+     (d-var (parse-x #'x) (parse-e #'e))]
+    [((~datum deffun) (x1:identifier x2:identifier ...) d:d ... e1:e ... e2:e)
+     (d-fun (parse-x #'x1)
+            (parse-x* #'(x2 ...))
+            (parse-d* #'(d ...))
+            (parse-e* #'(e1 ...))
+            (parse-e #'e2))]))
+(define (parse-e expr)
+  (syntax-parse expr
+    [((~datum lambda) (x:identifier ...) d:d ... e:e)
+     (e-fun (parse-x* #'(x ...))
+            (parse-d* #'(d ...))
+            (parse-e #'e))]
+    [((~datum let) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e)
+     (e-let (parse-x&e* #'([x e1] ...))
+            (parse-d* #'(d ...))
+            (parse-e* #'(e2 ...))
+            (parse-e #'e3))]
+    [((~datum let*) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e)
+     (e-let* (parse-x&e* #'([x e1] ...))
+             (parse-d* #'(d ...))
+             (parse-e* #'(e2 ...))
+             (parse-e #'e3))]
+    [((~datum letrec) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e)
+     (e-letrec (parse-x&e* #'([x e1] ...))
+               (parse-d* #'(d ...))
+               (parse-e* #'(e2 ...))
+               (parse-e #'e3))]
+    [((~datum begin) e1:e ... e2:e)
+     (e-begin (parse-e* #'(e1 ...))
+              (parse-e #'e2))]
+    [((~datum set!) x:identifier e1:e)
+     (e-set! (parse-x #'x) (parse-e #'e1))]
+    [((~datum if) e1:e e2:e e3:e)
+     (e-if (parse-e #'e1) (parse-e #'e2) (parse-e #'e3))]
+    [((~datum quote) x)
+     (e-con (parse-con #''x))]
+    [(e1:e e2:e ...)
+     (e-app (parse-e #'e1)
+            (parse-e* #'(e2 ...)))]
+    [c:constant
+     (e-con (parse-con #'c))]
+    [x:identifier
+     (e-var (syntax->datum #'x))]))
+(define (parse-con con)
+  (syntax-parse con
+    [x:number
+     (c-num (syntax-e #'x))]
+    [x:boolean
+     (c-bool (syntax-e #'x))]
+    [x:string
+     (c-str (syntax-e #'x))]
+    [((~datum quote) #(x:constant ...))
+     (c-vec (map parse-con (syntax-e #'(x ...))))]
+    [((~datum quote) (x:constant ...))
+     (c-list (map parse-con (syntax-e #'(x ...))))]))
