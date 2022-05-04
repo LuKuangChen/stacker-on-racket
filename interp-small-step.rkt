@@ -1,7 +1,7 @@
 #lang plait
 (require "io.rkt")
 (require "datatypes.rkt")
-;;; (require "display-state.rkt")
+(require "display-state.rkt")
 (require (typed-in racket
                    [list->vector : ((Listof 'a) -> (Vectorof 'a))]
                    [vector->list : ((Vectorof 'a) -> (Listof 'a))]
@@ -11,21 +11,28 @@
 (require (typed-in "error.rkt"
                    [catch : ((-> 'a) (Exception -> 'a) -> 'a)]))
 
+(define-type (Dec 'x 'y)
+  (yes [it : 'x])
+  (no [it : 'y]))
+(define (get-last xs)
+  (type-case (Listof 'x) (reverse xs)
+    (empty
+     (no (values)))
+    ((cons x xs)
+     (yes (values (reverse xs) x)))))
+
 (define (compile [program : Program])
-  (let ([t (letrec-of-def* (fst program) (snd program) (e-con (c-num 42)))])
-    (type-case Term t
-      ((t-letrec bind* body)
-       (type-case Term body
-         ((t-begin prelude* result)
-          (t-letrec bind* (t-begin (map (λ (t) (t-show t)) prelude*) result)))
-         (else
-          (begin
-            (display t)
-            (raise (exn-internal 'compile "bad-shape"))))))
-      (else
-       (begin
-         (display t)
-         (raise (exn-internal 'compile "bad-shape")))))))
+  (let* ([def* (fst program)]
+         [exp* (snd program)]
+         [exp* (map compile-e exp*)]
+         [exp* (map t-show exp*)]
+         [prelude*&result (type-case (Dec ((Listof Term) * Term) ()) (get-last exp*)
+                            [(no _) (values exp* (v-con (c-void)))]
+                            [(yes prelude*&result)
+                             prelude*&result])]
+         [prelude* (fst prelude*&result)]
+         [result (snd prelude*&result)])
+    (letrec-of-def*-1 (fst program) (t-begin prelude* result))))
 (define (compile-e [e : Expr]) : Term
   (type-case Expr e
     [(e-con c)
@@ -64,8 +71,12 @@
   (values (fst bind)
           (compile-e (snd bind))))
 (define (letrec-of-def* def* prelude* result)
-  (t-letrec (map compile-def def*)
-            (compile-begin prelude* result)))
+  (letrec-of-def*-1 def* (compile-begin prelude* result)))
+(define (letrec-of-def*-1 def* body)
+  (if (empty? def*)
+      body
+      (t-letrec (map compile-def def*)
+                body)))
 (define (compile-let* bind* body)
   (ind-List bind*
             body
@@ -201,9 +212,11 @@
 (define (display-state e env ectx stack)
   (begin
     (display "Expression:\n")
-    ;;; (my-display-e e)
+    (my-display-e e)
+    (display "Context:\n")
+    (my-display-ectx ectx)
     (display "Stack:\n")
-    ;;; (my-display-k env ectx stack)
+    (my-display-stack stack)
     (display "----------\n")))
 (define (interp e env ectx stack)
   :
@@ -218,7 +231,7 @@
     ;;; (display stack)
     ;;; (display "\n")
     ;;; (display "---------\n")
-    ;;; (display-state env e env ectx stack)
+    ;;; (display-state e env ectx stack)
     (type-case
         Term
       e

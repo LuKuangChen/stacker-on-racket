@@ -11,19 +11,65 @@
 
 (define (my-display-e e)
   (begin
-    (format "~a" (show-e e))
+    (display (format "~a" (show-e e)))
     (display "\n")))
-(define (my-display-k k)
+(define (my-display-stack stack)
   (begin
-    (format "~a" (show-k k))
+    (display (format "~a" (inj (map show-sf stack))))
     (display "\n")))
-(define (show-k k)
-  (let ([ectx (fst k)]
-        [stack (snd k)])
-    (inj (map show-sf stack))))
-(define (show-stack stack)
-  (type-case (Listof SFrame) stack
-    [empty (inj-empty)]))
+(define (my-display-ectx ectx)
+  (begin
+    (display (format "~a" (show-ectx ectx)))
+    (display "\n")))
+(define (show-sf sf)
+  (let ([env (fst sf)]
+        [ectx (snd sf)])
+    (inj (list (show-env env)
+               (show-ectx ectx)))))
+(define (show-env env)
+  ;;; TODO
+  (inj 'env-x))
+(define (show-ectx ectx)
+  (inj (ind-List (reverse (map show-f ectx))
+                 (inj '□)
+                 (lambda (IH x)
+                   (x IH)))))
+(define (show-xv xv)
+  (inj (list (show-x (fst xv)) (show-v (snd xv)))))
+(define (show-f f)
+  (lambda ([□ : Any])
+    (type-case ECFrame f
+      ((F-begin prelude* result)
+       (inj (append
+             (list (inj 'begin) □)
+             (append
+              (map show-e prelude*)
+              (list (show-e result))))))
+      ((F-app v* e*)
+       (inj (append
+             (map show-v v*)
+             (cons
+              □
+              (map show-e e*)))))
+      ((F-show!) □)
+      ((F-let xv* x xe* body)
+       (inj (list (inj 'let)
+             (inj
+              (append
+               (map show-xv xv*)
+               (cons (inj (list (show-x x) □))
+                     (map show-xe xe*))))
+             (show-e body))))
+      ((F-letrec-1 x xe* body)
+       (inj (list (inj 'letrec-1)
+             (inj
+               (cons (inj (list (show-x x) □))
+                     (map show-xe xe*)))
+             (show-e body))))
+      ((F-if thn els)
+       (inj (list (inj 'if) □ (show-e thn) (show-e els))))
+      ((F-set! var)
+       (inj (list (inj 'set!) (show-x var) □))))))
 (define (show-prim p)
   (type-case PrimitiveOp p
     [(po-+)
