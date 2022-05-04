@@ -1,5 +1,22 @@
 #lang racket/base
 
+(module reader racket
+  (require syntax/strip-context)
+ 
+  (provide (rename-out [my-read read]
+                       [my-read-syntax read-syntax]))
+ 
+  (define (my-read in)
+    (syntax->datum
+     (my-read-syntax #f in)))
+ 
+  (define (my-read-syntax src in)
+    (with-syntax ([str (port->string in)])
+      (strip-context
+       #'(module anything racket
+           (provide data)
+           (define data 'str))))))
+
 (module+ test
   (require rackunit))
 
@@ -34,6 +51,7 @@
 
   (check-equal? (+ 2 2) 4))
 
+#;
 (module+ main
   ;; (Optional) main submodule. Put code here if you need it to be executed when
   ;; this file is run using DrRacket or the `racket` executable.  The code here
