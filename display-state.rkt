@@ -1,7 +1,10 @@
 #lang plait
 (require "datatypes.rkt")
-(require (typed-in racket [number->string : (Number -> String)]
-                   [format : (String Any -> String)]))
+(require (typed-in racket
+                   [number->string : (Number -> String)]
+                   [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
+                   [format : (String Any -> String)]
+                   [sort : ((Listof 'x) ('x 'x -> Boolean) -> (Listof 'x))]))
 (require (opaque-type-in pict [Pict pict?])
          (opaque-type-in racket [Any any/c]))
 (require (typed-in pict
@@ -15,20 +18,69 @@
     (display "\n")))
 (define (my-display-stack stack)
   (begin
-    (display (format "~a" (inj (map show-sf stack))))
+    (map (lambda (sf)
+           (begin
+             (display (show-sf sf))
+             (display "\n"))) stack)
+    (void)))
+(define (my-display-env env)
+  (begin
+    (display (format "~a" (show-env env)))
     (display "\n")))
 (define (my-display-ectx ectx)
   (begin
     (display (format "~a" (show-ectx ectx)))
     (display "\n")))
+(define (my-display-heap heap)
+  (map
+   (lambda (key)
+     (type-case HeapAddress key
+       [(ha-user _)
+        (begin
+          (display (show-addr key))
+          (display " = ")
+          (display (show-hv (some-v (hash-ref heap key))))
+          (display "\n"))]
+       [(ha-prim _) (void)]))
+   ;; remove the base environment
+   (reverse (hash-keys heap))))
+(define (show-hv hv): Any
+  (type-case HeapValue hv
+    ((h-env env map)
+     (inj
+      (list (inj 'Environment)
+            (inj (ind-List (hash-keys map)
+                           (list)
+                           (lambda (IH k)
+                             (cons (inj (list (inj k) (show-optionof-v (some-v (hash-ref map k)))))
+                                   IH))))
+            (show-env env))))
+    ((h-vec vs)
+     (inj (vector-map show-v vs)))
+    ((h-list vs)
+     (inj (map show-v vs)))
+    ((h-fun env arg* body)
+     (inj (list (inj 'closure)
+                (show-env env)
+                (inj (map show-x arg*))
+                (show-e body))))))
+(define (show-optionof-v ov)
+  (type-case (Optionof Val) ov
+    [(none)
+     (inj '_)]
+    [(some v)
+     (show-v v)]))
 (define (show-sf sf)
   (let ([env (fst sf)]
         [ectx (snd sf)])
     (inj (list (show-env env)
                (show-ectx ectx)))))
-(define (show-env env)
-  ;;; TODO
-  (inj 'env-x))
+(define (show-env env): Any
+  (type-case Env env
+    ((none)
+     (inj '_))
+    ((some addr)
+     (show-addr addr))))
 (define (show-ectx ectx)
   (inj (ind-List (reverse (map show-f ectx))
                  (inj '□)
@@ -54,18 +106,18 @@
       ((F-show!) □)
       ((F-let xv* x xe* body)
        (inj (list (inj 'let)
-             (inj
-              (append
-               (map show-xv xv*)
-               (cons (inj (list (show-x x) □))
-                     (map show-xe xe*))))
-             (show-e body))))
+                  (inj
+                   (append
+                    (map show-xv xv*)
+                    (cons (inj (list (show-x x) □))
+                          (map show-xe xe*))))
+                  (show-e body))))
       ((F-letrec-1 x xe* body)
        (inj (list (inj 'letrec-1)
-             (inj
-               (cons (inj (list (show-x x) □))
-                     (map show-xe xe*)))
-             (show-e body))))
+                  (inj
+                   (cons (inj (list (show-x x) □))
+                         (map show-xe xe*)))
+                  (show-e body))))
       ((F-if thn els)
        (inj (list (inj 'if) □ (show-e thn) (show-e els))))
       ((F-set! var)
@@ -94,10 +146,16 @@
      (inj 'list)]
     [(po-equalp)
      (inj 'equal?)]))
+(define (show-addr it)
+  (type-case HeapAddress it
+    [(ha-user it)
+     (inj (string->symbol (string-append "@" (number->string it))))]
+    [(ha-prim it)
+     (inj (string->symbol (string-append "@" it)))]))
 (define (show-v v)
   (type-case Val v
     ((v-addr it)
-     (inj (string->symbol (string-append "%" (number->string it)))))
+     (show-addr it))
     ((v-prim name)
      (show-prim name))
     ((v-str it)
@@ -112,6 +170,7 @@
 (define (show-e e)
   (type-case Term e
     [(t-quote v)
+     ;;;  (inj (list (inj 'quote) (show-v v)))]
      (show-v v)]
     [(t-var x)
      (show-x x)]

@@ -5,7 +5,7 @@
 (require "io.rkt")
 
 (define (show o*)
-  (map s-exp-of-o o*))
+  (map s-exp-of-o (filter (not/c o-void?) o*)))
 (define (s-exp-of-o o)
   (cond
     [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]

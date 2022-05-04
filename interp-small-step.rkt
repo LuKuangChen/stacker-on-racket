@@ -32,7 +32,7 @@
                              prelude*&result])]
          [prelude* (fst prelude*&result)]
          [result (snd prelude*&result)])
-    (letrec-of-def*-1 (fst program) (t-begin prelude* result))))
+    (letrec-of-def*-1 (fst program) (maybe-begin prelude* result))))
 (define (compile-e [e : Expr]) : Term
   (type-case Expr e
     [(e-con c)
@@ -83,8 +83,12 @@
             (λ (IH bind)
               (t-let (list bind) IH))))
 (define (compile-begin prelude* result)
-  (t-begin (map compile-e prelude*)
-           (compile-e result)))
+  (maybe-begin (map compile-e prelude*)
+               (compile-e result)))
+(define (maybe-begin prelude* result)
+  (if (empty? prelude*)
+      result
+      (t-begin prelude* result)))
 
 (define (truthy? [v : Val])
   (type-case Val v
@@ -213,25 +217,26 @@
   (begin
     (display "Expression:\n")
     (my-display-e e)
-    (display "Context:\n")
+    (display "Context: ")
     (my-display-ectx ectx)
+    (display "Environment: ")
+    (my-display-env env)
     (display "Stack:\n")
     (my-display-stack stack)
+    (display "Heap:\n")
+    (my-display-heap the-heap)
     (display "----------\n")))
-(define (interp e env ectx stack)
+(define (simple? e)
+  (type-case Term e
+    ((t-var _) #t)
+    ((t-quote _) #t)
+    (else #f)))
+(define (interp e [env : Env] ectx stack)
   :
   (Result Val)
   (begin
-    ;;; (display e)
-    ;;; (display "\n")
-    ;;; (display ectx)
-    ;;; (display "\n")
-    ;;; (display (length stack))
-    ;;; (display "\n")
-    ;;; (display stack)
-    ;;; (display "\n")
-    ;;; (display "---------\n")
-    ;;; (display-state e env ectx stack)
+    (unless #f #;(simple? e)
+      (display-state e env ectx stack))
     (type-case
         Term
       e
@@ -328,26 +333,14 @@
     ((v-prim name) (o-fun))
     ((v-void) (o-void))
     ((v-addr it)
-     (type-case HeapValue (some-v (hash-ref the-heap it))
+     (obs-of-hv (some-v (hash-ref the-heap it))))))
+(define (obs-of-hv hv)
+  (type-case HeapValue hv
        ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
        ((h-list vs) (o-list (map obs-of-val vs)))
-       ((h-fun env arg* body) (o-fun))))))
-(define (env-lookup env x)
-  (type-case
-      Env
-    env
-    ((env-empty) (raise (exn-internal x "unbound id")))
-    ((env-extended env map)
-     (type-case
-         (Optionof (Optionof Val))
-       (hash-ref map x)
-       ((none) (env-lookup env x))
-       ((some v)
-        (type-case
-            (Optionof Val)
-          v
-          ((none) (raise (exn-rt "(use-before-set x")))
-          ((some v) v)))))))
+       ((h-fun env arg* body) (o-fun))
+       ((h-env _env _map)
+        (raise (exn-internal 'obs-of-val "Impossible.")))))
 (define-type Operator
   (op-prim [name : PrimitiveOp])
   (op-fun [env : Env] [arg* : (Listof Id)] [body : Term]))
