@@ -27,7 +27,7 @@
          [exp* (map compile-e exp*)]
          [exp* (map t-show exp*)]
          [prelude*&result (type-case (Dec ((Listof Term) * Term) ()) (get-last exp*)
-                            [(no _) (values exp* (v-con (c-void)))]
+                            [(no _) (values exp* (term-of-c (c-void)))]
                             [(yes prelude*&result)
                              prelude*&result])]
          [prelude* (fst prelude*&result)]
@@ -36,11 +36,11 @@
 (define (compile-e [e : Expr]) : Term
   (type-case Expr e
     [(e-con c)
-     (v-con c)]
+     (term-of-c c)]
     [(e-var x)
      (t-var x)]
     [(e-fun arg* def* prelude* result)
-     (compile-fun arg* def* prelude* result)]
+     (compile-fun (none) arg* def* prelude* result)]
     [(e-app fun arg*)
      (t-app (compile-e fun) (map compile-e arg*))]
     [(e-let bind* def* prelude* result)
@@ -64,9 +64,9 @@
     ((d-var x e)
      (values x (compile-e e)))
     ((d-fun fun arg* def* prelude* result)
-     (values fun (compile-fun arg* def* prelude* result)))))
-(define (compile-fun arg* def* prelude* result)
-  (t-fun arg* (letrec-of-def* def* prelude* result)))
+     (values fun (compile-fun (some fun) arg* def* prelude* result)))))
+(define (compile-fun name arg* def* prelude* result)
+  (t-fun name arg* (letrec-of-def* def* prelude* result)))
 (define (compile-bind bind)
   (values (fst bind)
           (compile-e (snd bind))))
@@ -96,7 +96,7 @@
      b]
     [else
      #t]))
-(define (v-con c) : Term
+(define (term-of-c c) : Term
   (type-case Constant c
     ((c-void)
      (t-quote (v-void)))
@@ -107,9 +107,9 @@
     ((c-bool it)
      (t-quote (v-bool it)))
     ((c-vec it)
-     (t-app (t-quote (v-prim (po-ivec))) (map v-con it)))
+     (t-app (t-quote (v-prim (po-ivec))) (map term-of-c it)))
     ((c-list it)
-     (t-app (t-quote (v-prim (po-list))) (map v-con it)))))
+     (t-app (t-quote (v-prim (po-list))) (map term-of-c it)))))
 
 (define (tc [env : (Hashof Id Type)] [e : Term]) : Type
   (type-case Term e
@@ -121,7 +121,7 @@
         (raise (exn-tc "unbound-id")))
        ((some T)
         T)))
-    ((t-fun arg* body)
+    ((t-fun name arg* body)
      (let* ([env_new (hash-set* env (map (λ (arg) (values arg (T-val))) arg*))]
             [body (tc env_new body)]
             [body (as-val body)])
@@ -165,7 +165,7 @@
        (as-val val)))))
 (define (type-of e)
   (type-case Term e
-    ((t-fun arg* body)
+    ((t-fun name arg* body)
      (T-fun))
     (else
      (T-val))))
@@ -176,14 +176,14 @@
     (else
      (raise (exn-rt "functions are not values")))))
 
-(define (apply-stack stack v)
+(define (apply-stack [stack : Stack] v)
   (type-case (Listof Ctx) stack
     (empty
      v)
     ((cons sf0 stack)
-     (local ((define-values (env ectx) sf0))
+     (local ((define-values (env ectx ann) sf0))
        (apply-k v env ectx stack)))))
-(define (apply-k v env ectx stack)
+(define (apply-k v env ectx [stack : Stack])
   (type-case (Listof ECFrame) ectx
     [empty
      (apply-stack stack v)]
@@ -213,7 +213,9 @@
               (v (v-void)))
           (apply-k v env ectx stack)))
        ))))
-(define (display-state e env ectx stack)
+(define (display-state e env ectx [stack : Stack])
+  (my-display-state env ectx stack the-heap)
+  #;
   (begin
     (display "Expression:\n")
     (my-display-e e)
@@ -235,8 +237,8 @@
   :
   (Result Val)
   (begin
-    (unless #f #;(simple? e)
-      (display-state e env ectx stack))
+    ;;; (unless #f #;(simple? e)
+    ;;;   (display-state e env ectx stack))
     (type-case
         Term
       e
@@ -244,12 +246,12 @@
       ((t-var x)
        (let ([v (env-lookup env x)])
          (apply-k v env ectx stack)))
-      ((t-fun arg* body) (let ((v (v-fun env arg* body))) (apply-k v env ectx stack)))
+      ((t-fun name arg* body) (let ((v (v-fun name env arg* body))) (apply-k v env ectx stack)))
       ((t-app fun arg*) (interp-app (list) (cons fun arg*) env ectx stack))
       ((t-let bind* body) (interp-let (list) bind* body env ectx stack))
       ((t-letrec-1 bind* body) (interp-letrec-1 bind* body env ectx stack))
       ((t-letrec bind* body)
-       (let ([stack (cons (pair env ectx) stack)])
+       (let ([stack (cons (values env ectx (ca-letrec)) stack)])
          (let ((ectx (list)))
            (let ((var* (map var-of-bind bind*)))
              (let ((env (env-declare env var*)))
@@ -297,7 +299,7 @@
       (Listof (Id * Term))
     xe*
     (empty
-     (let ([stack (cons (pair env ectx) stack)])
+     (let ([stack (cons (values env ectx (ca-let)) stack)])
        (let ((env (env-extend env xv*)))
          (let ((ectx (list)))
            (let ((e body))
@@ -338,7 +340,7 @@
   (type-case HeapValue hv
        ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
        ((h-list vs) (o-list (map obs-of-val vs)))
-       ((h-fun env arg* body) (o-fun))
+       ((h-fun env name arg* body) (o-fun))
        ((h-env _env _map)
         (raise (exn-internal 'obs-of-val "Impossible.")))))
 (define-type Operator
@@ -349,24 +351,24 @@
     ((v-prim name) (op-prim name))
     ((v-addr addr)
      (type-case HeapValue (some-v (hash-ref the-heap addr))
-       ((h-fun env arg* body)
+       ((h-fun env name arg* body)
         (op-fun env arg* body))
        (else
         (raise (exn-rt "not a function")))))
     (else (raise (exn-rt "not a function")))))
-(define (interp-beta (fun : Val) (v-arg* : (Listof Val)) env ectx stack)
+(define (interp-beta (fun : Val) (arg-v* : (Listof Val)) env ectx [stack : Stack])
   :
   (Result 'Val)
   (type-case
       Operator
     (as-fun fun)
-    ((op-prim op) (let ((v (delta op v-arg*))) (apply-k v env ectx stack)))
-    ((op-fun clos-env x-arg* body)
-     (let ([stack (cons (pair env ectx) stack)])
+    ((op-prim op) (let ((v (delta op arg-v* env ectx stack))) (apply-k v env ectx stack)))
+    ((op-fun clos-env arg-x* body)
+     (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
        (let ([ectx (list)])
-         (let ((env (env-extend clos-env (map2 pair x-arg* v-arg*))))
+         (let ((env (env-extend clos-env (map2 pair arg-x* arg-v*))))
            (let ((e body)) (interp e env ectx stack))))))))
-(define (delta op v-arg*)
+(define (delta op v-arg* env ectx stack)
   (type-case
       PrimitiveOp
     op
@@ -411,7 +413,14 @@
          (let ((_ (unless (= (vector-length v) 2) (raise (exn-rt "right: not a pair")))))
            (vector-ref v 1)))))
     ((po-ivec) (v-vec (list->vector v-arg*)))
-    ((po-list) (v-list v-arg*))))
+    ((po-list) (v-list v-arg*))
+    ((po-pause)
+     (let* ([_ (display-state
+                  (t-quote (v-num 0))
+                  env ectx
+                  (cons (values env ectx (ca-app (v-prim (po-pause)) (list))) stack))])
+       (v-num 0)))
+    ))
 (define (as-num (v : Val))
   :
   Number
@@ -433,7 +442,7 @@
             (λ ()
               (let* ((e (compile program))
                      (_ (tc (base-Tenv) e))
-                     (env (base-env))
+                     (env base-env)
                      (ectx empty)
                      (stack empty)
                      (_ (interp e env ectx stack)))
@@ -442,7 +451,7 @@
               (type-case
                   Exception
                 exn
-                ((exn-tc msg) (output! (list (o-exn ""))))
-                ((exn-rt msg) (output! (list (o-exn ""))))
+                ((exn-tc msg) (output! (list (o-exn msg))))
+                ((exn-rt msg) (output! (list (o-exn msg))))
                 ((exn-internal where what) (error where what)))))))
       (unbox output-buffer))))

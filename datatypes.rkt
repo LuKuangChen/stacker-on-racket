@@ -19,7 +19,7 @@
 (define-type Term
   (t-quote [v : Val])
   (t-var [x : Id])
-  (t-fun [arg* : (Listof Id)] [body : Term])
+  (t-fun [name : (Optionof Symbol)] [arg* : (Listof Id)] [body : Term])
   (t-app [fun : Term] [arg* : (Listof Term)])
   (t-let [bind* : (Listof (Id * Term))] [body : Term])
   (t-letrec [bind* : (Listof (Id * Term))] [body : Term])
@@ -37,7 +37,7 @@
 (define-type HeapValue
   (h-vec [it : (Vectorof Val)])
   (h-list [it : (Listof Val)])
-  (h-fun [env : Env] [arg* : (Listof Id)] [body : Term])
+  (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [body : Term])
   (h-env [parent : Env] [map : (Hashof Id (Optionof Val))]))
 (define-type Val
   (v-addr [it : HeapAddress])
@@ -53,8 +53,8 @@
          [_ (set! next-heap-addr (add1 next-heap-addr))]
          [_ (hash-set! the-heap addr h)])
     addr))
-(define (v-fun env arg* body)
-  (let ([addr (allocate! (h-fun env arg* body))])
+(define (v-fun name env arg* body)
+  (let ([addr (allocate! (h-fun env name arg* body))])
     (v-addr addr)))
 (define (v-vec it)
   (let ([addr (allocate! (h-vec it))])
@@ -74,6 +74,7 @@
   (po-right)
   (po-ivec)
   (po-list)
+  (po-pause)
   (po-equalp))
 
 (define-type-alias Env (Optionof HeapAddress))
@@ -87,31 +88,7 @@
                           (make-hash (map2 pair
                                            (map fst x&v*)
                                            (map some (map snd x&v*))))))))
-(define (base-env)
-  (let* ([env (none)]
-         [x&v*  (ind-List
-                (list (values 'equal? (po-equalp))
-                      (values '+ (po-+))
-                      (values '- (po--))
-                      (values '* (po-*))
-                      (values '/ (po-/))
-                      (values 'pair? (po-pairp))
-                      (values 'pair (po-pair))
-                      (values 'left (po-left))
-                      (values 'right (po-right))
-                      (values 'ivec (po-ivec))
-                      (values 'list (po-list)))
-                (list)
-                (λ (IH e)
-                  (cons (values (fst e)
-                                (v-prim (snd e)))
-                        IH)))]
-         [addr (ha-prim "base-env")]
-         [hv (h-env env  (make-hash (map2 pair
-                                          (map fst x&v*)
-                                          (map some (map snd x&v*)))))]
-         [_ (hash-set! the-heap addr hv)])
-    (some addr)))
+
 (define (no-duplicates x*)
   (= (length x*)
      (length (remove-duplicates x*))))
@@ -164,7 +141,8 @@
                    (values 'left (T-fun))
                    (values 'right (T-fun))
                    (values 'ivec (T-fun))
-                   (values 'list (T-fun)))))
+                   (values 'list (T-fun))
+                   (values 'pause (T-fun)))))
 (define-type Type
   (T-val)
   (T-fun))
@@ -182,5 +160,44 @@
   (F-if [thn : Term] [els : Term])
   (F-set! [var : Id]))
 (define-type-alias ECtx (Listof ECFrame))
-(define-type-alias Ctx (Env * ECtx))
+(define-type CtxAnn
+  (ca-app [v : Val] [v* : (Listof Val)])
+  (ca-let)
+  (ca-letrec))
+(define-type-alias Ctx (Env * ECtx * CtxAnn))
 (define-type-alias Stack (Listof Ctx))
+
+(define base-env
+  (let* ([env (none)]
+         [x&v*  (ind-List
+                 (list (values 'equal? (po-equalp))
+                       (values '+ (po-+))
+                       (values '- (po--))
+                       (values '* (po-*))
+                       (values '/ (po-/))
+                       (values 'pair? (po-pairp))
+                       (values 'pair (po-pair))
+                       (values 'left (po-left))
+                       (values 'right (po-right))
+                       (values 'ivec (po-ivec))
+                       (values 'list (po-list))
+                       (values 'pause (po-pause)))
+                 (list)
+                 (λ (IH e)
+                   (cons (values (fst e)
+                                 (v-prim (snd e)))
+                         IH)))]
+        ;;;  [x&v* (cons (values
+        ;;;               'pause
+        ;;;               (v-fun (some 'pause)
+        ;;;                      (some (ha-prim "base-env"))
+        ;;;                      (list)
+        ;;;                      (t-app (t-quote (v-prim (po-pause)))
+        ;;;                             (list))))
+        ;;;              x&v*)]
+         [addr (ha-prim "base-env")]
+         [hv (h-env env  (make-hash (map2 pair
+                                          (map fst x&v*)
+                                          (map some (map snd x&v*)))))]
+         [_ (hash-set! the-heap addr hv)])
+    (some addr)))

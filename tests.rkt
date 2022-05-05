@@ -1,7 +1,7 @@
 #lang racket
 (require "parse.rkt")
 (require "show.rkt")
-(require "interp-small-step.rkt")
+(require "interp.rkt")
 (require rackunit)
 
 (define (run e)

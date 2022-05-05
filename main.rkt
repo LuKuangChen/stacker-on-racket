@@ -8,7 +8,7 @@
 
   (require "parse.rkt")
   (require "show.rkt")
-  (require "interp-small-step.rkt")
+  (require "interp.rkt")
 
   (define (run e)
     (define results (show (eval (parse e))))
