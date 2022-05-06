@@ -7,11 +7,19 @@
 (define (show o*)
   (map s-exp-of-o (filter (not/c o-void?) o*)))
 (define (s-exp-of-o o)
+  (let ([r (s-exp-of-o-1 o)])
+    (if ((or/c list? vector?) r)
+        `(quote ,r)
+        r)))
+(define (s-exp-of-o-1 o)
   (cond
-    [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]
+    ;;; [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]
+    [(o-exn? o)
+     (displayln (o-exn-it o))
+     (string->symbol (format "Error" #;(o-exn-it o)))]
     [(o-con? o) (s-exp-of-c (o-con-it o))]
-    [(o-vec? o) `(quote ,(vector-map s-exp-of-o (o-vec-it o)))]
-    [(o-list? o) `(quote ,(map s-exp-of-o (o-list-it o)))]
+    [(o-vec? o) (vector-map s-exp-of-o-1 (o-vec-it o))]
+    [(o-list? o) (map s-exp-of-o-1 (o-list-it o))]
     [(o-fun? o) (λ (x) x)]
     [else (error 'show "internal error ~a" o)]))
 (define (s-exp-of-c c)

@@ -3,6 +3,7 @@
 (require "datatypes.rkt")
 (require "display-state.rkt")
 (require (typed-in racket
+                   [format : (String 'a -> String)]
                    [list->vector : ((Listof 'a) -> (Vectorof 'a))]
                    [vector->list : ((Vectorof 'a) -> (Listof 'a))]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
@@ -124,7 +125,7 @@
     ((t-var x)
      (type-case (Optionof Type) (hash-ref env x)
        ((none)
-        (raise (exn-tc "unbound-id")))
+        (raise (exn-tc (format "unbound-id ~a" x))))
        ((some T)
         T)))
     ((t-fun name arg* def* body)
@@ -185,16 +186,18 @@
      (T-fun))
     (else
      (T-val))))
-(define (as-val T)
-  (type-case Type T
-    ((T-val)
-     (T-val))
-    (else
-     (raise (exn-rt "functions are not values")))))
-(define (as-expected T1 T2)
-  (if (equal? T1 T2)
-      T1
-      (raise (exn-rt "functions are not values"))))
+(define (as-val T) (T-val))
+(define (as-expected T1 T2) T1)
+;;; (define (as-val T)
+;;;   (type-case Type T
+;;;     ((T-val)
+;;;      (T-val))
+;;;     (else
+;;;      (raise (exn-rt "functions are not values")))))
+;;; (define (as-expected T1 T2)
+;;;   (if (equal? T1 T2)
+;;;       T1
+;;;       (raise (exn-rt "functions are not values"))))
 
 (define (apply-stack [stack : Stack] v)
   (type-case (Listof Ctx) stack
@@ -474,8 +477,8 @@
      (type-case HeapValue (some-v (hash-ref the-heap addr))
        ((h-vec it) it)
        (else
-        (raise (exn-rt "not a vector")))))
-    (else (raise (exn-rt "not a vector")))))
+        (raise (exn-rt (format "not a vector ~a" (show-v v)))))))
+    (else (raise (exn-rt (format "not a vector ~a" (show-v v)))))))
 (define (eval (program : Program))
   :
   (Listof Obs)
