@@ -1,6 +1,6 @@
 #lang info
 (define collection "smol-step")
-(define deps '("base"))
+(define deps '("base" "plait"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"))
 (define scribblings '(("scribblings/smol-step.scrbl" ())))
 (define pkg-desc "Description Here")
