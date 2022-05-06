@@ -19,11 +19,15 @@
 (define-type Term
   (t-quote [v : Val])
   (t-var [x : Id])
-  (t-fun [name : (Optionof Symbol)] [arg* : (Listof Id)] [body : Term])
+  (t-fun [name : (Optionof Symbol)]
+         [arg* : (Listof Id)]
+         [def* : (Listof (Id * Term))]
+         [body : Term])
   (t-app [fun : Term] [arg* : (Listof Term)])
   (t-let [bind* : (Listof (Id * Term))] [body : Term])
   (t-letrec [bind* : (Listof (Id * Term))] [body : Term])
   (t-letrec-1 [bind* : (Listof (Id * Term))] [body : Term])
+  (t-fun-call [bind* : (Listof (Id * Term))] [body : Term])
   (t-set! [var : Id] [val : Term])
   (t-begin [prelude* : (Listof Term)] [result : Term])
   (t-if [cnd : Term] [thn : Term] [els : Term])
@@ -37,7 +41,7 @@
 (define-type HeapValue
   (h-vec [it : (Vectorof Val)])
   (h-list [it : (Listof Val)])
-  (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [body : Term])
+  (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
   (h-env [parent : Env] [map : (Hashof Id (Optionof Val))]))
 (define-type Val
   (v-addr [it : HeapAddress])
@@ -53,8 +57,8 @@
          [_ (set! next-heap-addr (add1 next-heap-addr))]
          [_ (hash-set! the-heap addr h)])
     addr))
-(define (v-fun name env arg* body)
-  (let ([addr (allocate! (h-fun env name arg* body))])
+(define (v-fun name env arg* def* body)
+  (let ([addr (allocate! (h-fun env name arg* def* body))])
     (v-addr addr)))
 (define (v-vec it)
   (let ([addr (allocate! (h-vec it))])
@@ -84,10 +88,9 @@
         (some addr))
       (raise (exn-rt "redeclare"))))
 (define (env-extend [env : Env] [x&v* : (Listof (Id * Val))]): Env
-  (some (allocate! (h-env env
-                          (make-hash (map2 pair
-                                           (map fst x&v*)
-                                           (map some (map snd x&v*))))))))
+  (env-extend/declare env (map2 pair (map fst x&v*) (map some (map snd x&v*)))))
+(define (env-extend/declare [env : Env] [x&v* : (Listof (Id * (Optionof Val)))]): Env
+  (some (allocate! (h-env env (make-hash x&v*)))))
 
 (define (no-duplicates x*)
   (= (length x*)
@@ -157,6 +160,7 @@
   (F-show!)
   (F-let [xv* : (Listof (Id * Val))] [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
   (F-letrec-1 [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
+  (F-fun-call [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
   (F-if [thn : Term] [els : Term])
   (F-set! [var : Id]))
 (define-type-alias ECtx (Listof ECFrame))

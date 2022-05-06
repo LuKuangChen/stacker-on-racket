@@ -72,11 +72,12 @@
      (inj (vector-map show-v vs)))
     ((h-list vs)
      (inj (map show-v vs)))
-    ((h-fun env name arg* body)
+    ((h-fun env name arg* def* body)
      (inj (list (inj 'closure)
                 (show-env env)
                 (inj (show-funname name))
                 (inj (map show-x arg*))
+                (inj (map show-def def*))
                 (show-e body))))))
 (define (show-funname nm)
   (type-case (Optionof Symbol) nm
@@ -144,6 +145,12 @@
                    (cons (inj (list (show-x x) □))
                          (map show-xe xe*)))
                   (show-e body))))
+      ((F-fun-call x xe* body)
+       (inj (list (inj 'fun-call)
+                  (inj
+                   (cons (inj (list (show-x x) □))
+                         (map show-xe xe*)))
+                  (show-e body))))
       ((F-if thn els)
        (inj (list (inj 'if) □ (show-e thn) (show-e els))))
       ((F-set! var)
@@ -179,7 +186,7 @@
     [(ha-user it)
      (let ([printing (format "@~a" (inj it))])
        (type-case HeapValue (some-v (hash-ref the-heap (ha-user it)))
-         ((h-fun env name arg* body)
+         ((h-fun env name arg* def* body)
           (type-case (Optionof Symbol) name
             ((none)
              (inj (string->symbol printing)))
@@ -205,6 +212,11 @@
     ((v-void)
      (inj '_))))
 (define (show-x x) (inj x))
+(define (show-def def)
+  (local ((define-values (x e) def))
+    (inj (list (inj 'defvar)
+               (show-x x)
+               (show-e e)))))
 (define (show-e e)
   (type-case Term e
     [(t-quote v)
@@ -212,10 +224,11 @@
      (show-v v)]
     [(t-var x)
      (show-x x)]
-    [(t-fun name args body)
+    [(t-fun name args def* body)
      (inj
       (list (inj 'lambda)
             (inj (map show-x args))
+            (inj (map show-def def*))
             (show-e body)))]
     [(t-app fun arg*)
      (inj (map show-e (cons fun arg*)))]
@@ -232,6 +245,11 @@
     [(t-letrec-1 bind* body)
      (inj
       (list (inj 'letrec-1)
+            (inj (map show-xe bind*))
+            (show-e body)))]
+    [(t-fun-call bind* body)
+     (inj
+      (list (inj 'fun-call)
             (inj (map show-xe bind*))
             (show-e body)))]
     [(t-set! x e)

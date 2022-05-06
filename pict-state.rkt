@@ -10,9 +10,15 @@
   (scale
    (bg "black"
        (ht-append padding
-                  (apply vl-append (map pict-of-sf (reverse stack)))
+                  (pict-of-stack stack)
                   (pict-of-heap heap)))
    1.3))
+
+(define (pict-of-stack stack)
+  (box 
+    (apply vl-append 
+      (field-label "Stack")
+      (map pict-of-sf (reverse stack)))))
 
 (define (is-env? heapitem)
   (match-define (list addr hv) heapitem)
@@ -111,7 +117,6 @@
       (frame
        (pad padding
             (vl-append padding
-             (field-label "Stack Frame")
                        (field "Environment" env)
                        (ht-append padding
                                   (field "Created by" ann)
