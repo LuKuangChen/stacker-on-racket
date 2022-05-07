@@ -186,18 +186,18 @@
      (T-fun))
     (else
      (T-val))))
-(define (as-val T) (T-val))
-(define (as-expected T1 T2) T1)
-;;; (define (as-val T)
-;;;   (type-case Type T
-;;;     ((T-val)
-;;;      (T-val))
-;;;     (else
-;;;      (raise (exn-rt "functions are not values")))))
-;;; (define (as-expected T1 T2)
-;;;   (if (equal? T1 T2)
-;;;       T1
-;;;       (raise (exn-rt "functions are not values"))))
+;;; (define (as-val T) (T-val))
+;;; (define (as-expected T1 T2) T1)
+(define (as-val T)
+  (type-case Type T
+    ((T-val)
+     (T-val))
+    (else
+     (raise (exn-rt "functions are not values")))))
+(define (as-expected T1 T2)
+  (if (equal? T1 T2)
+      T1
+      (raise (exn-rt "functions are not values"))))
 
 (define (apply-stack [stack : Stack] v)
   (type-case (Listof Ctx) stack
