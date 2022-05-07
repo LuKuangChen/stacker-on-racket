@@ -7,9 +7,6 @@
 (define (run e)
   (show (eval (parse e))))
 
-;; tests from SMoL/fun
-;; one uninteresting test is commented out
-
 (test-equal? "arithmetic operators"
              (run '((deffun (f o) (o 1 1))
                     (f +)))
