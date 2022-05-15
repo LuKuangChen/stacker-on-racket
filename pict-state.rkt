@@ -2,6 +2,7 @@
 (provide pict-state)
 (require pict)
 (require pict/color)
+(require racket/gui)
 
 (define (pict-state env ectx stack heap)
   (show-pict (pict-of-state env ectx stack heap)))

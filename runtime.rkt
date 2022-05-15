@@ -151,21 +151,8 @@
               (v (v-void)))
           (apply-k v env ectx stack)))
        ))))
-(define (display-state e env ectx [stack : Stack])
-  (my-display-state env ectx stack the-heap)
-  #;
-  (begin
-    (display "Expression:\n")
-    (my-display-e e)
-    (display "Context: ")
-    (my-display-ectx ectx)
-    (display "Environment: ")
-    (my-display-env env)
-    (display "Stack:\n")
-    (my-display-stack stack)
-    (display "Heap:\n")
-    (my-display-heap the-heap)
-    (display "----------\n")))
+(define (display-state [e : Term] [env : Env] ectx [stack : Stack])
+  (my-display-state e env ectx stack the-heap))
 (define (simple? e)
   (type-case Term e
     ((t-var _) #t)
@@ -311,7 +298,9 @@
 (define (interp-beta (fun : Val) (arg-v* : (Listof Val)) env ectx [stack : Stack])
   :
   (Result 'Val)
-  (type-case
+  (begin
+    (display-state (t-app (t-quote fun) (map t-quote arg-v*)) env ectx stack)
+    (type-case
       Operator
     (as-fun fun)
     ((op-prim op) (let ((v (delta op arg-v* env ectx stack))) (apply-k v env ectx stack)))
@@ -325,7 +314,7 @@
                                        (values name (none))))
                                    def*)))))
            (let ((e (t-fun-call def* body)))
-             (interp e env ectx stack))))))))
+             (interp e env ectx stack)))))))))
 (define (delta op v-arg* env ectx stack)
   (type-case
       PrimitiveOp
@@ -393,8 +382,8 @@
      (type-case HeapValue (some-v (hash-ref the-heap addr))
        ((h-vec it) it)
        (else
-        (raise (exn-rt (format "not a vector ~a" (show-v v)))))))
-    (else (raise (exn-rt (format "not a vector ~a" (show-v v)))))))
+        (raise (exn-rt (format "not a vector ~a" (s-exp-of-v v)))))))
+    (else (raise (exn-rt (format "not a vector ~a" (s-exp-of-v v)))))))
 (define (eval check (e : Program))
   :
   (Listof Obs)
