@@ -1,11 +1,11 @@
 #lang plait
+(require "utilities.rkt")
 (require "datatypes.rkt")
 (require (typed-in "pict-state.rkt"
                    [pict-state : (Any Any Any Any -> Void)]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
-                   [format : (String Any -> String)]
                    [sort : ((Listof 'x) ('x 'x -> Boolean) -> (Listof 'x))]))
 (require (opaque-type-in pict [Pict pict?])
          (opaque-type-in racket [Any any/c]))

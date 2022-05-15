@@ -56,10 +56,11 @@
             (parse-e #'e2))]))
 (define (parse-e expr)
   (syntax-parse expr
-    [((~datum lambda) (x:identifier ...) d:d ... e:e)
+    [((~datum lambda) (x:identifier ...) d:d ... e1:e ... e2:e)
      (e-fun (parse-x* #'(x ...))
             (parse-d* #'(d ...))
-            (parse-e #'e))]
+            (parse-e* #'(e1 ...))
+            (parse-e #'e2))]
     [((~datum let) ([x:identifier e1:e] ...) d:d ... e2:e ... e3:e)
      (e-let (parse-x&e* #'([x e1] ...))
             (parse-d* #'(d ...))

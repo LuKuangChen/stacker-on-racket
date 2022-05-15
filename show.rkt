@@ -15,7 +15,7 @@
   (cond
     ;;; [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]
     [(o-exn? o)
-     (displayln (o-exn-it o))
+    ;;;  (displayln (o-exn-it o))
      (string->symbol (format "Error" #;(o-exn-it o)))]
     [(o-con? o) (s-exp-of-c (o-con-it o))]
     [(o-vec? o) (vector-map s-exp-of-o-1 (o-vec-it o))]

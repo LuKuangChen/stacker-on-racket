@@ -1,20 +1,12 @@
 #lang plait
 (require "io.rkt")
+(require "error.rkt")
+(require "utilities.rkt")
 (require (typed-in racket
                    [list->vector : ((Listof 'a) -> (Vectorof 'a))]
                    [vector->list : ((Vectorof 'a) -> (Listof 'a))]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
-                   [remove-duplicates : ((Listof 'a) -> (Listof 'a))]
-                   [raise : (Exception -> 'a)]))
-(require (typed-in "error.rkt"
-                   [catch : ((-> 'a) (Exception -> 'a) -> 'a)]))
-
-(define (ind-List (x* : (Listof 'a)) (base : 'b) (step : ('b 'a -> 'b)))
-  (foldr (λ (x IH) (step IH x)) base x*))
-(define-type Exception
-  (exn-tc [msg : String])
-  (exn-rt [msg : String])
-  (exn-internal [where : Symbol] [what : String]))
+                   [remove-duplicates : ((Listof 'a) -> (Listof 'a))]))
 
 (define-type Term
   (t-quote [v : Val])
@@ -149,11 +141,6 @@
 (define-type Type
   (T-val)
   (T-fun))
-(define (hash-set* base ⟨k×v⟩*)
-  (ind-List ⟨k×v⟩*
-            base
-            (λ (IH ⟨k×v⟩)
-              (hash-set IH (fst ⟨k×v⟩) (snd ⟨k×v⟩)))))
 (define-type ECFrame
   (F-begin [e* : (Listof Term)] [e : Term])
   (F-app [v* : (Listof Val)] [e* : (Listof Term)])
