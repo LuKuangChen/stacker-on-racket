@@ -27,7 +27,7 @@
 
 (define-type-alias (Result 'a) 'a)
 (define-type HeapAddress
-  (ha-prim [it : String])
+  (ha-prim [it : Symbol])
   (ha-user [it : Number]))
 (define-type-alias Heap (Hashof HeapAddress HeapValue))
 (define-type HeapValue
@@ -178,15 +178,7 @@
                    (cons (values (fst e)
                                  (v-prim (snd e)))
                          IH)))]
-        ;;;  [x&v* (cons (values
-        ;;;               'pause
-        ;;;               (v-fun (some 'pause)
-        ;;;                      (some (ha-prim "base-env"))
-        ;;;                      (list)
-        ;;;                      (t-app (t-quote (v-prim (po-pause)))
-        ;;;                             (list))))
-        ;;;              x&v*)]
-         [addr (ha-prim "base-env")]
+         [addr (ha-prim 'base-env)]
          [hv (h-env env  (make-hash (map2 pair
                                           (map fst x&v*)
                                           (map some (map snd x&v*)))))]

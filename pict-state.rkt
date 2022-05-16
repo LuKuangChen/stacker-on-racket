@@ -4,10 +4,10 @@
 (require pict/color)
 (require racket/gui)
 
-(define (pict-state env ectx stack heap)
-  (show-pict (pict-of-state env ectx stack heap)))
+(define (pict-state term env ectx stack heap)
+  (show-pict (pict-of-state term env ectx stack heap)))
 
-(define (pict-of-state env ectx stack heap)
+(define (pict-of-state term env ectx stack heap)
   (scale
    (bg "black"
        (ht-append padding
@@ -16,10 +16,10 @@
    1.3))
 
 (define (pict-of-stack stack)
-  (box 
-    (apply vl-append 
-      (field-label "Stack")
-      (map pict-of-sf (reverse stack)))))
+  (box
+   (apply vl-append
+          (field-label "Stack")
+          (map pict-of-sf (reverse stack)))))
 
 (define (is-env? heapitem)
   (match-define (list addr hv) heapitem)
@@ -38,8 +38,13 @@
   ;;;            )
   )
 
+(define (heapitem-interesting? item)
+  (match-define `(,this-addr ,_hv) item)
+  (string? this-addr))
+
 (define (pict-of-heapitems heapitems)
-  (apply vl-append padding (map pict-of-heapitem heapitems)))
+  (apply vl-append padding
+         (map pict-of-heapitem (filter heapitem-interesting? heapitems))))
 (define (pict-of-heapitem item)
   (match-define `(,this-addr ,hv) item)
   (match hv

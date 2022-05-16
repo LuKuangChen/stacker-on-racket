@@ -20,3 +20,13 @@
              (map (lambda (k)
                     (values k (some-v (hash-ref h k))))
                   k*)))
+
+(define-type (Dec 'x 'y)
+  (yes [it : 'x])
+  (no [it : 'y]))
+(define (get-last xs)
+  (type-case (Listof 'x) (reverse xs)
+    (empty
+     (no (values)))
+    ((cons x xs)
+     (yes (values (reverse xs) x)))))

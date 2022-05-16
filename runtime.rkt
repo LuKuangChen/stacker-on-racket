@@ -10,16 +10,6 @@
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
                    [remove-duplicates : ((Listof 'a) -> (Listof 'a))]))
 
-(define-type (Dec 'x 'y)
-  (yes [it : 'x])
-  (no [it : 'y]))
-(define (get-last xs)
-  (type-case (Listof 'x) (reverse xs)
-    (empty
-     (no (values)))
-    ((cons x xs)
-     (yes (values (reverse xs) x)))))
-
 (define (compile [program : Program]): Term
   (let* ([def* (fst program)]
          [exp* (snd program)]

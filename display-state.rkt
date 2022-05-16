@@ -2,7 +2,7 @@
 (require "utilities.rkt")
 (require "datatypes.rkt")
 (require (typed-in "pict-state.rkt"
-                   [pict-state : (Any Any Any Any -> Void)]))
+                   [pict-state : (Any Any Any Any Any -> Void)]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
@@ -11,7 +11,7 @@
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
 (define (my-display-state e env ectx stack heap)
-  (pict-state (s-exp-of-env env) (s-exp-of-ectx ectx) (s-exp-of-stack stack) (s-exp-of-heap heap)))
+  (pict-state (s-exp-of-e e) (s-exp-of-env env) (s-exp-of-ectx ectx) (s-exp-of-stack stack) (s-exp-of-heap heap)))
 (define (s-exp-of-stack stack)
   (inj (reverse (rest (reverse (map s-exp-of-sf stack))))))
 (define (my-display-e e)
@@ -186,14 +186,14 @@
          ((h-fun env name arg* def* body)
           (type-case (Optionof Symbol) name
             ((none)
-             (inj (string->symbol printing)))
+             (inj printing))
             ((some s)
              (let ([printing (string-append printing (format ":~a" (inj s)))])
-               (inj (string->symbol printing))))))
+               (inj printing)))))
          (else
-          (inj (string->symbol printing)))))]
+          (inj printing))))]
     [(ha-prim it)
-     (inj (string->symbol (format "~a" (inj it))))]))
+     (inj it)]))
 (define (s-exp-of-v v)
   (type-case Val v
     ((v-addr it)
