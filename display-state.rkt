@@ -13,7 +13,7 @@
 (define (my-display-state e env ectx stack heap)
   (pict-state (s-exp-of-env env) (s-exp-of-ectx ectx) (s-exp-of-stack stack) (s-exp-of-heap heap)))
 (define (s-exp-of-stack stack)
-  (inj (map s-exp-of-sf stack)))
+  (inj (reverse (rest (reverse (map s-exp-of-sf stack))))))
 (define (my-display-e e)
   (begin
     (display (format "~a" (s-exp-of-e e)))
@@ -23,7 +23,8 @@
     (map (lambda (sf)
            (begin
              (display (s-exp-of-sf sf))
-             (display "\n"))) stack)
+             (display "\n")))
+         (reverse (rest (reverse stack))))
     (void)))
 (define (my-display-env env)
   (begin
