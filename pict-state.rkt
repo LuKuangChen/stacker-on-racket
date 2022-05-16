@@ -11,9 +11,14 @@
   (scale
    (bg "black"
        (ht-append padding
-                  (pict-of-stack stack)
+                  (vl-append padding
+                    (pict-of-stack stack)
+                    (pict-of-term term))
                   (pict-of-heap heap)))
    1.3))
+
+(define (pict-of-term term)
+  (box (field-value term)))
 
 (define (pict-of-stack stack)
   (box
