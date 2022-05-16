@@ -1,8 +1,6 @@
 #lang plait
 (require "utilities.rkt")
 (require "datatypes.rkt")
-(require (typed-in "pict-state.rkt"
-                   [pict-state : (Any Any Any Any Any -> Void)]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
@@ -10,8 +8,6 @@
 (require (opaque-type-in racket [Any any/c]))
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
-(define (my-display-state e env ectx stack heap)
-  (pict-state (s-exp-of-e e) (s-exp-of-env env) (s-exp-of-ectx ectx) (s-exp-of-stack stack) (s-exp-of-heap heap)))
 (define (s-exp-of-stack stack)
   (inj (reverse (rest (reverse (map s-exp-of-sf stack))))))
 (define (my-display-e e)
@@ -197,7 +193,7 @@
 (define (s-exp-of-v v)
   (type-case Val v
     ((v-addr it)
-     (s-exp-of-addr it))
+     (inj (string->symbol (format "@~a" (s-exp-of-addr it)))))
     ((v-prim name)
      (s-exp-of-prim name))
     ((v-str it)
