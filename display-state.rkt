@@ -181,7 +181,7 @@
 (define (s-exp-of-addr it)
   (type-case HeapAddress it
     [(ha-user it)
-     (let ([printing (format "@~a" (inj it))])
+     (let ([printing (format "~a" (inj it))])
        (type-case HeapValue (some-v (hash-ref the-heap (ha-user it)))
          ((h-fun env name arg* def* body)
           (type-case (Optionof Symbol) name
@@ -193,7 +193,7 @@
          (else
           (inj (string->symbol printing)))))]
     [(ha-prim it)
-     (inj (string->symbol (format "@~a" (inj it))))]))
+     (inj (string->symbol (format "~a" (inj it))))]))
 (define (s-exp-of-v v)
   (type-case Val v
     ((v-addr it)

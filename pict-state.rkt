@@ -45,15 +45,15 @@
   (match hv
     [`(closure ,env ,name ,args ,body)
      (box (vl-append padding
+                     (field "@" this-addr)
                      (field-label "Closure")
-                     (field "Address" this-addr)
                      (field "Environment" env)
                      (field "Name" name)
                      (field-pict "Parameters" (apply hc-append padding (map field-value args)))
                      (field "Body" body)))]
     [else
      (box (vl-append padding
-                     (field "Address" this-addr)
+                     (field "@" this-addr)
                      (field "Content" hv)))])
   )
 
@@ -82,8 +82,8 @@
   (match-define `(Environment ,bindings ,outer-addr) env)
   (define content-pict
     (vl-append
+     (field "@" this-addr)
      (white (text "Environment Frame"))
-     (field "Address" this-addr)
      (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
                                 (field-value '...)
                                 (apply vl-append padding (map pict-of-binding bindings))))
@@ -120,7 +120,7 @@
       (frame
        (pad padding
             (vl-append padding
-                       (field "Environment" env)
+                       (field "Environment @" env)
                        (ht-append padding
                                   (field "Created by" ann)
                                   (field "Context" ectx)))))))
