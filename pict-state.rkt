@@ -60,6 +60,7 @@
                      (field "Environment" env)
                      (field "Name" name)
                      (field-pict "Parameters" (apply hc-append padding (map field-value args)))
+                     (field "Args" args)
                      (field "Body" body)))]
     [else
      (box (vl-append padding

@@ -3,6 +3,7 @@
 (require pict)
 (require pict/color)
 (require racket/gui)
+(require (only-in "../utilities.rkt" string-of))
 
 (define (pict-state term env ectx stack heap)
   (show-pict (apply pict-of-state (letrec-1->define-1 (list term env ectx stack heap)))))
@@ -12,8 +13,8 @@
    (bg "black"
        (ht-append padding
                   (vl-append padding
-                    (pict-of-stack stack)
-                    (pict-of-term term))
+                             (pict-of-stack stack)
+                             (pict-of-term term))
                   (pict-of-heap heap)))
    1.3))
 
@@ -22,12 +23,21 @@
     (match-define `(,x ,e) bind)
     (match e
       [`(lambda ,arg* ,@whatever)
+       `(deffun (,x ,@arg*) ,@(letrec-1->define-1 whatever))]
+      [else
+       `(defvar ,x ,(letrec-1->define-1 e))]))
+  (define (rec-bind-1 bind)
+    (match-define `(,x ,e) bind)
+    (match e
+      [`(lambda ,arg* ,@whatever)
        `(deffun-1 (,x ,@arg*) ,@(letrec-1->define-1 whatever))]
       [else
        `(defvar-1 ,x ,(letrec-1->define-1 e))]))
   (match any
     [`(letrec-1 ,bind* ,@prelude* ,result)
-     `(,(map rec-bind bind*) ,@(map letrec-1->define-1 prelude*) ,(letrec-1->define-1 result))]
+     `(,@(map rec-bind-1 bind*) ,@(map letrec-1->define-1 prelude*) ,(letrec-1->define-1 result))]
+    [`(letrec ,bind* ,@prelude* ,result)
+     `(,@(map rec-bind bind*) ,@(map letrec-1->define-1 prelude*) ,(letrec-1->define-1 result))]
     [else
      (if (list? any)
          (map letrec-1->define-1 any)
@@ -69,14 +79,23 @@
 (define (pict-of-heapitem item)
   (match-define `(,this-addr ,hv) item)
   (match hv
-    [`(closure ,env ,name ,args ,body)
+    [`(closure ,env ,name ,args ,def* ,body)
      (box (vl-append padding
                      (field "@" this-addr)
                      (field-label "Closure")
                      (field "Environment" env)
                      (field "Name" name)
+                     (field "Definitions" (string-join (map string-of def*) " "))
                      (field-pict "Parameters" (apply hc-append padding (map field-value args)))
                      (field "Body" body)))]
+    [`(Environment ,bindings ,outer-addr)
+     (box (vl-append
+           (field "@" this-addr)
+           (white (text "Environment Frame"))
+           (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
+                                      (field-value '...)
+                                      (apply vl-append padding (map pict-of-binding bindings))))
+           (field "Rest" outer-addr)))]
     [else
      (box (vl-append padding
                      (field "@" this-addr)
