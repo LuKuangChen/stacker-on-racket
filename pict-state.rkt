@@ -30,11 +30,13 @@
      #f]))
 
 (define (pict-of-heap heap)
-  (define-values (envs others) (partition is-env? heap))
-  (ht-append padding
-             (pict-of-envs envs)
-             (pict-of-heapitems others)
-             ))
+  (pict-of-heapitems heap)
+  ;;; (define-values (envs others) (partition is-env? heap))
+  ;;; (ht-append padding
+  ;;;            (pict-of-envs envs)
+  ;;;            (pict-of-heapitems others)
+  ;;;            )
+  )
 
 (define (pict-of-heapitems heapitems)
   (apply vl-append padding (map pict-of-heapitem heapitems)))
