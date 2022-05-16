@@ -31,7 +31,7 @@
                              prelude*&result])]
          [prelude* (fst prelude*&result)]
          [result (snd prelude*&result)])
-    (letrec-of-def*-1 (fst program) (maybe-begin prelude* result))))
+    (global-letrec-of-def*-1 (fst program) (maybe-begin prelude* result))))
 (define (compile-e [e : Expr]) : Term
   (type-case Expr e
     [(e-con c)
@@ -71,6 +71,9 @@
           (compile-e (snd bind))))
 (define (letrec-of-def* def* prelude* result)
   (letrec-of-def*-1 def* (compile-begin prelude* result)))
+(define (global-letrec-of-def*-1 def* body)
+  (t-letrec (map compile-def def*)
+            body))
 (define (letrec-of-def*-1 def* body)
   (if (empty? def*)
       body
@@ -172,7 +175,7 @@
        (let ([v (env-lookup env x)])
          (apply-k v env ectx stack)))
       ((t-fun name arg* def* body)
-        (let ((v (v-fun name env arg* def* body))) (apply-k v env ectx stack)))
+       (let ((v (v-fun name env arg* def* body))) (apply-k v env ectx stack)))
       ((t-app fun arg*) (interp-app (list) (cons fun arg*) env ectx stack))
       ((t-let bind* body) (interp-let (list) bind* body env ectx stack))
       ((t-letrec-1 bind* body) (interp-letrec-1 bind* body env ectx stack))
@@ -277,11 +280,11 @@
      (obs-of-hv (some-v (hash-ref the-heap it))))))
 (define (obs-of-hv hv)
   (type-case HeapValue hv
-       ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
-       ((h-list vs) (o-list (map obs-of-val vs)))
-       ((h-fun env name arg* def* body) (o-fun))
-       ((h-env _env _map)
-        (raise (exn-internal 'obs-of-val "Impossible.")))))
+    ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
+    ((h-list vs) (o-list (map obs-of-val vs)))
+    ((h-fun env name arg* def* body) (o-fun))
+    ((h-env _env _map)
+     (raise (exn-internal 'obs-of-val "Impossible.")))))
 (define-type Operator
   (op-prim [name : PrimitiveOp])
   (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
@@ -301,20 +304,20 @@
   (begin
     (display-state (t-app (t-quote fun) (map t-quote arg-v*)) env ectx stack)
     (type-case
-      Operator
-    (as-fun fun)
-    ((op-prim op) (let ((v (delta op arg-v* env ectx stack))) (apply-k v env ectx stack)))
-    ((op-fun clos-env arg-x* def* body)
-     (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
-       (let ([ectx (list)])
-         (let ((env (env-extend/declare clos-env
-                      (append (map2 pair arg-x* (map some arg-v*))
-                              (map (lambda (def)
-                                     (let ([name (fst def)])
-                                       (values name (none))))
-                                   def*)))))
-           (let ((e (t-fun-call def* body)))
-             (interp e env ectx stack)))))))))
+        Operator
+      (as-fun fun)
+      ((op-prim op) (let ((v (delta op arg-v* env ectx stack))) (apply-k v env ectx stack)))
+      ((op-fun clos-env arg-x* def* body)
+       (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
+         (let ([ectx (list)])
+           (let ((env (env-extend/declare clos-env
+                                          (append (map2 pair arg-x* (map some arg-v*))
+                                                  (map (lambda (def)
+                                                         (let ([name (fst def)])
+                                                           (values name (none))))
+                                                       def*)))))
+             (let ((e (t-fun-call def* body)))
+               (interp e env ectx stack)))))))))
 (define (delta op v-arg* env ectx stack)
   (type-case
       PrimitiveOp
@@ -363,9 +366,9 @@
     ((po-list) (v-list v-arg*))
     ((po-pause)
      (let* ([_ (display-state
-                  (t-quote (v-num 0))
-                  env ectx
-                  (cons (values env ectx (ca-app (v-prim (po-pause)) (list))) stack))])
+                (t-quote (v-num 0))
+                env ectx
+                (cons (values env ectx (ca-app (v-prim (po-pause)) (list))) stack))])
        (v-num 0)))
     ))
 
