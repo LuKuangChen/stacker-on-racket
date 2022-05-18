@@ -5,8 +5,104 @@
 (require racket/gui)
 (require (only-in "../utilities.rkt" string-of))
 
+;;; save all shown picts, we may add a prev button in the future
+
+(define-values (forward!
+                backward!
+                what-is-now
+                add-future)
+  (let ([past '()]
+        [future '()]
+        [now #f])
+    (values
+      (lambda ()
+        (if (and now (pair? future))
+            (begin
+              (set! past (cons now past))
+              (set! now (car future))
+              (set! future (cdr future))
+              now)
+            #f))
+      (lambda ()
+        (if (and now (pair? past))
+            (begin
+              (set! future (cons now future))
+              (set! now (car past))
+              (set! past (cdr past))
+              now)
+            #f))
+      (lambda () now)
+      (lambda (item)
+        (cond
+          [(not now)
+           (set! now item)
+           now]
+          [(empty? future)
+           (set! future (cons item future))
+           (forward!)]
+          [else
+           (error 'pict-manager)])))))
+
+(define all-picts empty)
+(define future empty)
+(define current-go-on #f)
+(define redraw! #f)
+(define the-frame (new frame% [label "GUI"]))
+(define button-panel
+  (new horizontal-panel%
+       [parent the-frame]))
+(define the-canvas
+  (new canvas%
+       [parent the-frame]
+       [paint-callback
+        (lambda (canvas dc)
+          (let ([_ (let/cc k (set! redraw! (lambda () (k (void)))))])
+            (let ([current-pict (and (pair? all-picts) (car all-picts))])
+              (when current-pict
+                (send dc clear)
+                (send canvas min-width (inexact->exact (ceiling (pict-width current-pict))))
+                (send canvas min-height (inexact->exact (ceiling (pict-height current-pict))))
+                (draw-pict current-pict dc 0 0)))))]))
+(define the-last-button
+  (new button%
+       [label "Last"]
+       [parent button-panel]
+       [enabled #f]
+       [callback
+        (lambda (_button _event)
+          (when (and (pair? all-picts) (pair? (cdr all-picts)))
+            (set! future (cons (car all-picts) future))
+            (set! all-picts (cdr all-picts))
+            (send _button enable (and (pair? all-picts) (pair? (cdr all-picts))))
+            (redraw!)))]))
+(define the-next-button
+  (new button%
+       [label "Next"]
+       [parent button-panel]
+       [callback
+        (lambda (_button _event)
+          (if (empty? future)
+              (when current-go-on
+                (let ([go-on! current-go-on])
+                  (set! current-go-on #f)
+                  (send the-frame refresh)
+                  (go-on!)))
+              (begin
+                (set! all-picts (cons (car future) all-picts))
+                (set! future (cdr future))
+                (redraw!))))
+        ]))
+(send the-frame show #t)
+
+(define (my-show-pict p)
+  (let/cc k
+    (set! all-picts (cons p all-picts))
+    (send the-last-button enable (and (pair? all-picts) (pair? (cdr all-picts))))
+    (set! current-go-on (lambda () (k (void))))
+    (redraw!)))
+
 (define (pict-state term env ectx stack heap)
-  (show-pict (apply pict-of-state (letrec-1->define-1 (list term env ectx stack heap)))))
+  (my-show-pict (apply pict-of-state (letrec-1->define-1 (list term env ectx stack heap)))))
 
 (define (pict-of-state term env ectx stack heap)
   (scale
@@ -14,7 +110,7 @@
        (ht-append padding
                   (vl-append padding
                              (pict-of-stack stack)
-                             (pict-of-term term))
+                             (pict-of-focus term ectx env))
                   (pict-of-heap heap)))
    1.3))
 
@@ -70,8 +166,13 @@
   )
 
 (define (heapitem-interesting? item)
-  (match-define `(,this-addr ,_hv) item)
-  (string? this-addr))
+  (match-define `(,this-addr ,hv) item)
+  (and (string? this-addr)
+       (not (is-closure? hv))))
+(define (is-closure? hv)
+  (match hv
+    [`(closure ,env ,name ,args ,def* ,body) #t]
+    [else #f]))
 
 (define (pict-of-heapitems heapitems)
   (apply vl-append padding
@@ -158,6 +259,16 @@
 
 (define (bg color p)
   (cc-superimpose (filled-rectangle (pict-width p) (pict-height p) #:draw-border? #f #:color color) p))
+
+(define (pict-of-focus term ectx env)
+  (bg "blue"
+      (frame
+       (pad padding
+            (vl-append padding
+                       (field "Environment @" env)
+                       (ht-append padding
+                                  (field "Computing" term)
+                                  (field "Context" ectx)))))))
 
 (define (pict-of-sf sf)
   (match-define (list env ectx ann) sf)

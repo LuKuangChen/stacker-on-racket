@@ -4,16 +4,26 @@
 (require pict/color)
 (require racket/gui)
 
+(define (my-show-pict p)
+  (define frame (new frame% [label "GUI"]))
+  (new canvas%
+    [parent frame]
+    [paint-callback (lambda (canvas dc)
+                      (draw-pict p dc 0 0))])
+  (send frame show #t))
+
 (define (pict-state term env ectx stack heap)
-  (show-pict (pict-of-state term env ectx stack heap)))
+  (let/cc resume
+    (my-show-pict (pict-of-state term env ectx stack heap))
+    (resume (void))))
 
 (define (pict-of-state term env ectx stack heap)
   (scale
    (bg "black"
        (ht-append padding
                   (vl-append padding
-                    (pict-of-stack stack)
-                    (pict-of-term term))
+                             (pict-of-stack stack)
+                             (pict-of-term term))
                   (pict-of-heap heap)))
    1.3))
 

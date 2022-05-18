@@ -166,15 +166,15 @@
             :
             (Result Val)
             (begin
-              ;;; (unless #f #;(simple? e)
-              ;;;   (display-state e env ectx stack))
               (type-case
                   Term
                 e
                 ((t-quote v) (apply-k v env ectx stack))
                 ((t-var x)
-                 (let ([v (env-lookup env x)])
-                   (apply-k v env ectx stack)))
+                 (begin
+                   (display-state e env ectx stack)
+                   (let ([v (env-lookup env x)])
+                     (apply-k v env ectx stack))))
                 ((t-fun name arg* def* body)
                  (let ((v (v-fun name env arg* def* body))) (apply-k v env ectx stack)))
                 ((t-app fun arg*) (interp-app (list) (cons fun arg*) env ectx stack))
