@@ -10,7 +10,8 @@
 
 (define (run e)
   (let* ([o* (eval check pict-state (parse e))]
-         [o* (show o*)])
+         [o* (show o*)]
+         [_ (pict-terminated (string-join (map (curry format "~a") o*) "\n"))])
     (for-each writeln o*)))
 
 (define-syntax (my-module-begin stx)

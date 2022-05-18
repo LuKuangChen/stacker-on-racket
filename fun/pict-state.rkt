@@ -1,5 +1,6 @@
 #lang racket
 (provide pict-state)
+(provide pict-terminated)
 (require pict)
 (require pict/color)
 (require racket/gui)
@@ -10,44 +11,47 @@
 (define-values (forward!
                 backward!
                 what-is-now
-                add-future)
+                add-future
+                has-past?
+                has-future?)
   (let ([past '()]
         [future '()]
         [now #f])
     (values
-      (lambda ()
-        (if (and now (pair? future))
-            (begin
-              (set! past (cons now past))
-              (set! now (car future))
-              (set! future (cdr future))
-              now)
-            #f))
-      (lambda ()
-        (if (and now (pair? past))
-            (begin
-              (set! future (cons now future))
-              (set! now (car past))
-              (set! past (cdr past))
-              now)
-            #f))
-      (lambda () now)
-      (lambda (item)
-        (cond
-          [(not now)
-           (set! now item)
-           now]
-          [(empty? future)
-           (set! future (cons item future))
-           (forward!)]
-          [else
-           (error 'pict-manager)])))))
+     (lambda ()
+       (if (and now (pair? future))
+           (begin
+             (set! past (cons now past))
+             (set! now (car future))
+             (set! future (cdr future)))
+           (error 'forward-into-nowhere)))
+     (lambda ()
+       (if (and now (pair? past))
+           (begin
+             (set! future (cons now future))
+             (set! now (car past))
+             (set! past (cdr past)))
+           (error 'backward-into-nowhere)))
+     (lambda () now)
+     (lambda (item)
+       (cond
+         [(not now)
+          (set! now item)
+          now]
+         [(empty? future)
+          (set! future (cons item future))
+          (forward!)]
+         [else
+          (error 'pict-manager)]))
+     (lambda ()
+       (pair? past))
+     (lambda ()
+       (pair? future)))))
 
-(define all-picts empty)
-(define future empty)
 (define current-go-on #f)
 (define redraw! #f)
 (define the-frame (new frame% [label "GUI"]))
+(send the-frame create-status-line)
 (define button-panel
   (new horizontal-panel%
        [parent the-frame]))
@@ -57,23 +61,23 @@
        [paint-callback
         (lambda (canvas dc)
           (let ([_ (let/cc k (set! redraw! (lambda () (k (void)))))])
-            (let ([current-pict (and (pair? all-picts) (car all-picts))])
+            (let ([current-pict (what-is-now)])
               (when current-pict
                 (send dc clear)
-                (send canvas min-width (inexact->exact (ceiling (pict-width current-pict))))
-                (send canvas min-height (inexact->exact (ceiling (pict-height current-pict))))
+                (send canvas min-width (inexact->exact (floor (pict-width current-pict))))
+                (send canvas min-height (inexact->exact (floor (pict-height current-pict))))
+                (send the-last-button enable (has-past?))
+                (send the-next-button enable (or (has-future?) (not terminated?)))
+                (send the-frame set-status-text (if terminated? "terminated" "still running"))
+                (send the-frame resize 0 0)
                 (draw-pict current-pict dc 0 0)))))]))
 (define the-last-button
   (new button%
        [label "Last"]
        [parent button-panel]
-       [enabled #f]
        [callback
         (lambda (_button _event)
-          (when (and (pair? all-picts) (pair? (cdr all-picts)))
-            (set! future (cons (car all-picts) future))
-            (set! all-picts (cdr all-picts))
-            (send _button enable (and (pair? all-picts) (pair? (cdr all-picts))))
+          (let ([item (backward!)])
             (redraw!)))]))
 (define the-next-button
   (new button%
@@ -81,25 +85,27 @@
        [parent button-panel]
        [callback
         (lambda (_button _event)
-          (if (empty? future)
+          (if (has-future?)
+              (begin
+                (forward!)
+                (redraw!))
               (when current-go-on
                 (let ([go-on! current-go-on])
                   (set! current-go-on #f)
                   (send the-frame refresh)
-                  (go-on!)))
-              (begin
-                (set! all-picts (cons (car future) all-picts))
-                (set! future (cdr future))
-                (redraw!))))
-        ]))
+                  (go-on!)))))]))
 (send the-frame show #t)
 
 (define (my-show-pict p)
   (let/cc k
-    (set! all-picts (cons p all-picts))
-    (send the-last-button enable (and (pair? all-picts) (pair? (cdr all-picts))))
+    (add-future p)
     (set! current-go-on (lambda () (k (void))))
     (redraw!)))
+
+(define terminated? #f)
+(define (pict-terminated printing)
+  (set! terminated? #t)
+  (my-show-pict (text printing)))
 
 (define (pict-state term env ectx stack heap)
   (my-show-pict (apply pict-of-state (letrec-1->define-1 (list term env ectx stack heap)))))

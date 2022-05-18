@@ -1,5 +1,6 @@
 #lang racket
 (provide pict-state)
+(provide pict-terminate)
 (require pict)
 (require pict/color)
 (require racket/gui)
