@@ -184,7 +184,7 @@
             ((none)
              (inj printing))
             ((some s)
-             (let ([printing (string-append printing (format ":~a" (inj s)))])
+             (let ([printing (string-append (format "~a." (inj s)) printing)])
                (inj printing)))))
          (else
           (inj printing))))]
