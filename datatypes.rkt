@@ -60,18 +60,28 @@
     (v-addr addr)))
 
 (define-type PrimitiveOp
+  (po-left)
+  (po-right)
+  (po-vlen)
+  (po-equalp)
   (po-+)
   (po--)
   (po-*)
   (po-/)
   (po-pairp)
-  (po-pair)
-  (po-left)
-  (po-right)
-  (po-ivec)
+  (po-mpair)
+  (po-set-left!)
+  (po-set-right!)
+  (po-vref)
+  (po-cons)
+  ;;; (po-map)
+  ;;; (po-filter)
+  (po-vset!)
+  ;;; (po-foldl)
+  ;;; (po-foldr)
+  (po-mvec)
   (po-list)
-  (po-pause)
-  (po-equalp))
+  (po-pause))
 
 (define-type-alias Env (Optionof HeapAddress))
 (define (env-declare [env : Env] x*): Env
@@ -124,20 +134,6 @@
           ((some v) v)))))
     (else
      (raise (exn-internal 'env-lookup "Not an env.")))))
-(define (base-Tenv)
-  (hash-set* (hash '())
-             (list (values 'equal? (T-fun))
-                   (values '+ (T-fun))
-                   (values '- (T-fun))
-                   (values '* (T-fun))
-                   (values '/ (T-fun))
-                   (values 'pair? (T-fun))
-                   (values 'pair (T-fun))
-                   (values 'left (T-fun))
-                   (values 'right (T-fun))
-                   (values 'ivec (T-fun))
-                   (values 'list (T-fun))
-                   (values 'pause (T-fun)))))
 (define-type Type
   (T-val)
   (T-fun))
@@ -161,26 +157,51 @@
 (define base-env
   (let* ([env (none)]
          [x&v*  (ind-List
-                 (list (values 'equal? (po-equalp))
-                       (values '+ (po-+))
-                       (values '- (po--))
-                       (values '* (po-*))
-                       (values '/ (po-/))
-                       (values 'pair? (po-pairp))
-                       (values 'pair (po-pair))
-                       (values 'left (po-left))
-                       (values 'right (po-right))
-                       (values 'ivec (po-ivec))
-                       (values 'list (po-list))
-                       (values 'pause (po-pause)))
+                 (list
+                  (values 'left (po-left))
+                  (values 'right (po-right))
+                  (values 'vlen (po-vlen))
+                  (values 'equal? (po-equalp))
+                  (values '+ (po-+))
+                  (values '- (po--))
+                  (values '* (po-*))
+                  (values '/ (po-/))
+                  (values 'pair? (po-pairp))
+                  (values 'mpair (po-mpair))
+                  (values 'set-left! (po-set-left!))
+                  (values 'set-right! (po-set-right!))
+                  (values 'vref (po-vref))
+                  (values 'cons (po-cons))
+                  ;;; (values 'map (po-map))
+                  ;;; (values 'filter (po-filter))
+                  (values 'vset! (po-vset!))
+                  ;;; (values 'foldl (po-foldl))
+                  ;;; (values 'foldr (po-foldr))
+                  (values 'mvec (po-mvec))
+                  (values 'list (po-list))
+                  (values 'pause (po-pause)))
                  (list)
                  (λ (IH e)
                    (cons (values (fst e)
                                  (v-prim (snd e)))
                          IH)))]
          [addr (ha-prim 'base-env)]
-         [hv (h-env env  (make-hash (map2 pair
-                                          (map fst x&v*)
-                                          (map some (map snd x&v*)))))]
+         [hv (h-env env  (make-hash (append
+                                     (map2 pair
+                                           (map fst x&v*)
+                                           (map some (map snd x&v*)))
+                                     (list (pair 'empty (some (v-list '())))))))]
          [_ (hash-set! the-heap addr hv)])
     (some addr)))
+
+(define base-Tenv
+  (let* ([env (some-v base-env)]
+         [env (some-v (hash-ref the-heap env))]
+         [env (h-env-map env)]
+         [k->T (lambda (k)
+                 (type-case Val (some-v (some-v (hash-ref env k)))
+                   [(v-prim _) (T-fun)]
+                   [else (T-val)]))]
+         [k->item (lambda (k) (values k (k->T k)))])
+    (hash
+      (map k->item (hash-keys env)))))

@@ -13,8 +13,19 @@
     ;;;  (displayln (o-exn-it o))
      (format "error: ~a" (o-exn-it o))]
     [(o-con? o) (string-of-c (o-con-it o))]
-    [(o-vec? o) (format "#(~a)" (string-join " " (vector->list (vector-map string-of-o (o-vec-it o)))))]
-    ;;; [(o-list? o) (map string-of-o (o-list-it o))]
+    [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
+    [(o-list? o) (format "'(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]
+    [(o-fun? o) "#<procedure>"]
+    [else (error 'show "internal error ~a" o)]))
+(define (string-of-o-internal o)
+  (cond
+    ;;; [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]
+    [(o-exn? o)
+    ;;;  (displayln (o-exn-it o))
+     (format "error: ~a" (o-exn-it o))]
+    [(o-con? o) (string-of-c (o-con-it o))]
+    [(o-vec? o) (format "#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
+    [(o-list? o) (format "(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]
     [(o-fun? o) "#<procedure>"]
     [else (error 'show "internal error ~a" o)]))
 (define (string-of-c c)

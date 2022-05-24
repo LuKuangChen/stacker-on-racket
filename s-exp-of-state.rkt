@@ -150,6 +150,14 @@
        (inj (list (inj 'set!) (s-exp-of-x var) □))))))
 (define (s-exp-of-prim p)
   (type-case PrimitiveOp p
+    [(po-left)
+     (inj 'left)]
+    [(po-right)
+     (inj 'right)]
+    [(po-vlen)
+     (inj 'vlen)]
+    [(po-equalp)
+     (inj 'equal?)]
     [(po-+)
      (inj '+)]
     [(po--)
@@ -160,20 +168,32 @@
      (inj '/)]
     [(po-pairp)
      (inj 'pair?)]
-    [(po-pair)
-     (inj 'pair)]
-    [(po-left)
-     (inj 'left)]
-    [(po-right)
-     (inj 'right)]
-    [(po-ivec)
-     (inj 'ivec)]
+    [(po-mpair)
+     (inj 'mpair)]
+    [(po-set-left!)
+     (inj 'set-left!)]
+    [(po-set-right!)
+     (inj 'set-right!)]
+    [(po-vref)
+     (inj 'vref)]
+    [(po-cons)
+     (inj 'cons)]
+    ;;; [(po-map)
+    ;;;  (inj 'map)]
+    ;;; [(po-filter)
+    ;;;  (inj 'filter)]
+    [(po-vset!)
+     (inj 'vset!)]
+    ;;; [(po-foldl)
+    ;;;  (inj 'foldl)]
+    ;;; [(po-foldr)
+    ;;;  (inj 'foldr)]
+    [(po-mvec)
+     (inj 'mvec)]
     [(po-list)
      (inj 'list)]
     [(po-pause)
-     (inj 'pause)]
-    [(po-equalp)
-     (inj 'equal?)]))
+     (inj 'pause)]))
 (define (s-exp-of-addr it)
   (type-case HeapAddress it
     [(ha-user it)

@@ -14,7 +14,7 @@
          [o* (show o*)]
          [_ (when tracing?
               (pict-terminated (string-join (map (curry format "~a") o*) "\n")))])
-    (for-each writeln o*)))
+    (for-each displayln o*)))
 
 (define-syntax (my-module-begin stx)
   (syntax-case stx ()

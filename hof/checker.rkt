@@ -4,16 +4,8 @@
 (require "../error.rkt")
 (require "../datatypes.rkt")
 
-(define fun-base-Tenv
-  (hash-ref* (base-Tenv)
-             (list 'equal?
-                   '+
-                   '-
-                   '*
-                   '/
-                   'pause)))
 (define (check [e : Term]) : Void
-  (let* ([_ (tc fun-base-Tenv e)])
+  (let* ([_ (tc base-Tenv e)])
     (void)))
 (define (shallow-tc [e : Term])
   (type-case Term e
@@ -49,7 +41,11 @@
             [_ (map (λ (arg) (as-val (tc env arg))) arg*)])
        (T-val)))
     ((t-let bind* body)
-     (raise (exn-tc "`let` is not supported by smol/fun.")))
+     (let* ([⟨x×T⟩* (map (λ (bind)
+                           (values (fst bind) (tc env (snd bind))))
+                         bind*)]
+            [env_new (hash-set* env ⟨x×T⟩*)])
+       (as-val (tc env_new body))))
     ((t-letrec bind* body)
      (let* ([⟨x×T⟩* (map (λ (bind)
                            (values (fst bind) (type-of (snd bind))))
@@ -87,12 +83,6 @@
     (else
      (T-val))))
 (define (as-val T)
-  (type-case Type T
-    ((T-val)
-     (T-val))
-    (else
-     (raise (exn-rt "functions are not values")))))
+  T)
 (define (as-expected T1 T2)
-  (if (equal? T1 T2)
-      T1
-      (raise (exn-rt "functions are not values"))))
+  T1)
