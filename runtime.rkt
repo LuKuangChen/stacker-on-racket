@@ -16,7 +16,7 @@
   (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
 
 
-(define (eval check pict-state (e : Program))
+(define (eval tracing? check pict-state (e : Program))
   :
   (Listof Obs)
 
@@ -151,12 +151,18 @@
                       (let* ((e els))
                         (interp e env ectx stack))))
                  ((F-set! var)
-                  (let ((_ (env-set! env var v))
-                        (v (v-void)))
+                  (let* ((_ (display-state (t-set! var (t-quote v)) env ectx stack))
+                         (_ (env-set! env var v))
+                         (v (v-void)))
                     (apply-k v env ectx stack)))
                  ))))
           (define (display-state [e : Term] [env : Env] ectx [stack : Stack])
-            (pict-state (s-exp-of-e e) (s-exp-of-env env) (s-exp-of-ectx ectx) (s-exp-of-stack stack) (s-exp-of-heap the-heap)))
+            (when tracing?
+              (pict-state (s-exp-of-e e)
+                          (s-exp-of-env env)
+                          (s-exp-of-ectx ectx)
+                          (s-exp-of-stack stack)
+                          (s-exp-of-heap the-heap))))
           (define (simple? e)
             (type-case Term e
               ((t-var _) #t)

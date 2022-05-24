@@ -64,7 +64,9 @@
     ((t-fun-call bind* body)
      (raise (exn-internal 'compile "This is impossible")))
     ((t-set! var val)
-     (raise (exn-tc "`set!` is not supported by smol/fun.")))
+     (let* ([_ (as-val (tc env val))]
+            [_ (as-val (tc env (t-var var)))])
+       (T-val)))
     ((t-begin prelude* result)
      (let* ([_ (map (λ (prelude)
                       (tc env prelude))
@@ -77,8 +79,7 @@
        (T-val)))
     ((t-show val)
      (let* ([val (tc env val)])
-       (T-val)
-       ))))
+       (as-val val)))))
 (define (type-of e)
   (type-case Term e
     ((t-fun name arg* def* body)

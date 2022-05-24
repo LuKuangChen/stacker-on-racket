@@ -120,7 +120,7 @@
         (type-case
             (Optionof Val)
           v
-          ((none) (raise (exn-rt "(use-before-set x")))
+          ((none) (raise (exn-rt (format "use-before-set ~a" x))))
           ((some v) v)))))
     (else
      (raise (exn-internal 'env-lookup "Not an env.")))))
