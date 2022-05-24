@@ -18,8 +18,12 @@
     [(o-fun? o) "#<procedure>"]
     [else (error 'show "internal error ~a" o)]))
 (define (string-of-c c)
+  (define p (open-output-string))
+  (write (pre-string-of-c c) p)
+  (get-output-string p))
+(define (pre-string-of-c c)
   (cond
-    [(c-str? c) (format "~a" (c-str-it c))]
-    [(c-num? c) (format "~a" (c-num-it c))]
-    [(c-bool? c) (format "~a" (c-bool-it c))]
+    [(c-str? c) (c-str-it c)]
+    [(c-num? c) (c-num-it c)]
+    [(c-bool? c) (c-bool-it c)]
     [else (error 'show "internal error" c)]))
