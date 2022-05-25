@@ -3,18 +3,20 @@
          (rename-out [my-top-interaction #%top-interaction]))
 
 (require "../pict-state.rkt")
-(require "./checker.rkt")
+(require "../checker.rkt")
 (require "../parse.rkt")
 (require "../show.rkt")
 (require "../runtime.rkt")
 
 (define (run tracing? e)
-  (let* ([_ (when tracing? (start-trace))]
+  (parameterize ([hide-closure #f])
+    (let* ([_ (when tracing? (start-trace))]
          [o* (eval tracing? check pict-state (parse e))]
          [o* (show o*)]
+         [_ (displayln "hello?")]
          [_ (when tracing?
               (pict-terminated (string-join (map (curry format "~a") o*) "\n")))])
-    (for-each displayln o*)))
+    (for-each displayln o*))))
 
 (define-syntax (my-module-begin stx)
   (syntax-case stx ()

@@ -4,8 +4,22 @@
 (require "../error.rkt")
 (require "../datatypes.rkt")
 
+(define-type Type
+  (T-val)
+  (T-fun))
+(define base-Tenv
+  (let* ([env (some-v base-env)]
+         [env (some-v (hash-ref the-heap env))]
+         [env (h-env-map env)]
+         [k->T (lambda (k)
+                 (type-case Val (some-v (some-v (hash-ref env k)))
+                   [(v-prim _) (T-fun)]
+                   [else (T-val)]))]
+         [k->item (lambda (k) (values k (k->T k)))])
+    (hash
+      (map k->item (hash-keys env)))))
 (define fun-base-Tenv
-  (hash-ref* (base-Tenv)
+  (hash-ref* base-Tenv
              (list 'equal?
                    '+
                    '-
@@ -76,9 +90,7 @@
             [_ (as-val (tc env els))])
        (T-val)))
     ((t-show val)
-     (let* ([val (tc env val)])
-       (T-val)
-       ))))
+     (as-val (tc env val)))))
 (define (type-of e)
   (type-case Term e
     ((t-fun name arg* def* body)

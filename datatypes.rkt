@@ -27,8 +27,11 @@
 
 (define-type-alias (Result 'a) 'a)
 (define-type HeapAddress
-  (ha-prim [it : Symbol])
+  (ha-prim [it : PrimitiveHeapAddress])
   (ha-user [it : Number]))
+(define-type PrimitiveHeapAddress
+  (pa-empty)
+  (pa-base-env))
 (define-type-alias Heap (Hashof HeapAddress HeapValue))
 (define-type HeapValue
   (h-vec [it : (Vectorof Val)])
@@ -48,7 +51,13 @@
   (let* ([addr (ha-user next-heap-addr)]
          [_ (set! next-heap-addr (add1 next-heap-addr))]
          [_ (hash-set! the-heap addr h)])
-    addr))
+    (begin
+      (display "allocated ")
+      (display h)
+      (display " at ")
+      (display addr)
+      (display "\n")
+      addr)))
 (define (v-fun name env arg* def* body)
   (let ([addr (allocate! (h-fun env name arg* def* body))])
     (v-addr addr)))
@@ -134,9 +143,6 @@
           ((some v) v)))))
     (else
      (raise (exn-internal 'env-lookup "Not an env.")))))
-(define-type Type
-  (T-val)
-  (T-fun))
 (define-type ECFrame
   (F-begin [e* : (Listof Term)] [e : Term])
   (F-app [v* : (Listof Val)] [e* : (Listof Term)])
@@ -185,23 +191,11 @@
                    (cons (values (fst e)
                                  (v-prim (snd e)))
                          IH)))]
-         [addr (ha-prim 'base-env)]
+         [addr (ha-prim (pa-base-env))]
          [hv (h-env env  (make-hash (append
                                      (map2 pair
                                            (map fst x&v*)
                                            (map some (map snd x&v*)))
-                                     (list (pair 'empty (some (v-list '())))))))]
+                                     (list (pair 'empty (some (v-addr (ha-prim (pa-empty)))))))))]
          [_ (hash-set! the-heap addr hv)])
     (some addr)))
-
-(define base-Tenv
-  (let* ([env (some-v base-env)]
-         [env (some-v (hash-ref the-heap env))]
-         [env (h-env-map env)]
-         [k->T (lambda (k)
-                 (type-case Val (some-v (some-v (hash-ref env k)))
-                   [(v-prim _) (T-fun)]
-                   [else (T-val)]))]
-         [k->item (lambda (k) (values k (k->T k)))])
-    (hash
-      (map k->item (hash-keys env)))))

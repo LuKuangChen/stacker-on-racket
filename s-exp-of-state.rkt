@@ -9,6 +9,8 @@
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
 (define (s-exp-of-stack stack)
+  (map s-exp-of-sf stack)
+  #; ;; don't remove the first
   (inj (reverse (rest (reverse (map s-exp-of-sf stack))))))
 (define (my-display-e e)
   (begin
@@ -209,7 +211,11 @@
          (else
           (inj printing))))]
     [(ha-prim it)
-     (inj it)]))
+     (s-exp-of-primitive-address it)]))
+(define (s-exp-of-primitive-address pa)
+  (type-case PrimitiveHeapAddress pa
+    [(pa-base-env) (inj 'base-env)]
+    [(pa-empty) (inj 'empty)]))
 (define (s-exp-of-v v)
   (type-case Val v
     ((v-addr it)
@@ -241,8 +247,7 @@
      (inj
       (list (inj 'lambda)
             (inj (map s-exp-of-x args))
-            (inj (map s-exp-of-def def*))
-            (s-exp-of-e body)))]
+            (inj (append (map s-exp-of-def def*) (list (s-exp-of-e body))))))]
     [(t-app fun arg*)
      (inj (map s-exp-of-e (cons fun arg*)))]
     [(t-let bind* body)

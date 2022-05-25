@@ -3,7 +3,7 @@
          (rename-out [my-top-interaction #%top-interaction]))
 
 (require "../pict-state.rkt")
-(require "./checker.rkt")
+(require "../checker.rkt")
 (require "../parse.rkt")
 (require "../show.rkt")
 (require "../runtime.rkt")

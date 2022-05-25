@@ -1,0 +1,5003 @@
+;; Program
+()
+
+;; Program
+(a)
+
+;; Program
+((defvar a a))
+
+;; Program
+((defvar a a) a)
+
+;; Program
+(a a)
+;; exception
+#(struct:exn:fail:sandbox-terminated evaluator: terminated (out-of-memory) #<continuation-mark-set> out-of-memory)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a))
+
+;; Program
+((defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+(a)
+
+;; Program
+((defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a))
+
+;; Program
+((deffun (a) a) a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) a)
+
+;; Program
+(a a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a))
+
+;; Program
+((deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+(a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+(a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((if a a a))
+
+;; Program
+((defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (if a a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a))
+
+;; Program
+((defvar a a) a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (if a a a))
+
+;; Program
+((if a a a) a)
+
+;; Program
+((defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a))
+
+;; Program
+((defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((if a a a) a a)
+
+;; Program
+((defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+(a a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a))
+
+;; Program
+((defvar a a) (deffun (a) a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a))
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+(a a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((if a a a) a)
+
+;; Program
+((defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a))
+
+;; Program
+((defvar a a) (deffun (a) a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a))
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((lambda () a))
+
+;; Program
+((defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (lambda () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a))
+
+;; Program
+((deffun (a) a))
+
+;; Program
+((deffun (a) a) a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (if a a a))
+
+;; Program
+((deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (lambda () a))
+
+;; Program
+((lambda () a) a)
+
+;; Program
+((defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a))
+
+;; Program
+((deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((lambda () a) a a)
+
+;; Program
+((defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((lambda () a) a)
+
+;; Program
+((defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+(a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+(a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((if a a a) a a)
+
+;; Program
+((defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((lambda () a) a a)
+
+;; Program
+((defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a))
+
+;; Program
+((defvar b a) a)
+
+;; Program
+((defvar b a) a a)
+
+;; Program
+((defvar b a) a)
+
+;; Program
+((defvar b a) a a)
+
+;; Program
+((defvar b a) a a a)
+
+;; Program
+((defvar b a) a a a)
+
+;; Program
+((defvar b a) (if a a a))
+
+;; Program
+((defvar b a) (if a a a) a)
+
+;; Program
+((defvar b a) (if a a a) a a)
+
+;; Program
+((defvar b a) a a)
+
+;; Program
+((defvar b a) a a)
+
+;; Program
+((defvar b a) (if a a a) a)
+
+;; Program
+((defvar b a) (lambda () a))
+
+;; Program
+((defvar b a) (lambda () a) a)
+
+;; Program
+((defvar b a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (lambda () a) a)
+
+;; Program
+((defvar b a) a a a)
+
+;; Program
+((defvar b a) a a a)
+
+;; Program
+((defvar b a) (if a a a) a a)
+
+;; Program
+((defvar b a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a))
+
+;; Program
+((defvar b a) (defvar a a) a)
+
+;; Program
+((defvar b a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) a)
+
+;; Program
+((defvar b a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (if a a a))
+
+;; Program
+((defvar b a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar b a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((λ () a) a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (lambda () a))
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a))
+
+;; Program
+((defvar b a) (deffun (a) a) a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar b a) (deffun (a) a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (if a a a))
+
+;; Program
+((defvar b a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (if a a a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (lambda () a))
+
+;; Program
+((defvar b a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (lambda () a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (if a a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (if a a a))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+(a a a a)
+
+;; Program
+((defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) a a a a)
+
+;; Program
+((defvar b a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a))
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+(a a a a)
+
+;; Program
+((defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) a a a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) a a a a)
+
+;; Program
+((defvar b a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) a a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((if a a a) a a a)
+
+;; Program
+((defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar b a) (if a a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (if a a a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+;; exception
+#(struct:exn:fail:sandbox-terminated evaluator: terminated (out-of-memory) #<continuation-mark-set> out-of-memory)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((lambda () a) a a a)
+
+;; Program
+((defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (lambda () a) a a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((deffun (a) a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar b a) (lambda () a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (lambda () a) a a a)
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (deffun (a) a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (deffun (a) a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (deffun (a) a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar a "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((deffun (a) "a") (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (if a a a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (lambda () a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a))
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) "a")
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) "a" a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) a a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (if a a a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (lambda () a) a a a)
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+;; exception
+#(struct:exn:fail:syntax ?: expected identifier; expected string; expected number; expected boolean; or expected more terms
+  at: ()
+  in: ((defvar b a) (defvar a a) (defvar a a) (defvar a a) (λ () a) a a a)
+  parsing context: 
+   while parsing e
+    term: ()
+    location: 
+   while parsing e
+    term: (λ () a)
+    location:  #<continuation-mark-set> (#<syntax ()>))
+
+;; Program
+((let () a))
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((defvar a a) (let () a))
+
+;; Program
+((defvar a a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (let () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (let () a))
+
+;; Program
+((defvar a a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (let () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (let () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (let () a))
+
+;; Program
+((deffun (a) a) (let () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (let () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((defvar b a) (let () a))
+
+;; Program
+((defvar b a) (defvar a a) (let () a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((defvar b a) (deffun (a) a) (let () a))
+
+;; Program
+((defvar b a) (deffun (a) a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((defvar a a) (defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a) (defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((defvar b a) (defvar a a) (defvar a a) (defvar a a) (let () a))
+
+;; Program
+((deffun (a) a a))
+
+;; Program
+((deffun (a) a a) a)
+
+;; Program
+((deffun (a) a a) a a)
+
+;; Program
+((deffun (a) a a) a)
+
+;; Program
+((deffun (a) a a) a a)
+
+;; Program
+((deffun (a) a a) a a a)
+;; exception
+#(struct:exn:fail:resource with-limit: out of time #<continuation-mark-set> ...)
+
+;; Program
+((deffun (a) a a) a a a)
+
+;; Program
+((deffun (a) a a) (if a a a))
+

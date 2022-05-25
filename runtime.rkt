@@ -172,6 +172,7 @@
             :
             (Result Val)
             (begin
+              #;(display-state e env ectx stack)
               (type-case
                   Term
                 e

@@ -1,6 +1,9 @@
 #lang racket
-(require racket/sandbox)
+(require "./utilities.rkt")
 (require redex)
+
+;; KC: honestly I find the randomized test not very useful because distribution of programs is not
+;; very good.
 
 (define-language smol/hof
   (program
@@ -27,13 +30,14 @@
    string
    number
    ;;; have to disable this because redex doesn't understand #()
-   ;; #(datum ...) 
+   ;; #(datum ...)
    (quote (datum ...)))
   (datum
    ::=
    string
    number
-   #(datum ...)
+   ;;; have to disable this because redex doesn't understand #()
+   ;;;  #(datum ...)
    (datum ...))
   (o1
    ::=
@@ -56,8 +60,8 @@
   (o3
    ::=
    vset!
-  ;;;  foldl
-  ;;;  foldr
+   ;;;  foldl
+   ;;;  foldr
    )
   (o*
    ::=
@@ -65,60 +69,37 @@
    list)
   (id
    ::=
-   empty
-   o1
-   o2
-   o3
-   o*
+   ;; they creates too many spam tests
+   ;;;  empty
+   ;;;  o1
+   ;;;  o2
+   ;;;  o3
+   ;;;  o*
    variable-not-otherwise-mentioned))
 
-(define (eval-in-smol-step program)
-  (parameterize ([sandbox-output 'string]
-                 [sandbox-eval-limits (list 5 #f)]
-                 [sandbox-propagate-exceptions #f])
-    (define ev (make-module-evaluator
-                `(module m smol-step/hof/semantics
-                   #:no-trace
-                   ,@program)))
-    (normalize (get-output ev))))
+(define gen (generate-term smol/hof program))
+(define (run-test n)
+  (for ([i (in-range n)])
+    (let ([program (generate-term smol/hof program #:i-th i)])
+      (test-equivalent program))))
+(run-test 1000)
 
-(define (eval-in-smol program)
-  (define port (open-output-string))
-  (parameterize ([sandbox-output port]
-                 [sandbox-eval-limits (list 5 #f)]
-                 [sandbox-propagate-exceptions #f])
-    ;; sandbox-propagate-exceptions fails to catch some errors (e.g. `(defvar equal? equal?)`)
-    (with-handlers ([any/c (lambda (e) "error\n")])
-      (define ev (make-module-evaluator
-                  `(module m smol/hof/semantics
-                     ,@program)))
-      (normalize (get-output-string port)))))
+;;; (define-metafunction smol/hof
+;;;   smol-agree-with-smol-step : program -> boolean
+;;;   [(smol-agree-with-smol-step program)
+;;;    ,(let* ([oe-standard (eval-in-smol (term program))]
+;;;            [oe-step (eval-in-smol-step (term program))]
+;;;            [r (equal? oe-standard oe-step)])
+;;;       (begin
+;;;         (when (not r)
+;;;           (displayln "! Program")
+;;;           (writeln (term program))
+;;;           (displayln "!! Output differs (smol vs smol-step)")
+;;;           (writeln oe-standard)
+;;;           (writeln oe-step))
+;;;         r))])
 
-(define (normalize output)
-  ((compose
-     (lambda (output)
-       (regexp-replace* #rx"#<procedure:[^\n]*>" output "#<procedure>"))
-     (lambda (output)
-       (regexp-replace* #rx"error:[^\n]*" output "error"))
-    )
-   output))
-
-(define-metafunction smol/hof
-  smol-agree-with-smol-step : program -> boolean
-  [(smol-agree-with-smol-step program)
-   ,(let* ([oe-standard (eval-in-smol (term program))]
-           [oe-step (eval-in-smol-step (term program))]
-           [r (equal? oe-standard oe-step)])
-      (begin
-        (when (not r)
-          (displayln "! Program")
-          (writeln (term program))
-          (displayln "!! Output differs (smol vs smol-step)")
-          (writeln oe-standard)
-          (writeln oe-step))
-        r))])
-
-(redex-check smol/hof
-             program
-             (term (smol-agree-with-smol-step program))
-             #:attempts 100)
+;;; (redex-check smol/hof
+;;;              program
+;;;              (term (smol-agree-with-smol-step program))
+;;;              #:attempts 100)

@@ -2,12 +2,13 @@
 (provide start-trace)
 (provide pict-state)
 (provide pict-terminated)
+(provide hide-closure)
 (require pict)
 (require pict/color)
 (require racket/gui)
 (require (only-in "./utilities.rkt" string-of))
 
-;;; save all shown picts, we may add a prev button in the future
+(define hide-closure (make-parameter #t))
 
 (define-values (forward!
                 backward!
@@ -180,8 +181,10 @@
 
 (define (heapitem-interesting? item)
   (match-define `(,this-addr ,hv) item)
-  (and (string? this-addr)
-       (not (is-closure? hv))))
+  (and (string? this-addr) ;; string addresses means the address is not primitive (symbol address)
+       (if (hide-closure)
+           (not (is-closure? hv))
+           #t)))
 (define (is-closure? hv)
   (match hv
     [`(closure ,env ,name ,args ,def* ,body) #t]
@@ -211,6 +214,8 @@
                                       (apply vl-append padding (map pict-of-binding bindings))))
            (field "Rest" outer-addr)))]
     [else
+     (error 'pict-of-heapitem "~a is not a valid heap item" item)
+     #;
      (box (vl-append padding
                      (field "@" this-addr)
                      (field "Content" hv)))])
