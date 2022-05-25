@@ -68,7 +68,7 @@
     ((h-list vs)
      (inj (map s-exp-of-v vs)))
     ((h-fun env name arg* def* body)
-     (inj (list (inj 'closure)
+     (inj (list (inj 'Closure)
                 (s-exp-of-env env)
                 (inj (s-exp-of-funname name))
                 (inj (map s-exp-of-x arg*))
@@ -229,7 +229,7 @@
     ((v-bool it)
      (inj it))
     ((v-void)
-     (inj '_))))
+     (inj '|#<void>|))))
 (define (s-exp-of-x x) (inj x))
 (define (s-exp-of-def def)
   (local ((define-values (x e) def))
@@ -239,8 +239,8 @@
 (define (s-exp-of-e e)
   (type-case Term e
     [(t-quote v)
-     ;;;  (inj (list (inj 'quote) (s-exp-of-v v)))]
-     (s-exp-of-v v)]
+     (inj (list (inj 'quote) (s-exp-of-v v)))]
+     ;(s-exp-of-v v)]
     [(t-var x)
      (s-exp-of-x x)]
     [(t-fun name args def* body)

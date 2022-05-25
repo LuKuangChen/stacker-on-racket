@@ -52,11 +52,11 @@
          [_ (set! next-heap-addr (add1 next-heap-addr))]
          [_ (hash-set! the-heap addr h)])
     (begin
-      (display "allocated ")
-      (display h)
-      (display " at ")
-      (display addr)
-      (display "\n")
+      ;;; (display "allocated ")
+      ;;; (display h)
+      ;;; (display " at ")
+      ;;; (display addr)
+      ;;; (display "\n")
       addr)))
 (define (v-fun name env arg* def* body)
   (let ([addr (allocate! (h-fun env name arg* def* body))])

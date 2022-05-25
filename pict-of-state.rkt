@@ -1,132 +1,20 @@
 #lang racket
-(provide start-trace)
-(provide pict-state)
-(provide pict-terminated)
-(provide hide-closure)
+(provide pict-of-state text hide-closure)
 (require pict)
 (require pict/color)
-(require racket/gui)
 (require (only-in "./utilities.rkt" string-of))
 
 (define hide-closure (make-parameter #t))
 
-(define-values (forward!
-                backward!
-                what-is-now
-                add-future
-                has-past?
-                has-future?)
-  (let ([past '()]
-        [future '()]
-        [now #f])
-    (values
-     (lambda ()
-       (if (and now (pair? future))
-           (begin
-             (set! past (cons now past))
-             (set! now (car future))
-             (set! future (cdr future)))
-           (error 'forward-into-nowhere)))
-     (lambda ()
-       (if (and now (pair? past))
-           (begin
-             (set! future (cons now future))
-             (set! now (car past))
-             (set! past (cdr past)))
-           (error 'backward-into-nowhere)))
-     (lambda () now)
-     (lambda (item)
-       (cond
-         [(not now)
-          (set! now item)
-          now]
-         [(empty? future)
-          (set! future (cons item future))
-          (forward!)]
-         [else
-          (error 'pict-manager)]))
-     (lambda ()
-       (pair? past))
-     (lambda ()
-       (pair? future)))))
-
-(define current-go-on #f)
-(define redraw! #f)
-(define the-frame (new frame% [label "GUI"]))
-(send the-frame create-status-line)
-(define button-panel
-  (new horizontal-panel%
-       [parent the-frame]))
-(define the-canvas
-  (new canvas%
-       [parent the-frame]
-       [paint-callback
-        (lambda (canvas dc)
-          (let ([_ (let/cc k (set! redraw! (lambda () (k (void)))))])
-            (let ([current-pict (what-is-now)])
-              (when current-pict
-                (send dc clear)
-                (send canvas min-width (inexact->exact (floor (pict-width current-pict))))
-                (send canvas min-height (inexact->exact (floor (pict-height current-pict))))
-                (send the-last-button enable (has-past?))
-                (send the-next-button enable (or (has-future?) (not terminated?)))
-                (send the-frame set-status-text (if terminated? "terminated" "still running"))
-                (send the-frame resize 0 0)
-                (draw-pict current-pict dc 0 0)
-                (when (and terminated? current-go-on)
-                  (let ([go-on! current-go-on])
-                    (set! current-go-on #f)
-                    (go-on!)))))))]))
-(define the-last-button
-  (new button%
-       [label "Last"]
-       [parent button-panel]
-       [callback
-        (lambda (_button _event)
-          (let ([item (backward!)])
-            (redraw!)))]))
-(define the-next-button
-  (new button%
-       [label "Next"]
-       [parent button-panel]
-       [callback
-        (lambda (_button _event)
-          (if (has-future?)
-              (begin
-                (forward!)
-                (redraw!))
-              (when current-go-on
-                (let ([go-on! current-go-on])
-                  (set! current-go-on #f)
-                  (send the-frame refresh)
-                  (go-on!)))))]))
-
-(define (start-trace)
-  (send the-frame show #t))
-
-(define (my-show-pict p)
-  (let/cc k
-    (add-future p)
-    (set! current-go-on (lambda () (k (void))))
-    (redraw!)))
-
-(define terminated? #f)
-(define (pict-terminated printing)
-  (set! terminated? #t)
-  (my-show-pict (text printing)))
-
-(define (pict-state term env ectx stack heap)
-  (my-show-pict (apply pict-of-state (letrec-1->define-1 (list term env ectx stack heap)))))
-
 (define (pict-of-state term env ectx stack heap)
-  (scale
-   (bg "black"
-       (ht-append padding
-                  (vl-append padding
-                             (pict-of-stack stack)
-                             (pict-of-focus term ectx env))
-                  (pict-of-heap heap)))
-   1.3))
+  (define p (bg "black"
+                (ht-append padding
+                           (vl-append padding
+                                      (pict-of-stack stack)
+                                      (pict-of-focus term ectx env))
+                           (pict-of-heap heap))))
+  (define dim (max (pict-width p) (pict-height p)))
+  (scale p (/ 600 dim)))
 
 (define (letrec-1->define-1 any)
   (define (rec-bind bind)
@@ -196,14 +84,14 @@
 (define (pict-of-heapitem item)
   (match-define `(,this-addr ,hv) item)
   (match hv
-    [`(closure ,env ,name ,args ,def* ,body)
+    [`(Closure ,env ,name ,args ,def* ,body)
      (box (vl-append padding
                      (field "@" this-addr)
                      (field-label "Closure")
                      (field "Environment" env)
                      (field "Name" name)
-                     (field "Definitions" (string-join (map string-of def*) " "))
                      (field-pict "Parameters" (apply hc-append padding (map field-value args)))
+                     (field "Definitions" (string-join (map string-of def*) " "))
                      (field "Body" body)))]
     [`(Environment ,bindings ,outer-addr)
      (box (vl-append
