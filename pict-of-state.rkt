@@ -74,18 +74,22 @@
                (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
                                           (field-value '...)
                                           (apply vl-append padding
-                                            (map pict-of-binding
-                                              (sort bindings string<=? #:key (compose symbol->string car))))))
+                                                 (map pict-of-binding
+                                                      (sort bindings string<=? #:key (compose symbol->string car))))))
                (field "Rest" outer-addr)))]
       [`,vec
        #:when (vector? vec)
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field-pict "Content" (apply hb-append padding (map field-value (vector->list vec))))))]
+                         (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec))))))]
+      [`(Cons ,v1 ,v2)
+       (plate (vl-append padding
+                         (field "@" this-addr)
+                         (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2))))))]
       [else
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field "Content" hv)))]))
+                         (field "cons" hv)))]))
   (define (plate p)
     (define w (pict-width p))
     (define h (pict-height p))

@@ -7,6 +7,7 @@
   (pattern x:string)
   (pattern x:number)
   (pattern x:boolean)
+  (pattern #(c:constant ...))
   (pattern ((~datum quote) #(c:constant ...)))
   (pattern ((~datum quote) (c:constant ...))))
 (define-syntax-class d
@@ -107,6 +108,8 @@
     [x:string
      (c-str (syntax-e #'x))]
     [((~datum quote) #(x:constant ...))
+     (c-vec (map parse-con (syntax-e #'(x ...))))]
+    [#(x:constant ...)
      (c-vec (map parse-con (syntax-e #'(x ...))))]
     [((~datum quote) (x:constant ...))
      (c-list (map parse-con (syntax-e #'(x ...))))]))

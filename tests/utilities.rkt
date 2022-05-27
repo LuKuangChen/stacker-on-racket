@@ -2,6 +2,16 @@
 (provide (all-defined-out))
 (require racket/sandbox)
 
+(sandbox-path-permissions
+ (list*
+  ;;; (list 'exists "/lib64")
+  ;;; (list 'exists "/usr/lib64")
+  ;;; (list 'exists (current-directory))
+  ;;; (list 'exists "/System")
+  ;;; (list 'exists "/Users")
+  (list 'exists (current-directory))
+  (sandbox-path-permissions)
+  ))
 (define (eval-in-smol-step program)
   (parameterize ([sandbox-output 'string]
                  [sandbox-eval-limits (list 10 #f)]
@@ -18,7 +28,7 @@
                  [sandbox-eval-limits (list 10 #f)]
                  [sandbox-propagate-exceptions #f])
     ;; sandbox-propagate-exceptions fails to catch some errors (e.g. `(defvar equal? equal?)`)
-    (with-handlers ([any/c (lambda (e) "error\n")])
+    (with-handlers ([any/c (lambda (e) "error")])
       (define ev (make-module-evaluator
                   `(module m smol/hof/semantics
                      ,@program)))
@@ -26,7 +36,7 @@
 
 (define (test-equivalent program)
   (displayln ";; Program")
-  (displayln program)
+  (writeln program)
   (with-handlers ([any/c (lambda (e)
                            (displayln ";; exception")
                            (displayln e)
@@ -35,14 +45,13 @@
            [oe-step (eval-in-smol-step program)]
            [r (equal? oe-standard oe-step)])
       (when (not r)
-        (begin
-          (displayln "-----------------------------")
-          (displayln ";; smol")
-          (displayln oe-standard)
-          (displayln "-----------------------------")
-          (displayln ";; smol-step")
-          (displayln oe-step)))
-      (newline))))
+        (displayln "-----------------------------")
+        (displayln ";; smol")
+        (writeln oe-standard)
+        (displayln "-----------------------------")
+        (displayln ";; smol-step")
+        (writeln oe-step))))
+  (newline))
 
 (define (test-expect/smol program expect)
   (with-handlers ([any/c (lambda (e)
@@ -55,7 +64,7 @@
       (when (not r)
         (begin
           (displayln ";; Program")
-          (displayln program)
+          (writeln program)
           (displayln "-----------------------------")
           (displayln ";; smol actual")
           (writeln result)
@@ -73,7 +82,7 @@
       (when (not r)
         (begin
           (displayln ";; Program")
-          (displayln program)
+          (writeln program)
           (displayln "-----------------------------")
           (displayln ";; smol-step actual")
           (writeln result)

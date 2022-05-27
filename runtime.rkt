@@ -15,7 +15,8 @@
                    [list->vector : ((Listof 'a) -> (Vectorof 'a))]
                    [vector->list : ((Vectorof 'a) -> (Listof 'a))]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
-                   [remove-duplicates : ((Listof 'a) -> (Listof 'a))]))
+                   [remove-duplicates : ((Listof 'a) -> (Listof 'a))]
+                   [andmap : (('a 'a -> Boolean) (Listof 'a) (Listof 'a) -> Boolean)]))
 
 
 (define-type Operator
@@ -145,13 +146,15 @@
     ((v-num it) (o-con (c-num it)))
     ((v-bool it) (o-con (c-bool it)))
     ((v-prim name) (o-fun))
+    ((v-empty) (o-list '()))
     ((v-void) (o-void))
     ((v-addr it)
      (obs-of-hv (some-v (hash-ref the-heap it))))))
 (define (obs-of-hv hv)
   (type-case HeapValue hv
     ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
-    ((h-list vs) (o-list (map obs-of-val vs)))
+    ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
+                               (o-list-it (obs-of-val (snd vs))))))
     ((h-fun env name arg* def* body) (o-fun))
     ((h-env _env _map)
      (raise (exn-internal 'obs-of-val "Impossible.")))))
@@ -342,7 +345,8 @@
                    (let ((ectx (cons (F-fun-call x xe* body) ectx)))
                      (do-interp e env ectx stack pctx)))))))
           (define (output! o)
-            (displayln (string-of-o o)))
+            (unless (o-void? o)
+              (displayln (string-of-o o))))
           (define (interp-beta (fun : Val) (arg-v* : (Listof Val)) env ectx stack pctx)
             :
             (Result 'Val)
@@ -367,11 +371,43 @@
                   (let ((e (t-init! def* body)))
                     (interp e env ectx stack pctx))))))
           (define (t-init! bind* body)
-             (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
+            (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
+          (define (do-equal? v1 v2)
+            (let ([visited (list)])
+              (local ((define (do-equal?-helper v1 v2)
+                        (or (equal? v1 v2)
+                            (member (values v1 v2) visited)
+                            (begin
+                              (set! visited (cons (values v1 v2) visited))
+                              (type-case Val v1
+                                [(v-addr v1)
+                                 (type-case Val v2
+                                   [(v-addr v2)
+                                    (let ([v1 (some-v (hash-ref the-heap v1))]
+                                          [v2 (some-v (hash-ref the-heap v2))])
+                                      (cond
+                                        [(and (h-vec? v1) (h-vec? v2))
+                                         (andmap
+                                          do-equal?-helper
+                                          (vector->list (h-vec-it v1))
+                                          (vector->list (h-vec-it v2)))]
+                                        [(and (h-cons? v1) (h-cons? v2))
+                                         (and (do-equal?-helper (fst (h-cons-it v1))
+                                                                (fst (h-cons-it v2)))
+                                              (do-equal?-helper (snd (h-cons-it v1))
+                                                                (snd (h-cons-it v2))))]
+                                        [else #f]))]
+                                   [else #f])]
+                                [else #f])))))
+                (do-equal?-helper v1 v2))))
           (define (delta op v-arg* env ectx stack pctx)
             (type-case
                 PrimitiveOp
               op
+              ((po-not)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-bool v)))
+                   (v-bool (not v)))))
               ((po-left)
                (let ((v (list-ref v-arg* 0)))
                  (let ((v (as-vec v)))
@@ -386,9 +422,15 @@
                (let ((v (list-ref v-arg* 0)))
                  (let ((v (as-vec v)))
                    (v-num (vector-length v)))))
-              ((po-equalp)
+              ((po-zerop)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (v-bool (equal? v1 (v-num 0)))))
+              ((po-eqp)
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1))) (v-bool (equal? v1 v2)))))
+              ((po-equalp)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v2 (list-ref v-arg* 1))) (v-bool (do-equal? v1 v2)))))
               ((po-+)
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
@@ -405,6 +447,26 @@
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
                    (let ((v1 (as-num v1))) (let ((v2 (as-num v2))) (v-num (/ v1 v2)))))))
+              ((po-<)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v2 (list-ref v-arg* 1)))
+                   (let ((v1 (as-num v1))) (let ((v2 (as-num v2))) (v-bool (< v1 v2)))))))
+              ((po->)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v2 (list-ref v-arg* 1)))
+                   (let ((v1 (as-num v1))) (let ((v2 (as-num v2))) (v-bool (> v1 v2)))))))
+              ((po-<=)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v2 (list-ref v-arg* 1)))
+                   (let ((v1 (as-num v1))) (let ((v2 (as-num v2))) (v-bool (<= v1 v2)))))))
+              ((po->=)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v2 (list-ref v-arg* 1)))
+                   (let ((v1 (as-num v1))) (let ((v2 (as-num v2))) (v-bool (>= v1 v2)))))))
+              ((po-=)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v2 (list-ref v-arg* 1)))
+                   (let ((v1 (as-num v1))) (let ((v2 (as-num v2))) (v-bool (= v1 v2)))))))
               ((po-pairp)
                (let ((v (list-ref v-arg* 0)))
                  (catch
@@ -438,22 +500,20 @@
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
                    (let ((v2 (as-list v2)))
-                     (v-list (cons v1 v2))))))
+                     (v-cons (pair v1 v2))))))
+              ((po-first)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v1 (as-cons v1)))
+                   (fst v1))))
+              ((po-rest)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (let ((v1 (as-cons v1)))
+                   (snd v1))))
               ((po-vset!)
                (let ((v (list-ref v-arg* 0)))
                  (let ((v (as-vec v)))
                    (let ((_ (vector-set! v (as-num (list-ref v-arg* 1)) (list-ref v-arg* 2))))
                      (v-void)))))
-              ;;; ((po-foldl)
-              ;;;  (let ((v1 (as-fun (list-ref v-arg* 0))))
-              ;;;    (let ((v2 (list-ref v-arg* 1)))
-              ;;;      (let ((v3 (as-list (list-ref v-arg* 1))))
-              ;;;        (foldl v1 v2 v3)))))
-              ;;; ((po-foldr)
-              ;;;  (let ((v1 (as-fun (list-ref v-arg* 0))))
-              ;;;    (let ((v2 (list-ref v-arg* 1)))
-              ;;;      (let ((v3 (as-list (list-ref v-arg* 1))))
-              ;;;        (foldr v1 v2 v3)))))
               ((po-mvec) (v-vec (list->vector v-arg*)))
               ((po-list) (v-list v-arg*))
               ((po-pause) (v-num 0))
@@ -462,6 +522,10 @@
             :
             Number
             (type-case Val v ((v-num it) it) (else (raise (exn-rt "not a number")))))
+          (define (as-bool (v : Val))
+            :
+            Boolean
+            (type-case Val v ((v-bool it) it) (else (raise (exn-rt "not a boolean")))))
           (define (as-vec (v : Val))
             (type-case Val v
               ((v-addr addr)
@@ -472,12 +536,21 @@
               (else (raise (exn-rt (format "not a vector ~a" (s-exp-of-v v)))))))
           (define (as-list (v : Val))
             (type-case Val v
+              ((v-empty) v)
               ((v-addr addr)
                (type-case HeapValue (some-v (hash-ref the-heap addr))
-                 ((h-list it) it)
+                 ((h-cons it) v)
                  (else
                   (raise (exn-rt (format "not a list ~a" (s-exp-of-v v)))))))
               (else (raise (exn-rt (format "not a list ~a" (s-exp-of-v v)))))))
+          (define (as-cons (v : Val))
+            (type-case Val v
+              ((v-addr addr)
+               (type-case HeapValue (some-v (hash-ref the-heap addr))
+                 ((h-cons it) it)
+                 (else
+                  (raise (exn-rt (format "not a cons ~a" (s-exp-of-v v)))))))
+              (else (raise (exn-rt (format "not a cons ~a" (s-exp-of-v v)))))))
           (define (forward [state : State])
             (begin
               (type-case State state

@@ -47,8 +47,10 @@
             (s-exp-of-env env))))
     ((h-vec vs)
      (inj (vector-map s-exp-of-v vs)))
-    ((h-list vs)
-     (inj (map s-exp-of-v vs)))
+    ((h-cons it)
+     (inj (list (inj 'Cons)
+                (s-exp-of-v (fst it))
+                (s-exp-of-v (snd it)))))
     ((h-fun env name arg* def* body)
      (inj (list (inj 'Closure)
                 (s-exp-of-env env)
@@ -136,14 +138,20 @@
        (inj (list (inj 'set!) (s-exp-of-x var) □))))))
 (define (s-exp-of-prim p)
   (type-case PrimitiveOp p
+    [(po-not)
+     (inj 'not)]
     [(po-left)
      (inj 'left)]
     [(po-right)
      (inj 'right)]
     [(po-vlen)
      (inj 'vlen)]
+    [(po-eqp)
+     (inj 'equal?)]
     [(po-equalp)
      (inj 'equal?)]
+    [(po-zerop)
+     (inj 'zero?)]
     [(po-+)
      (inj '+)]
     [(po--)
@@ -152,6 +160,16 @@
      (inj '*)]
     [(po-/)
      (inj '/)]
+    [(po-<)
+     (inj '<)]
+    [(po->)
+     (inj '>)]
+    [(po-<=)
+     (inj '<=)]
+    [(po->=)
+     (inj '>=)]
+    [(po-=)
+     (inj '=)]
     [(po-pairp)
      (inj 'pair?)]
     [(po-mpair)
@@ -164,6 +182,10 @@
      (inj 'vref)]
     [(po-cons)
      (inj 'cons)]
+    [(po-first)
+     (inj 'first)]
+    [(po-rest)
+     (inj 'rest)]
     ;;; [(po-map)
     ;;;  (inj 'map)]
     ;;; [(po-filter)
@@ -198,6 +220,8 @@
      (s-exp-of-primitive-address it)]))
 (define (s-exp-of-primitive-address pa)
   (type-case PrimitiveHeapAddress pa
+    [(pa-map) (inj 'map)]
+    [(pa-filter) (inj 'filter)]
     [(pa-base-env) (inj 'base-env)]
     [(pa-empty) (inj 'empty)]))
 (define (s-exp-of-v v)
@@ -212,6 +236,8 @@
      (inj it))
     ((v-bool it)
      (inj it))
+    ((v-empty)
+     (inj '()))
     ((v-void)
      (inj '|#<void>|))))
 (define (s-exp-of-x x) (inj x))
