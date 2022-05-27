@@ -26,7 +26,7 @@
                    '*
                    '/
                    'pause)))
-(define (check [e : Term]) : Void
+(define (check [e : CompiledProgram]) : Void
   (let* ([_ (tc fun-base-Tenv e)])
     (void)))
 (define (shallow-tc [e : Term])

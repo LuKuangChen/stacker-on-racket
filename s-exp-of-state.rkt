@@ -1,6 +1,7 @@
 #lang plait
 (require "utilities.rkt")
 (require "datatypes.rkt")
+(require (typed-in "string-of-state.rkt" [block : Symbol]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
@@ -8,50 +9,31 @@
 (require (opaque-type-in racket [Any any/c]))
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
+(define (s-exp-of-pctx [pctx : PCtx])
+  (local ((define-values (ctx env) pctx))
+    (list (s-exp-of-ctx ctx) (s-exp-of-env (some (ha-prim (pa-base-env)))))))
+(define (s-exp-of-ctx [ctx : ProgramContext]) : Any
+  (type-case ProgramContext ctx
+    [(P-def x bind* exp*)
+     (inj (cons (inj block)
+                (cons (s-exp-of-b (values x (t-var '□)))
+                      (append (map s-exp-of-b bind*)
+                              (map s-exp-of-e exp*)))))]
+    [(P-exp exp*)
+     (inj (cons (inj block) (cons (inj '□) (map s-exp-of-e exp*))))]))
+
 (define (s-exp-of-stack stack)
-  (map s-exp-of-sf stack)
-  #; ;; don't remove the first
-  (inj (reverse (rest (reverse (map s-exp-of-sf stack))))))
-(define (my-display-e e)
-  (begin
-    (display (format "~a" (s-exp-of-e e)))
-    (display "\n")))
-(define (my-display-stack [stack : Stack])
-  (begin
-    (map (lambda (sf)
-           (begin
-             (display (s-exp-of-sf sf))
-             (display "\n")))
-         (reverse (rest (reverse stack))))
-    (void)))
-(define (my-display-env env)
-  (begin
-    (display (format "~a" (s-exp-of-env env)))
-    (display "\n")))
-(define (my-display-ectx ectx)
-  (begin
-    (display (format "~a" (s-exp-of-ectx ectx)))
-    (display "\n")))
-(define (my-display-heap heap)
-  (map
-   (lambda (key)
-     (type-case HeapAddress key
-       [(ha-user _)
-        (begin
-          (display (s-exp-of-addr key))
-          (display " = ")
-          (display (s-exp-of-hv (some-v (hash-ref heap key))))
-          (display "\n"))]
-       [(ha-prim _) (void)]))
-   ;; remove the base environment
-   (reverse (hash-keys heap))))
+  (map s-exp-of-sf stack))
 (define (s-exp-of-heap heap)
   (inj
    (map
     (lambda (key)
       (inj (list (s-exp-of-addr key)
                  (s-exp-of-hv (some-v (hash-ref heap key))))))
-    (reverse (hash-keys heap)))))
+    (sort (filter ha-user? (hash-keys heap))
+          (lambda (k1 k2)
+            (< (ha-user-it k1)
+               (ha-user-it k2)))))))
 (define (s-exp-of-hv hv): Any
   (type-case HeapValue hv
     ((h-env env map)
@@ -71,9 +53,7 @@
      (inj (list (inj 'Closure)
                 (s-exp-of-env env)
                 (inj (s-exp-of-funname name))
-                (inj (map s-exp-of-x arg*))
-                (inj (map s-exp-of-def def*))
-                (s-exp-of-e body))))))
+                (make-fun arg* def* body))))))
 (define (s-exp-of-funname nm)
   (type-case (Optionof Symbol) nm
     [(none) (inj '_)]
@@ -91,6 +71,9 @@
                (s-exp-of-ann ann)))))
 (define (s-exp-of-ann ann)
   (type-case CtxAnn ann
+    #;
+    ((ca-toplevel)
+     (inj 'the-top-level))
     ((ca-let)
      (inj 'let))
     ((ca-letrec)
@@ -125,7 +108,6 @@
              (cons
               □
               (map s-exp-of-e e*)))))
-      ((F-show!) □)
       ((F-let xv* x xe* body)
        (inj (list (inj 'let)
                   (inj
@@ -134,12 +116,14 @@
                     (cons (inj (list (s-exp-of-x x) □))
                           (map s-exp-of-xe xe*))))
                   (s-exp-of-e body))))
+      #;
       ((F-letrec-1 x xe* body)
        (inj (list (inj 'letrec-1)
                   (inj
                    (cons (inj (list (s-exp-of-x x) □))
                          (map s-exp-of-xe xe*)))
                   (s-exp-of-e body))))
+      #;
       ((F-fun-call x xe* body)
        (inj (list (inj 'fun-call)
                   (inj
@@ -206,7 +190,7 @@
             ((none)
              (inj printing))
             ((some s)
-             (let ([printing (string-append (format "~a." (inj s)) printing)])
+             (let ([printing (string-append printing (format ".~a" (inj s)))])
                (inj printing)))))
          (else
           (inj printing))))]
@@ -236,18 +220,20 @@
     (inj (list (inj 'defvar)
                (s-exp-of-x x)
                (s-exp-of-e e)))))
+(define (make-fun args def* body)
+  (inj
+   (list (inj 'lambda)
+         (inj (map s-exp-of-x args))
+         (inj (cons (inj block) (append (map s-exp-of-def def*) (list (s-exp-of-e body))))))))
 (define (s-exp-of-e e)
   (type-case Term e
     [(t-quote v)
-     (inj (list (inj 'quote) (s-exp-of-v v)))]
-     ;(s-exp-of-v v)]
+     #;(inj (list (inj 'quote) (s-exp-of-v v)))
+     (s-exp-of-v v)]
     [(t-var x)
      (s-exp-of-x x)]
     [(t-fun name args def* body)
-     (inj
-      (list (inj 'lambda)
-            (inj (map s-exp-of-x args))
-            (inj (append (map s-exp-of-def def*) (list (s-exp-of-e body))))))]
+     (make-fun args def* body)]
     [(t-app fun arg*)
      (inj (map s-exp-of-e (cons fun arg*)))]
     [(t-let bind* body)
@@ -260,11 +246,13 @@
       (list (inj 'letrec)
             (inj (map s-exp-of-xe bind*))
             (s-exp-of-e body)))]
+    #;
     [(t-letrec-1 bind* body)
      (inj
       (list (inj 'letrec-1)
             (inj (map s-exp-of-xe bind*))
             (s-exp-of-e body)))]
+    #;
     [(t-fun-call bind* body)
      (inj
       (list (inj 'fun-call)
@@ -287,9 +275,8 @@
        (inj 'if)
        (s-exp-of-e cnd)
        (s-exp-of-e thn)
-       (s-exp-of-e els)))]
-    [(t-show e)
-     (s-exp-of-e e)]
-    ))
+       (s-exp-of-e els)))]))
 (define (s-exp-of-xe xe)
   (inj (list (s-exp-of-x (fst xe)) (s-exp-of-e (snd xe)))))
+(define (s-exp-of-b xe)
+  (inj (list (inj 'set!) (s-exp-of-x (fst xe)) (s-exp-of-e (snd xe)))))

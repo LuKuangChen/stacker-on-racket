@@ -1,16 +1,12 @@
 #lang racket
 ;; input/output
 
-(provide show)
+(provide string-of-o)
 (require "io.rkt")
 
-(define (show o*)
-  (map string-of-o (filter (not/c o-void?) o*)))
 (define (string-of-o o)
   (cond
-    ;;; [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]
     [(o-exn? o)
-    ;;;  (displayln (o-exn-it o))
      (format "error: ~a" (o-exn-it o))]
     [(o-con? o) (string-of-c (o-con-it o))]
     [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
@@ -19,9 +15,7 @@
     [else (error 'show "internal error ~a" o)]))
 (define (string-of-o-internal o)
   (cond
-    ;;; [(o-exn? o) (string->symbol (format "Error" #;(o-exn-it o)))]
     [(o-exn? o)
-    ;;;  (displayln (o-exn-it o))
      (format "error: ~a" (o-exn-it o))]
     [(o-con? o) (string-of-c (o-con-it o))]
     [(o-vec? o) (format "#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]

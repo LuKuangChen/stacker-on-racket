@@ -1,193 +1,183 @@
 #lang racket
-(provide pict-of-state text hide-closure)
+(provide pict-of-state)
 (require pict)
+(require (rename-in pict [text pict-text]))
 (require pict/color)
-(require (only-in "./utilities.rkt" string-of))
+(require "./string-of-state.rkt")
 
-(define hide-closure (make-parameter #t))
+(define (text s)
+  (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
 
-(define (pict-of-state term env ectx stack heap)
-  (define p (bg "black"
-                (ht-append padding
-                           (vl-append padding
-                                      (pict-of-stack stack)
-                                      (pict-of-focus term ectx env))
-                           (pict-of-heap heap))))
-  (define dim (max (pict-width p) (pict-height p)))
-  (scale p (/ 600 dim)))
+(define (pict-of-state hide-closure?)
+  (define (stack-frame-of-pctx pctx)
+    (match pctx
+      [`(,ctx ,env)
+       (list env ctx "top-level")]))
 
-(define (letrec-1->define-1 any)
-  (define (rec-bind bind)
-    (match-define `(,x ,e) bind)
-    (match e
-      [`(lambda ,arg* ,@whatever)
-       `(deffun (,x ,@arg*) ,@(letrec-1->define-1 whatever))]
+  (define (pict-of-state message term env ectx stack pctx heap)
+    (define p (bg "black"
+                  (ht-append padding
+                             (vl-append padding
+                                        (pict-of-stack (append stack (list (stack-frame-of-pctx pctx))))
+                                        (pict-of-focus message term ectx env))
+                             (pict-of-heap heap))))
+    (define dim (max (pict-width p) (pict-height p)))
+    (scale p (/ 600 dim)))
+
+  (define (pict-of-term term)
+    (box (field-value term)))
+
+  (define (pict-of-stack stack)
+    (box
+     (apply vl-append
+            (field-label "Stack")
+            (map pict-of-sf (reverse stack)))))
+
+  (define (is-env? heapitem)
+    (match-define (list addr hv) heapitem)
+    (match hv
+      [`(Environment ,@_)
+       #t]
       [else
-       `(defvar ,x ,(letrec-1->define-1 e))]))
-  (define (rec-bind-1 bind)
-    (match-define `(,x ,e) bind)
-    (match e
-      [`(lambda ,arg* ,@whatever)
-       `(deffun-1 (,x ,@arg*) ,@(letrec-1->define-1 whatever))]
+       #f]))
+
+  (define (pict-of-heap heap)
+    (pict-of-heapitems heap))
+
+  (define (heapitem-interesting? item)
+    (match-define `(,this-addr ,hv) item)
+    (and (string? this-addr) ;; string addresses means the address is not primitive (symbol address)
+         (if hide-closure?
+             (not (is-closure? hv))
+             #t)))
+  (define (is-closure? hv)
+    (match hv
+      [`(Closure ,@_) #t]
+      [else #f]))
+
+  (define (pict-of-heapitems heapitems)
+    (apply vl-append padding
+           (map pict-of-heapitem (filter heapitem-interesting? heapitems))))
+  (define (pict-of-heapitem item)
+    (match-define `(,this-addr ,hv) item)
+    (match hv
+      [`(Closure ,env ,name ,code)
+       (plate (vl-append padding
+                         (field "@" this-addr)
+                         (field-label "Closure")
+                         (field "Environment @" env)
+                         (field "Code" (string-of-s-exp code))))]
+      [`(Environment ,bindings ,outer-addr)
+       (plate (vl-append
+               (field "@" this-addr)
+               (white (text "Environment Frame"))
+               (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
+                                          (field-value '...)
+                                          (apply vl-append padding
+                                            (map pict-of-binding
+                                              (sort bindings string<=? #:key (compose symbol->string car))))))
+               (field "Rest" outer-addr)))]
+      [`,vec
+       #:when (vector? vec)
+       (plate (vl-append padding
+                         (field "@" this-addr)
+                         (field-pict "Content" (apply hb-append padding (map field-value (vector->list vec))))))]
       [else
-       `(defvar-1 ,x ,(letrec-1->define-1 e))]))
-  (match any
-    [`(letrec-1 ,bind* ,@prelude* ,result)
-     `(,@(map rec-bind-1 bind*) ,@(map letrec-1->define-1 prelude*) ,(letrec-1->define-1 result))]
-    [`(letrec ,bind* ,@prelude* ,result)
-     `(,@(map rec-bind bind*) ,@(map letrec-1->define-1 prelude*) ,(letrec-1->define-1 result))]
-    [else
-     (if (list? any)
-         (map letrec-1->define-1 any)
-         any)]))
+       (plate (vl-append padding
+                         (field "@" this-addr)
+                         (field "Content" hv)))]))
+  (define (plate p)
+    (define w (pict-width p))
+    (define h (pict-height p))
+    (cc-superimpose
+     (filled-ellipse
+      (* (sqrt 2) (+ (pict-width p) 6))
+      (* (sqrt 2) (+ (pict-height p) 6))
+      #:draw-border? #t
+      #:color "blue")
+     p))
 
-(define (pict-of-term term)
-  (box (field-value term)))
+  (define (box p)
+    (frame (bg "blue" (pad padding p))))
+  (define (pict-of-envs all-env-heapitems)
+    (define (rec root)
+      (let ([env (car (dict-ref all-env-heapitems root))])
+        (define children-pict
+          (apply hb-append padding
+                 (map rec (map addr-of-heapitem (filter (is-sub-env? root) all-env-heapitems)))))
+        (define children-width (pict-width children-pict))
+        (vc-append
+         children-pict
+         (pict-of-env children-width root env))))
+    (rec '|@base-env|))
+  (define (addr-of-heapitem item)
+    (match-define (list addr hv) item)
+    addr)
+  (define ((is-sub-env? root-addr) heapitem)
+    (match heapitem
+      [`(,this-addr (Environment ,bindings ,outer-addr))
+       (equal? root-addr outer-addr)]
+      [else #f]))
+  (define (pict-of-env children-width this-addr env)
+    (match-define `(Environment ,bindings ,outer-addr) env)
+    (define content-pict
+      (vl-append
+       (field "@" this-addr)
+       (white (text "Environment Frame"))
+       (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
+                                  (field-value '...)
+                                  (apply vl-append padding (map pict-of-binding bindings))))
+       (field "Rest" outer-addr)))
+    (define content-width (pict-width content-pict))
+    (frame
+     (bg "blue"
+         (pad padding
+              (ht-append content-pict (blank (max 0 (- children-width content-width)) 0))))))
+  (define (pict-of-binding binding)
+    (match-define (list x v) binding)
+    (ht-append padding
+               (field-value x)
+               (field-label "↦")
+               (field-value v)))
 
-(define (pict-of-stack stack)
-  (box
-   (apply vl-append
-          (field-label "Stack")
-          (map pict-of-sf (reverse stack)))))
+  (define padding 5)
 
-(define (is-env? heapitem)
-  (match-define (list addr hv) heapitem)
-  (match hv
-    [`(Environment ,@_)
-     #t]
-    [else
-     #f]))
+  (define (field name value)
+    (ht-append padding (white (text name)) (field-value value)))
+  (define (field-label name)
+    (white (text name)))
+  (define (field-value value)
+    (bg "white" (text (if (string? value) value (string-of-s-exp value)))))
+  (define (field-pict name p)
+    (ht-append padding (white (text name)) p))
 
-(define (pict-of-heap heap)
-  (pict-of-heapitems heap)
-  ;;; (define-values (envs others) (partition is-env? heap))
-  ;;; (ht-append padding
-  ;;;            (pict-of-envs envs)
-  ;;;            (pict-of-heapitems others)
-  ;;;            )
-  )
+  (define (bg color p)
+    (cc-superimpose (filled-rectangle (pict-width p) (pict-height p) #:draw-border? #f #:color color) p))
 
-(define (heapitem-interesting? item)
-  (match-define `(,this-addr ,hv) item)
-  (and (string? this-addr) ;; string addresses means the address is not primitive (symbol address)
-       (if (hide-closure)
-           (not (is-closure? hv))
-           #t)))
-(define (is-closure? hv)
-  (match hv
-    [`(closure ,env ,name ,args ,def* ,body) #t]
-    [else #f]))
+  (define (pict-of-focus message term ectx env)
+    (bg "blue"
+        (frame
+         (pad padding
+              (vl-append padding
+                         (field "Environment @" env)
+                         (ht-append padding
+                                    (field message term)
+                                    (field "Context" ectx)))))))
 
-(define (pict-of-heapitems heapitems)
-  (apply vl-append padding
-         (map pict-of-heapitem (filter heapitem-interesting? heapitems))))
-(define (pict-of-heapitem item)
-  (match-define `(,this-addr ,hv) item)
-  (match hv
-    [`(Closure ,env ,name ,args ,def* ,body)
-     (box (vl-append padding
-                     (field "@" this-addr)
-                     (field-label "Closure")
-                     (field "Environment" env)
-                     (field "Name" name)
-                     (field-pict "Parameters" (apply hc-append padding (map field-value args)))
-                     (field "Definitions" (string-join (map string-of def*) " "))
-                     (field "Body" body)))]
-    [`(Environment ,bindings ,outer-addr)
-     (box (vl-append
-           (field "@" this-addr)
-           (white (text "Environment Frame"))
-           (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
-                                      (field-value '...)
-                                      (apply vl-append padding (map pict-of-binding bindings))))
-           (field "Rest" outer-addr)))]
-    [else
-     (error 'pict-of-heapitem "~a is not a valid heap item" item)
-     #;
-     (box (vl-append padding
-                     (field "@" this-addr)
-                     (field "Content" hv)))])
-  )
+  (define (pict-of-sf sf)
+    (match-define (list env ectx ann) sf)
+    (bg "blue"
+        (frame
+         (pad padding
+              (vl-append padding
+                         (field "Environment @" env)
+                         (ht-append padding
+                                    (field "Created by" ann)
+                                    (field "Context" ectx)))))))
 
-(define (box p)
-  (frame (bg "blue" (pad padding p))))
-(define (pict-of-envs all-env-heapitems)
-  (define (rec root)
-    (let ([env (car (dict-ref all-env-heapitems root))])
-      (define children-pict
-        (apply hb-append padding
-               (map rec (map addr-of-heapitem (filter (is-sub-env? root) all-env-heapitems)))))
-      (define children-width (pict-width children-pict))
-      (vc-append
-       children-pict
-       (pict-of-env children-width root env))))
-  (rec '|@base-env|))
-(define (addr-of-heapitem item)
-  (match-define (list addr hv) item)
-  addr)
-(define ((is-sub-env? root-addr) heapitem)
-  (match heapitem
-    [`(,this-addr (Environment ,bindings ,outer-addr))
-     (equal? root-addr outer-addr)]
-    [else #f]))
-(define (pict-of-env children-width this-addr env)
-  (match-define `(Environment ,bindings ,outer-addr) env)
-  (define content-pict
-    (vl-append
-     (field "@" this-addr)
-     (white (text "Environment Frame"))
-     (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
-                                (field-value '...)
-                                (apply vl-append padding (map pict-of-binding bindings))))
-     (field "Rest" outer-addr)))
-  (define content-width (pict-width content-pict))
-  (frame
-   (bg "blue"
-       (pad padding
-            (ht-append content-pict (blank (max 0 (- children-width content-width)) 0))))))
-(define (pict-of-binding binding)
-  (match-define (list x v) binding)
-  (ht-append padding
-             (field-value x)
-             (field-label "↦")
-             (field-value v)))
+  (define (pad n p)
+    (hc-append (blank n)
+               (vc-append (blank n) p (blank n))
+               (blank n)))
 
-(define padding 5)
-
-(define (field name value)
-  (ht-append padding (white (text name)) (bg "white" (text (format "~a" value)))))
-(define (field-label name)
-  (white (text name)))
-(define (field-value value)
-  (bg "white" (text (format "~a" value))))
-(define (field-pict name p)
-  (ht-append padding (white (text name)) p))
-
-(define (bg color p)
-  (cc-superimpose (filled-rectangle (pict-width p) (pict-height p) #:draw-border? #f #:color color) p))
-
-(define (pict-of-focus term ectx env)
-  (bg "blue"
-      (frame
-       (pad padding
-            (vl-append padding
-                       (field "Environment @" env)
-                       (ht-append padding
-                                  (field "Computing" term)
-                                  (field "Context" ectx)))))))
-
-(define (pict-of-sf sf)
-  (match-define (list env ectx ann) sf)
-  (bg "blue"
-      (frame
-       (pad padding
-            (vl-append padding
-                       (field "Environment @" env)
-                       (ht-append padding
-                                  (field "Created by" ann)
-                                  (field "Context" ectx)))))))
-
-(define (pad n p)
-  (hc-append (blank n)
-             (vc-append (blank n) p (blank n))
-             (blank n)))
+  pict-of-state)

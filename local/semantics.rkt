@@ -3,13 +3,12 @@
          (rename-out [my-top-interaction #%top-interaction]))
 
 (require "../pict-of-state.rkt")
-; (require "./checker.rkt")
 (require "../parse.rkt")
 (require "../show.rkt")
 (require "../runtime.rkt")
 (require "../string-of-state.rkt")
 
-(define preprocess (compose))
+(define preprocess identity)
 (define (my-pict-of-state message term env ectx stack pctx heap)
   ((pict-of-state #f) message (preprocess term) env (preprocess ectx) (preprocess stack) (preprocess pctx) heap))
 

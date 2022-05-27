@@ -1,20 +1,25 @@
 #lang plait
 (require (rename-in (typed-in racket [format : (String 'a -> String)])
-           [format raw-format]))
+                    [format raw-format]))
+
+(define (displayln x)
+  (begin
+    (display x)
+    (display "\n")))
 
 (define (string-of any)
   (format "~a" any))
 
 (define (string-join t s*)
   (ind-List s*
-    ""
-    (lambda (_IH s)
-      (let ([string*-of-s* (map (lambda (s) (string-append t s)) s*)])
-        (string-append s
-          (ind-List string*-of-s*
             ""
-            (lambda (IH elm)
-              (string-append elm IH))))))))
+            (lambda (_IH s)
+              (let ([string*-of-s* (map (lambda (s) (string-append t s)) s*)])
+                (string-append s
+                               (ind-List string*-of-s*
+                                         ""
+                                         (lambda (IH elm)
+                                           (string-append elm IH))))))))
 
 (define (format template datum)
   (raw-format template datum))

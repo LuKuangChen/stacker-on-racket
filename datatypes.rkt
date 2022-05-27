@@ -3,11 +3,17 @@
 (require "error.rkt")
 (require "utilities.rkt")
 (require (typed-in racket
+                   [random : (Number -> Number)]
                    [list->vector : ((Listof 'a) -> (Vectorof 'a))]
                    [vector->list : ((Vectorof 'a) -> (Listof 'a))]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
                    [remove-duplicates : ((Listof 'a) -> (Listof 'a))]))
 
+(define-type-alias CompiledProgram ((Listof (Id * Term)) * (Listof Term)))
+(define-type ProgramContext
+  (P-def [x : Id] [d* : (Listof (Id * Term))] [e* : (Listof Term)])
+  (P-exp [e* : (Listof Term)]))
+(define-type-alias PCtx (ProgramContext * Env))
 (define-type Term
   (t-quote [v : Val])
   (t-var [x : Id])
@@ -18,12 +24,13 @@
   (t-app [fun : Term] [arg* : (Listof Term)])
   (t-let [bind* : (Listof (Id * Term))] [body : Term])
   (t-letrec [bind* : (Listof (Id * Term))] [body : Term])
+  #;
   (t-letrec-1 [bind* : (Listof (Id * Term))] [body : Term])
+  #;
   (t-fun-call [bind* : (Listof (Id * Term))] [body : Term])
   (t-set! [var : Id] [val : Term])
   (t-begin [prelude* : (Listof Term)] [result : Term])
-  (t-if [cnd : Term] [thn : Term] [els : Term])
-  (t-show [val : Term]))
+  (t-if [cnd : Term] [thn : Term] [els : Term]))
 
 (define-type-alias (Result 'a) 'a)
 (define-type HeapAddress
@@ -47,17 +54,19 @@
   (v-void))
 (define the-heap : Heap (make-hash (list)))
 (define next-heap-addr : Number 0)
+(define (find-heap-addr [base : Number]) : Number
+  (let ([propose (+ base (random 1000))])
+    (type-case (Optionof HeapValue) (hash-ref the-heap (ha-user propose))
+      [(none) propose]
+      [(some hv) (find-heap-addr base)])))
+(define (base-addr h)
+  (type-case HeapValue h
+    [(h-env env map) 1000]
+    [else 0]))
 (define (allocate! h)
-  (let* ([addr (ha-user next-heap-addr)]
-         [_ (set! next-heap-addr (add1 next-heap-addr))]
+  (let* ([addr (ha-user (find-heap-addr (base-addr h)))]
          [_ (hash-set! the-heap addr h)])
-    (begin
-      ;;; (display "allocated ")
-      ;;; (display h)
-      ;;; (display " at ")
-      ;;; (display addr)
-      ;;; (display "\n")
-      addr)))
+    addr))
 (define (v-fun name env arg* def* body)
   (let ([addr (allocate! (h-fun env name arg* def* body))])
     (v-addr addr)))
@@ -146,9 +155,10 @@
 (define-type ECFrame
   (F-begin [e* : (Listof Term)] [e : Term])
   (F-app [v* : (Listof Val)] [e* : (Listof Term)])
-  (F-show!)
   (F-let [xv* : (Listof (Id * Val))] [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
+  #;
   (F-letrec-1 [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
+  #;
   (F-fun-call [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
   (F-if [thn : Term] [els : Term])
   (F-set! [var : Id]))
