@@ -1,4 +1,5 @@
 #lang plait
+#:untyped
 (require "utilities.rkt")
 (require "datatypes.rkt")
 (require (typed-in "string-of-state.rkt" [block : Symbol]))

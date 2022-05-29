@@ -190,11 +190,7 @@
          (pad padding
               (vl-append padding
                          (field "Context" ectx)
-                         (field "Environment @" env))
-              #;
-              (vl-append padding
-                         (ht-append padding (field "Context" ectx) (field "Environment @" env))
-                         (field "Created by" ann))))))
+                         (field "Environment @" env))))))
 
   (define (pad n p)
     (hc-append (blank n)

@@ -1,5 +1,5 @@
 #lang plait
-;;; (require (opaque-type-in racket [Absurd none/c]))
+#:untyped
 (require (rename-in 
            (typed-in "./error-racket.rkt"
                      [catch : ((-> 'a) ('error -> 'a) -> 'a)])
@@ -8,9 +8,6 @@
            (typed-in racket
                      [raise : ('a -> 'b)])
             [raise raw-raise]))
-;;; (require (rename-in 
-;;;            (typed-in racket [identity : (Absurd -> 'a)])
-;;;             [identity raw-whatever]))
 
 (define-type Exception
   (exn-tc [msg : String])

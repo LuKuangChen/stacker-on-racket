@@ -1,4 +1,5 @@
 #lang plait
+#:untyped
 (require "io.rkt")
 (require "error.rkt")
 (require "utilities.rkt")
@@ -33,12 +34,12 @@
   (pa-map)
   (pa-filter)
   (pa-base-env))
-(define-type-alias Heap (Hashof HeapAddress HeapValue))
 (define-type HeapValue
   (h-vec [it : (Vectorof Val)])
   (h-cons [it : (Val * Val)])
   (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
   (h-env [parent : Env] [map : (Hashof Id (Optionof Val))]))
+(define-type-alias Heap (Hashof HeapAddress HeapValue))
 (define-type Val
   (v-addr [it : HeapAddress])
   (v-prim [name : PrimitiveOp])
@@ -47,34 +48,25 @@
   (v-bool [it : Boolean])
   (v-empty)
   (v-void))
-(define the-heap : Heap (make-hash (list)))
-(define next-heap-addr : Number 0)
-(define (find-heap-addr [base : Number]) : Number
+(define (find-heap-addr the-heap [base : Number]) : Number
   (let ([propose (+ base (random 1000))])
     (type-case (Optionof HeapValue) (hash-ref the-heap (ha-user propose))
       [(none) propose]
-      [(some hv) (find-heap-addr base)])))
+      [(some hv) (find-heap-addr the-heap base)])))
 (define (base-addr h)
   (type-case HeapValue h
     [(h-env env map) 1000]
     [else 0]))
-(define (allocate! h)
-  (let* ([addr (ha-user (find-heap-addr (base-addr h)))]
-         [_ (hash-set! the-heap addr h)])
-    addr))
-(define (v-fun name env arg* def* body)
-  (let ([addr (allocate! (h-fun env name arg* def* body))])
-    (v-addr addr)))
-(define (v-vec it)
-  (let ([addr (allocate! (h-vec it))])
-    (v-addr addr)))
-(define (v-cons it)
-  (let ([addr (allocate! (h-cons it))])
-    (v-addr addr)))
-(define (v-list it)
+(define (allocate! the-heap h)
+  (let* ([addr (ha-user (find-heap-addr the-heap (base-addr h)))]
+         [the-heap (hash-set the-heap addr h)])
+    (values the-heap addr)))
+(define (v-list the-heap it)
   (if (empty? it)
-      (v-empty)
-      (v-cons (pair (first it) (v-list (rest it))))))
+      (values the-heap (v-empty))
+      (let-values (((the-heap v) (v-list the-heap (rest it))))
+        (let-values (((the-heap addr) (allocate! the-heap (h-cons (pair (first it) v)))))
+          (values the-heap (v-addr addr))))))
 
 (define-type PrimitiveOp
   (po-not)
@@ -99,11 +91,7 @@
   (po-set-right!)
   (po-vref)
   (po-cons)
-  ;;; (po-map)
-  ;;; (po-filter)
   (po-vset!)
-  ;;; (po-foldl)
-  ;;; (po-foldr)
   (po-mvec)
   (po-first)
   (po-rest)
@@ -111,48 +99,47 @@
   (po-pause))
 
 (define-type-alias Env (Optionof HeapAddress))
-(define (env-declare [env : Env] x*): Env
+(define (env-declare the-heap [env : Env] x*): Env
   (if (no-duplicates x*)
-      (let ((addr (allocate! (h-env env (make-hash (map (λ (x) (pair x (none))) x*))))))
+      (let-values (((the-heap addr) (allocate! the-heap (h-env env (make-hash (map (λ (x) (pair x (none))) x*))))))
         (some addr))
       (raise (exn-rt "redeclare"))))
-(define (env-extend [env : Env] [x&v* : (Listof (Id * Val))]): Env
-  (env-extend/declare env (map2 pair (map fst x&v*) (map some (map snd x&v*)))))
-(define (env-extend/declare [env : Env] [x&v* : (Listof (Id * (Optionof Val)))]): Env
-  (some (allocate! (h-env env (make-hash x&v*)))))
+(define (env-extend the-heap [env : Env] [x&v* : (Listof (Id * Val))]): Env
+  (env-extend/declare the-heap env (map2 pair (map fst x&v*) (map some (map snd x&v*)))))
+(define (env-extend/declare the-heap [env : Env] [x&v* : (Listof (Id * (Optionof Val)))]): Env
+  (let-values (((the-heap addr) (allocate! the-heap (h-env env (make-hash x&v*)))))
+    (some addr)))
 
 (define (no-duplicates x*)
   (= (length x*)
      (length (remove-duplicates x*))))
-(define (env-set! [env : Env] x v)
-  (type-case (Optionof HeapAddress) env
-    ((none)
-     (raise (exn-internal 'env-set! "This is impossible")))
-    ((some addr)
-     (env-set!-1 addr x v))))
-(define (env-set!-1 addr x v)
-  (type-case HeapValue (some-v (hash-ref the-heap addr))
-    ((h-env env map)
-     (type-case (Optionof 'a) (hash-ref map x)
-       ((none)
-        (env-set! env x v))
-       ((some _)
-        (hash-set! map x (some v)))))
-    (else
-     (raise (exn-internal 'env-set! "This is impossible. The address is not an env.")))))
-(define (env-lookup [env : Env] x)
+(define (env-set the-heap [env : Env] x v)
+  (let ((addr (some-v env)))
+    (type-case HeapValue (some-v (hash-ref the-heap addr))
+      ((h-env env map)
+       (type-case (Optionof 'a) (hash-ref map x)
+         ((none)
+          (env-set the-heap env x v))
+         ((some _)
+          (hash-set
+           the-heap
+           addr
+           (h-env env (hash-set map x (some v))) ))))
+      (else
+       (raise (exn-internal 'env-set "This is impossible. The address is not an env."))))))
+(define (env-lookup the-heap [env : Env] x)
   (type-case (Optionof HeapAddress) env
     ((none)
      (raise (exn-rt (format "unbound id ~a" x))))
     ((some addr)
-     (env-lookup-1 addr x))))
-(define (env-lookup-1 addr x)
+     (env-lookup-1 the-heap addr x))))
+(define (env-lookup-1 the-heap addr x)
   (type-case HeapValue (some-v (hash-ref the-heap addr))
     ((h-env env map)
      (type-case
          (Optionof (Optionof Val))
        (hash-ref map x)
-       ((none) (env-lookup env x))
+       ((none) (env-lookup the-heap env x))
        ((some v)
         (type-case
             (Optionof Val)
@@ -178,8 +165,8 @@
 (define-type-alias Ctx (Env * ECtx * CtxAnn))
 (define-type-alias Stack (Listof Ctx))
 
-(define base-env
-  (let* ([env (none)]
+(define-values (base-heap base-env)
+  (let* ((the-heap (hash (list)))
          [x&v*  (ind-List
                  (list
                   (values 'not (po-not))
@@ -204,11 +191,7 @@
                   (values 'set-right! (po-set-right!))
                   (values 'vref (po-vref))
                   (values 'cons (po-cons))
-                  ;;; (values 'map (po-map))
-                  ;;; (values 'filter (po-filter))
                   (values 'vset! (po-vset!))
-                  ;;; (values 'foldl (po-foldl))
-                  ;;; (values 'foldr (po-foldr))
                   (values 'mvec (po-mvec))
                   (values 'list (po-list))
                   (values 'pause (po-pause)))
@@ -218,61 +201,63 @@
                                  (v-prim (snd e)))
                          IH)))]
          [addr (ha-prim (pa-base-env))]
-         [hv (h-env env  (make-hash (append
-                                     (map2 pair
-                                           (map fst x&v*)
-                                           (map some (map snd x&v*)))
-                                     (list (pair 'empty (some (v-empty)))
-                                           (pair 'map (some (v-addr (ha-prim (pa-map)))))
-                                           (pair 'filter (some (v-addr (ha-prim (pa-filter)))))
-                                           (pair 'false (some (v-bool #f)))
-                                           (pair 'true (some (v-bool #t)))))))]
-         [_ (hash-set! the-heap addr hv)])
-    (some addr)))
-
-(hash-set! the-heap (ha-prim (pa-map))
-           (h-fun base-env
-                  (some 'map)
-                  (list 'f 'xs)
-                  (list)
-                  (t-if (t-app (t-var 'equal?) (list (t-var 'xs) (t-var 'empty)))
-                        (t-var 'empty)
-                        (t-app (t-var 'cons)
-                               (list (t-app (t-var 'f)
-                                            (list (t-app (t-quote (v-prim (po-first)))
-                                                         (list (t-var 'xs)))))
-                                     (t-app (t-var 'map)
-                                            (list (t-var 'f)
-                                                  (t-app (t-quote (v-prim (po-rest)))
-                                                         (list (t-var 'xs))))))))))
-(hash-set! the-heap (ha-prim (pa-filter))
-           (h-fun base-env
-                  (some 'filter)
-                  (list 'f 'xs)
-                  (list)
-                  (t-if (t-app (t-var 'equal?) (list (t-var 'xs) (t-var 'empty)))
-                        (t-var 'empty)
-                        (t-if (t-app (t-var 'f)
-                                     (list (t-app (t-quote (v-prim (po-first)))
-                                                  (list (t-var 'xs)))))
-                              (t-app (t-var 'cons)
-                                     (list (t-app (t-quote (v-prim (po-first)))
-                                                  (list (t-var 'xs)))
-                                           (t-app (t-var 'filter)
-                                                  (list (t-var 'f)
-                                                        (t-app (t-quote (v-prim (po-rest)))
-                                                               (list (t-var 'xs)))))))
-                              (t-app (t-var 'filter)
-                                     (list (t-var 'f)
-                                           (t-app (t-quote (v-prim (po-rest)))
-                                                  (list (t-var 'xs)))))))))
+         [hv (h-env (none)  (make-hash (append
+                                        (map2 pair
+                                              (map fst x&v*)
+                                              (map some (map snd x&v*)))
+                                        (list (pair 'empty (some (v-empty)))
+                                              (pair 'map (some (v-addr (ha-prim (pa-map)))))
+                                              (pair 'filter (some (v-addr (ha-prim (pa-filter)))))
+                                              (pair 'false (some (v-bool #f)))
+                                              (pair 'true (some (v-bool #t)))))))]
+         [the-heap (hash-set the-heap addr hv)]
+         [base-env (some addr)]
+         (the-heap (hash-set the-heap (ha-prim (pa-map))
+                             (h-fun base-env
+                                    (some 'map)
+                                    (list 'f 'xs)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'xs) (t-var 'empty)))
+                                          (t-var 'empty)
+                                          (t-app (t-var 'cons)
+                                                 (list (t-app (t-var 'f)
+                                                              (list (t-app (t-quote (v-prim (po-first)))
+                                                                           (list (t-var 'xs)))))
+                                                       (t-app (t-var 'map)
+                                                              (list (t-var 'f)
+                                                                    (t-app (t-quote (v-prim (po-rest)))
+                                                                           (list (t-var 'xs)))))))))))
+         (the-heap (hash-set the-heap (ha-prim (pa-filter))
+                             (h-fun base-env
+                                    (some 'filter)
+                                    (list 'f 'xs)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'xs) (t-var 'empty)))
+                                          (t-var 'empty)
+                                          (t-if (t-app (t-var 'f)
+                                                       (list (t-app (t-quote (v-prim (po-first)))
+                                                                    (list (t-var 'xs)))))
+                                                (t-app (t-var 'cons)
+                                                       (list (t-app (t-quote (v-prim (po-first)))
+                                                                    (list (t-var 'xs)))
+                                                             (t-app (t-var 'filter)
+                                                                    (list (t-var 'f)
+                                                                          (t-app (t-quote (v-prim (po-rest)))
+                                                                                 (list (t-var 'xs)))))))
+                                                (t-app (t-var 'filter)
+                                                       (list (t-var 'f)
+                                                             (t-app (t-quote (v-prim (po-rest)))
+                                                                    (list (t-var 'xs))))))))))
+         )
+    (values the-heap base-env)))
 
 (define-type Operator
   (op-prim [name : PrimitiveOp])
   (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
 
-(define-type State
+(define-type OtherState
   (to-fun-call [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
                [clos-env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
   (return [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])
   (terminate))
+(define-type-alias State (Heap * OtherState))

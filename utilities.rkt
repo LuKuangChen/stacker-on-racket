@@ -1,6 +1,14 @@
 #lang plait
+#:untyped
 (require (rename-in (typed-in racket [format : (String 'a -> String)])
                     [format raw-format]))
+
+(define-syntax let-values
+  (syntax-rules ()
+    [(let-values (((x ...) e)) body)
+     (let ([tmp e])
+       (local ((define-values (x ...) tmp))
+         body))]))
 
 (define (displayln x)
   (begin
