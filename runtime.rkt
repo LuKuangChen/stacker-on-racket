@@ -18,37 +18,12 @@
                    [remove-duplicates : ((Listof 'a) -> (Listof 'a))]
                    [andmap : (('a 'a -> Boolean) (Listof 'a) (Listof 'a) -> Boolean)]))
 
-
-(define-type Operator
-  (op-prim [name : PrimitiveOp])
-  (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
-
-
-(define-type State
-  (interp [e : Term] [env : Env] [ectx : ECtx] [stack : Stack] [pctx : PCtx])
-  (to-fun-call [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack] [pctx : PCtx]
-               [clos-env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
-  (return [v : Val] [env : Env] [ectx : ECtx] [stack : Stack] [pctx : PCtx])
-  (terminate))
-
 (define (compile [program : Program]): CompiledProgram
   (let* ([def* (fst program)]
          [exp* (snd program)]
          [def* (map compile-def def*)]
          [exp* (map compile-e exp*)])
-    (values def* exp*))
-  #;
-  (let* ([def* (fst program)]
-         [exp* (snd program)]
-         [exp* (map compile-e exp*)]
-         [exp* (map t-show exp*)]
-         [prelude*&result (type-case (Dec ((Listof Term) * Term) ()) (get-last exp*)
-                            [(no _) (values exp* (term-of-c (c-void)))]
-                            [(yes prelude*&result)
-                             prelude*&result])]
-         [prelude* (fst prelude*&result)]
-         [result (snd prelude*&result)])
-    (global-letrec-of-def*-1 (fst program) (maybe-begin prelude* result))))
+    (values def* exp*)))
 (define (compile-e [e : Expr]) : Term
   (type-case Expr e
     [(e-con c)
@@ -173,57 +148,49 @@
   :
   Void
 
-  (local ((define (apply-pctx v [pctx : PCtx])
-            (let* ((env (snd pctx))
-                   (ctx (fst pctx)))
-              (type-case ProgramContext ctx
-                [(P-def x bind* exp*)
-                 (let ((_ (env-set! env x v)))
-                   (do-interp-program-def* bind* exp* env))]
-                [(P-exp exp*)
-                 (let ([_ (output! (obs-of-val v))])
-                   (do-interp-program-exp* exp* env))])))
-          (define (apply-stack v stack pctx)
+  (local ((define (apply-stack v stack)
             (type-case (Listof Ctx) stack
               (empty
-               (apply-pctx v pctx))
+               (terminate))
               ((cons sf0 stack)
                (local ((define-values (env ectx ann) sf0))
-                 (return v env ectx stack pctx)))))
-          (define (do-apply-k v env ectx [stack : Stack] pctx)
+                 (return v env ectx stack)))))
+          (define (do-apply-k v env ectx [stack : Stack])
             : State
             (begin
               (type-case (Listof ECFrame) ectx
                 [empty
-                 (apply-stack v stack pctx)]
+                 (apply-stack v stack)]
                 ((cons f ectx)
                  (type-case ECFrame f
                    ((F-begin e* e)
-                    (interp-begin e* e env ectx stack pctx))
+                    (interp-begin e* e env ectx stack))
                    ((F-app v* e*)
                     (let ([v* (append v* (list v))])
-                      (interp-app v* e* env ectx stack pctx)))
+                      (interp-app v* e* env ectx stack)))
                    ((F-let xv* x xe* body)
-                    (interp-let (append xv* (list (pair x v))) xe* body env ectx stack pctx))
-                   #;
-                   ((F-letrec-1 x xe* body)
-                    (let ((_ (env-set! env x v)))
-                      (interp-letrec-1 xe* body env ectx stack pctx)))
-                   #;
-                   ((F-fun-call x xe* body)
-                    (let ((_ (env-set! env x v)))
-                      (interp-fun-call xe* body env ectx stack pctx)))
+                    (interp-let (append xv* (list (pair x v))) xe* body env ectx stack))
                    ((F-if thn els)
                     (if (truthy? v)
                         (let ((e thn))
-                          (do-interp e env ectx stack pctx))
+                          (do-interp e env ectx stack))
                         (let ((e els))
-                          (do-interp e env ectx stack pctx))))
+                          (do-interp e env ectx stack))))
                    ((F-set! var)
                     (let* ((_ (env-set! env var v))
                            (v (v-void)))
-                      (do-apply-k v env ectx stack pctx)))
-                   )))))
+                      (do-apply-k v env ectx stack)))
+                   ((P-def x d* e*)
+                    (begin
+                      (unless (and (empty? ectx) (empty? stack))
+                        (raise (exn-internal 'apply-k "The ectx and the stack must be empty.")))
+                      (let* ([_ (env-set! env x v)])
+                        (do-interp-program-def* d* e* env))))
+                   ((P-exp e*)
+                    (begin
+                      (unless (and (empty? ectx) (empty? stack))
+                        (raise (exn-internal 'apply-k "The ectx and the stack must be empty.")))
+                      (do-interp-program-exp* e* env))))))))
           (define (do-interp-program [p : CompiledProgram]) : State
             (local ((define-values (bind* exp*) p))
               (let ((var* (map var-of-bind bind*)))
@@ -236,51 +203,47 @@
               [(cons bind bind*)
                (let* ([x (fst bind)]
                       [e (snd bind)])
-                 (do-interp e env empty empty (pair (P-def x bind* exp*) env)))]))
+                 (do-interp e env (list (P-def x bind* exp*)) empty))]))
           (define (do-interp-program-exp* [exp* : (Listof Term)] [env : Env]): State
             (type-case (Listof Term) exp*
               [empty
                (terminate)]
               [(cons e e*)
-               (do-interp e env empty empty (pair (P-exp e*) env))]))
-          (define (do-interp [e : Term] [env : Env] ectx stack [pctx : PCtx])
+               (do-interp e env (list (P-exp e*)) empty)]))
+          (define (do-interp [e : Term] [env : Env] ectx stack)
             : State
             (begin
               (type-case
                   Term
                 e
-                ((t-quote v) (do-apply-k v env ectx stack pctx))
+                ((t-quote v) (do-apply-k v env ectx stack))
                 ((t-var x)
                  (begin
                    (let ([v (env-lookup env x)])
-                     (do-apply-k v env ectx stack pctx))))
+                     (do-apply-k v env ectx stack))))
                 ((t-fun name arg* def* body)
                  (let ((v (v-fun name env arg* def* body)))
-                   (do-apply-k v env ectx stack pctx)))
-                ((t-app fun arg*) (interp-app (list) (cons fun arg*) env ectx stack pctx))
-                ((t-let bind* body) (interp-let (list) bind* body env ectx stack pctx))
-                #;
-                ((t-letrec-1 bind* body) (interp-letrec-1 bind* body env ectx stack pctx))
-                #;
-                ((t-fun-call bind* body) (interp-fun-call bind* body env ectx stack pctx))
+                   (do-apply-k v env ectx stack)))
+                ((t-app fun arg*) (interp-app (list) (cons fun arg*) env ectx stack))
+                ((t-let bind* body) (interp-let (list) bind* body env ectx stack))
                 ((t-letrec bind* body)
                  (let ([stack (cons (values env ectx (ca-letrec)) stack)])
                    (let ((ectx (list)))
                      (let ((var* (map var-of-bind bind*)))
                        (let ((env (env-declare env var*)))
                          (let ([e (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body)])
-                           (do-interp e env ectx stack pctx)))))))
+                           (do-interp e env ectx stack)))))))
                 ((t-set! var val)
                  (let ((e val))
                    (let ((ectx (cons (F-set! var) ectx)))
-                     (do-interp e env ectx stack pctx))))
+                     (do-interp e env ectx stack))))
                 ((t-begin prelude* result)
-                 (interp-begin prelude* result env ectx stack pctx))
+                 (interp-begin prelude* result env ectx stack))
                 ((t-if cnd thn els)
                  (let ((e cnd))
                    (let ((ectx (cons (F-if thn els) ectx)))
-                     (do-interp e env ectx stack pctx)))))))
-          (define (interp-app v* e* env ectx stack pctx)
+                     (do-interp e env ectx stack)))))))
+          (define (interp-app v* e* env ectx stack)
             (type-case
                 (Listof Term)
               e*
@@ -289,21 +252,21 @@
                    (Listof Val)
                  v*
                  (empty (raise (exn-internal 'interpter "")))
-                 ((cons fun arg*) (interp-beta fun arg* env ectx stack pctx))))
+                 ((cons fun arg*) (interp-beta fun arg* env ectx stack))))
               ((cons e e*)
                (let ((ectx (cons (F-app v* e*) ectx)))
-                 (do-interp e env ectx stack pctx)))))
-          (define (interp-begin prelude* result env ectx stack pctx)
+                 (do-interp e env ectx stack)))))
+          (define (interp-begin prelude* result env ectx stack)
             (type-case
                 (Listof Term)
               prelude*
               (empty
                (let ([e result])
-                 (do-interp e env ectx stack pctx)))
+                 (do-interp e env ectx stack)))
               ((cons e prelude*)
                (let ((ectx (cons (F-begin prelude* result) ectx)))
-                 (do-interp e env ectx stack pctx)))))
-          (define (interp-let xv* xe* body env ectx stack pctx)
+                 (do-interp e env ectx stack)))))
+          (define (interp-let xv* xe* body env ectx stack)
             (type-case
                 (Listof (Id * Term))
               xe*
@@ -312,42 +275,16 @@
                  (let ((env (env-extend env xv*)))
                    (let ((ectx (list)))
                      (let ((e body))
-                       (do-interp e env ectx stack pctx))))))
+                       (do-interp e env ectx stack))))))
               ((cons ⟨x×e⟩ xe*)
                (let ((x (fst ⟨x×e⟩)))
                  (let ((e (snd ⟨x×e⟩)))
                    (let ((ectx (cons (F-let xv* x xe* body) ectx)))
-                     (do-interp e env ectx stack pctx)))))))
-          #;
-          (define (interp-letrec-1 xe* body env ectx stack pctx)
-            (type-case
-                (Listof (Id * Term))
-              xe*
-              (empty
-               (let ([e body])
-                 (do-interp e env ectx stack pctx)))
-              ((cons xe xe*)
-               (let ((x (fst xe)))
-                 (let ((e (snd xe)))
-                   (let ((ectx (cons (F-letrec-1 x xe* body) ectx)))
-                     (do-interp e env ectx stack pctx)))))))
-          #;
-          (define (interp-fun-call xe* body env ectx stack pctx)
-            (type-case
-                (Listof (Id * Term))
-              xe*
-              (empty
-               (let ([e body])
-                 (do-interp e env ectx stack pctx)))
-              ((cons xe xe*)
-               (let ((x (fst xe)))
-                 (let ((e (snd xe)))
-                   (let ((ectx (cons (F-fun-call x xe* body) ectx)))
-                     (do-interp e env ectx stack pctx)))))))
+                     (do-interp e env ectx stack)))))))
           (define (output! o)
             (unless (o-void? o)
               (displayln (string-of-o o))))
-          (define (interp-beta (fun : Val) (arg-v* : (Listof Val)) env ectx stack pctx)
+          (define (interp-beta (fun : Val) (arg-v* : (Listof Val)) env ectx stack)
             :
             (Result 'Val)
             (begin
@@ -355,11 +292,11 @@
                   Operator
                 (as-fun fun)
                 ((op-prim op)
-                 (let ((v (delta op arg-v* env ectx stack pctx)))
-                   (do-apply-k v env ectx stack pctx)))
+                 (let ((v (delta op arg-v* env ectx stack)))
+                   (do-apply-k v env ectx stack)))
                 ((op-fun clos-env arg-x* def* body)
-                 (to-fun-call fun arg-v* env ectx stack pctx clos-env arg-x* def* body)))))
-          (define (do-fun-call fun arg-v* env ectx stack pctx clos-env arg-x* def* body)
+                 (to-fun-call fun arg-v* env ectx stack clos-env arg-x* def* body)))))
+          (define (do-fun-call fun arg-v* env ectx stack clos-env arg-x* def* body)
             (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
               (let ([ectx (list)])
                 (let ((env (env-extend/declare clos-env
@@ -369,7 +306,7 @@
                                                                 (values name (none))))
                                                             def*)))))
                   (let ((e (t-init! def* body)))
-                    (interp e env ectx stack pctx))))))
+                    (do-interp e env ectx stack))))))
           (define (t-init! bind* body)
             (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
           (define (do-equal? v1 v2)
@@ -400,7 +337,7 @@
                                    [else #f])]
                                 [else #f])))))
                 (do-equal?-helper v1 v2))))
-          (define (delta op v-arg* env ectx stack pctx)
+          (define (delta op v-arg* env ectx stack)
             (type-case
                 PrimitiveOp
               op
@@ -554,46 +491,17 @@
           (define (forward [state : State])
             (begin
               (type-case State state
-                [(interp e env ectx stack pctx)
-                 (do-interp e env ectx stack pctx)]
-                [(to-fun-call fun arg-v* env ectx stack pctx clos-env arg-x* def* body)
-                 (do-fun-call fun arg-v* env ectx stack pctx clos-env arg-x* def* body)]
-                [(return v env ectx stack pctx)
-                 (do-apply-k v env ectx stack pctx)]
+                [(to-fun-call fun arg-v* env ectx stack clos-env arg-x* def* body)
+                 (do-fun-call fun arg-v* env ectx stack clos-env arg-x* def* body)]
+                [(return v env ectx stack)
+                 (do-apply-k v env ectx stack)]
                 [(terminate)
                  (terminate)])))
           (define (trampoline [state : State])
             (when (not (terminate? state))
               (trampoline (forward state))))
           (define (my-pict-of-state state)
-            (type-case State state
-              [(interp e env ectx stack pctx)
-               (pict-of-state "Computing"
-                              (s-exp-of-e e)
-                              (s-exp-of-env env)
-                              (s-exp-of-ectx ectx)
-                              (s-exp-of-stack stack)
-                              (s-exp-of-pctx pctx)
-                              (s-exp-of-heap the-heap))]
-              [(to-fun-call fun arg* env ectx stack pctx clos-env arg-x* def* body)
-               (pict-of-state "Computing"
-                              (s-exp-of-e (t-app (t-quote fun) (map t-quote arg*)))
-                              (s-exp-of-env env)
-                              (s-exp-of-ectx ectx)
-                              (s-exp-of-stack stack)
-                              (s-exp-of-pctx pctx)
-                              (s-exp-of-heap the-heap))]
-              [(return v env ectx stack pctx)
-               (pict-of-state "Returning"
-                              (s-exp-of-e (t-quote v))
-                              (s-exp-of-env env)
-                              (s-exp-of-ectx ectx)
-                              (s-exp-of-stack stack)
-                              (s-exp-of-pctx pctx)
-                              (s-exp-of-heap the-heap))]
-              [(terminate)
-               (text "end of computation.")])
-            ))
+            (pict-of-state (s-exp-of-state state the-heap))))
     (let ([initial-state
            (catch
             (λ ()

@@ -10,8 +10,8 @@
 (require "../string-of-state.rkt")
 
 (define preprocess (compose))
-(define (my-pict-of-state message term env ectx stack pctx heap)
-  ((pict-of-state #f) message (preprocess term) env (preprocess ectx) (preprocess stack) (preprocess pctx) heap))
+(define (my-pict-of-state state)
+  ((pict-of-state #f) (preprocess state)))
 
 (define (run tracing? e)
   ;; don't check anything, including scope

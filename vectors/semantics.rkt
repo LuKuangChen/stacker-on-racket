@@ -32,8 +32,8 @@
            s-exp)]))
   (rec s-exp))
 (define preprocess (compose defvar-lambda-as-deffun set!-as-def-1))
-(define (my-pict-of-state message term env ectx stack pctx heap)
-  ((pict-of-state #t) message (preprocess term) env (preprocess ectx) (preprocess stack) (preprocess pctx) heap))
+(define (my-pict-of-state state)
+  ((pict-of-state #t) (preprocess state)))
 
 (define (run tracing? e)
   ;; don't check anything, including scope

@@ -5,10 +5,8 @@
 (require "../pict-of-state.rkt")
 ; (require "./checker.rkt")
 (require "../parse.rkt")
-(require "../show.rkt")
 (require "../runtime.rkt")
 (require "../string-of-state.rkt")
-
 
 (define (defvar-lambda-as-deffun s-exp)
   (define (rec s-exp)
@@ -45,12 +43,10 @@
            s-exp)]))
   (rec s-exp))
 (define preprocess (compose defvar-lambda-as-deffun set!-as-def-1 begin-as-block))
-(define (my-pict-of-state message term env ectx stack pctx heap)
-  ((pict-of-state #t) message (preprocess term) env (preprocess ectx) (preprocess stack) (preprocess pctx) heap))
+(define (my-pict-of-state state)
+  ((pict-of-state #t) (preprocess state)))
 
 (define (run tracing? e)
-  ;; don't check anything, including scope
-  ;; TODO: make sure set! and other banned operators are not there.
   (define check void)
   (eval tracing? check my-pict-of-state (parse e)))
 

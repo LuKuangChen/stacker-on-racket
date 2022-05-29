@@ -10,10 +10,6 @@
                    [remove-duplicates : ((Listof 'a) -> (Listof 'a))]))
 
 (define-type-alias CompiledProgram ((Listof (Id * Term)) * (Listof Term)))
-(define-type ProgramContext
-  (P-def [x : Id] [d* : (Listof (Id * Term))] [e* : (Listof Term)])
-  (P-exp [e* : (Listof Term)]))
-(define-type-alias PCtx (ProgramContext * Env))
 (define-type Term
   (t-quote [v : Val])
   (t-var [x : Id])
@@ -24,10 +20,6 @@
   (t-app [fun : Term] [arg* : (Listof Term)])
   (t-let [bind* : (Listof (Id * Term))] [body : Term])
   (t-letrec [bind* : (Listof (Id * Term))] [body : Term])
-  #;
-  (t-letrec-1 [bind* : (Listof (Id * Term))] [body : Term])
-  #;
-  (t-fun-call [bind* : (Listof (Id * Term))] [body : Term])
   (t-set! [var : Id] [val : Term])
   (t-begin [prelude* : (Listof Term)] [result : Term])
   (t-if [cnd : Term] [thn : Term] [els : Term]))
@@ -169,16 +161,15 @@
           ((some v) v)))))
     (else
      (raise (exn-internal 'env-lookup "Not an env.")))))
+
 (define-type ECFrame
   (F-begin [e* : (Listof Term)] [e : Term])
   (F-app [v* : (Listof Val)] [e* : (Listof Term)])
   (F-let [xv* : (Listof (Id * Val))] [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
-  #;
-  (F-letrec-1 [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
-  #;
-  (F-fun-call [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
   (F-if [thn : Term] [els : Term])
-  (F-set! [var : Id]))
+  (F-set! [var : Id])
+  (P-def [x : Id] [d* : (Listof (Id * Term))] [e* : (Listof Term)])
+  (P-exp [e* : (Listof Term)]))
 (define-type-alias ECtx (Listof ECFrame))
 (define-type CtxAnn
   (ca-app [v : Val] [v* : (Listof Val)])
@@ -275,3 +266,13 @@
                                      (list (t-var 'f)
                                            (t-app (t-quote (v-prim (po-rest)))
                                                   (list (t-var 'xs)))))))))
+
+(define-type Operator
+  (op-prim [name : PrimitiveOp])
+  (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
+
+(define-type State
+  (to-fun-call [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
+               [clos-env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
+  (return [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])
+  (terminate))

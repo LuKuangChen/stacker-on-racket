@@ -3,49 +3,35 @@
 (require pict)
 (require (rename-in pict [text pict-text]))
 (require pict/color)
-(require racket/draw)
 (require "./string-of-state.rkt")
 
 (define (text s)
   (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
 
 (define (pict-of-state hide-closure?)
+  (define (stack-frame-of-pctx pctx)
+    (match pctx
+      [`(,ctx ,env)
+       (list env ctx "top-level")]))
 
-
-  (define (pict-of-focus focus)
-    (match focus
-      [`("Terminated")
-       (box (field-label "Terminated") "black")]
-      [`("Computing" ,term)
-       (box (field "Computing" term) "orange")]
-      [`("Returning" ,term)
-       (box (field "Returning" term) "brown")]))
-
-  (define (pict-of-state state)
-    (define p(match state
-               [`("Terminated" ,heap)
-                (bg "white"
-                    (ht-append padding
-                               (vl-append padding
-                                          (pict-of-stack empty)
-                                          (pict-of-focus `("Terminated")))
-                               (pict-of-heap heap)))]
-               [`(,message ,term ,env ,ectx ,stack ,heap)
-                (bg "white"
-                    (ht-append padding
-                               (vl-append padding
-                                          (pict-of-stack (cons (list env ectx term) stack))
-                                          (pict-of-focus `(,message ,term)))
-                               (pict-of-heap heap)))]))
+  (define (pict-of-state message term env ectx stack pctx heap)
+    (define p (bg "black"
+                  (ht-append padding
+                             (vl-append padding
+                                        (pict-of-stack (append stack (list (stack-frame-of-pctx pctx))))
+                                        (pict-of-focus message term ectx env))
+                             (pict-of-heap heap))))
     (define dim (max (pict-width p) (pict-height p)))
     (scale p (/ 600 dim)))
+
+  (define (pict-of-term term)
+    (box (field-value term)))
 
   (define (pict-of-stack stack)
     (box
      (apply vl-append
             (field-label "Stack")
-            (map pict-of-sf (reverse stack)))
-     "blue"))
+            (map pict-of-sf (reverse stack)))))
 
   (define (is-env? heapitem)
     (match-define (list addr hv) heapitem)
@@ -72,14 +58,15 @@
   (define (pict-of-heapitems heapitems)
     (apply vl-append padding
            (map pict-of-heapitem (filter heapitem-interesting? heapitems))))
-  (define (color-of-environment addr)
-    (define addr-as-num (string->number addr))
-    (define ratio (/ (- addr-as-num 1000) 1000))
-    (define green (* ratio 200))
-    (make-object color% 0 (round green) 0))
   (define (pict-of-heapitem item)
     (match-define `(,this-addr ,hv) item)
     (match hv
+      [`(Closure ,env ,name ,code)
+       (plate (vl-append padding
+                         (field "@" this-addr)
+                         (field-label "Closure")
+                         (field "Environment @" env)
+                         (field "Code" (string-of-s-exp code))))]
       [`(Environment ,bindings ,outer-addr)
        (plate (vl-append
                (field "@" this-addr)
@@ -89,43 +76,33 @@
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key (compose symbol->string car))))))
-               (field "Rest" outer-addr))
-              (color-of-environment this-addr))]
-      [`(Closure ,env ,name ,code)
-       (plate (vl-append padding
-                         (field "@" this-addr)
-                         (field-label "Closure")
-                         (field "Environment @" env)
-                         (field "Code" (string-of-s-exp code)))
-              "blue")]
+               (field "Rest" outer-addr)))]
       [`,vec
        #:when (vector? vec)
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec)))))
-              "blue")]
+                         (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec))))))]
       [`(Cons ,v1 ,v2)
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
-              "blue")]
+                         (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2))))))]
       [else
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field "cons" hv))
-              "blue")]))
-  (define (plate p color)
+                         (field "cons" hv)))]))
+  (define (plate p)
     (define w (pict-width p))
     (define h (pict-height p))
     (cc-superimpose
      (filled-ellipse
       (* (sqrt 2) (+ (pict-width p) 6))
       (* (sqrt 2) (+ (pict-height p) 6))
-      #:color color)
+      #:draw-border? #t
+      #:color "blue")
      p))
 
-  (define (box p color)
-    (frame (bg color (pad padding p))))
+  (define (box p)
+    (frame (bg "blue" (pad padding p))))
   (define (pict-of-envs all-env-heapitems)
     (define (rec root)
       (let ([env (car (dict-ref all-env-heapitems root))])
@@ -181,17 +158,21 @@
   (define (bg color p)
     (cc-superimpose (filled-rectangle (pict-width p) (pict-height p) #:draw-border? #f #:color color) p))
 
-  (define color-of-sf
-    "royalblue")
-  (define (pict-of-sf sf)
-    (match-define (list env ectx ann) sf)
-    (bg color-of-sf
+  (define (pict-of-focus message term ectx env)
+    (bg "blue"
         (frame
          (pad padding
               (vl-append padding
-                         (field "Context" ectx)
-                         (field "Environment @" env))
-              #;
+                         (field "Environment @" env)
+                         (ht-append padding
+                                    (field message term)
+                                    (field "Context" ectx)))))))
+
+  (define (pict-of-sf sf)
+    (match-define (list env ectx ann) sf)
+    (bg "blue"
+        (frame
+         (pad padding
               (vl-append padding
                          (ht-append padding (field "Context" ectx) (field "Environment @" env))
                          (field "Created by" ann))))))
