@@ -3,7 +3,7 @@
          (rename-out [my-top-interaction #%top-interaction]))
 
 (require "../pict-of-state.rkt")
-; (require "./checker.rkt")
+(require "../s-exp-of-state.rkt")
 (require "../parse.rkt")
 (require "../show.rkt")
 (require "../runtime.rkt")
@@ -33,7 +33,7 @@
   (rec s-exp))
 (define preprocess (compose defvar-lambda-as-deffun set!-as-def-1))
 (define (my-pict-of-state state)
-  ((pict-of-state #t) (preprocess state)))
+  ((pict-of-state #t) (preprocess ((s-exp-of-state #f) state))))
 
 (define (run tracing? e)
   ;; don't check anything, including scope

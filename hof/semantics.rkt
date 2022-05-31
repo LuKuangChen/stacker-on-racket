@@ -3,7 +3,7 @@
          (rename-out [my-top-interaction #%top-interaction]))
 
 (require "../pict-of-state.rkt")
-; (require "./checker.rkt")
+(require "../s-exp-of-state.rkt")
 (require "../parse.rkt")
 (require "../show.rkt")
 (require "../runtime.rkt")
@@ -11,11 +11,9 @@
 
 (define preprocess (compose))
 (define (my-pict-of-state state)
-  ((pict-of-state #f) (preprocess state)))
+  ((pict-of-state #f) (preprocess ((s-exp-of-state #t) state))))
 
 (define (run tracing? e)
-  ;; don't check anything, including scope
-  ;; TODO: make sure lambda and other banned operators are not there.
   (define check void)
   (eval tracing? check my-pict-of-state (parse e)))
 

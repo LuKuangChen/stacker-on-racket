@@ -22,7 +22,7 @@
        (box (field "Returning" term) "brown")]))
 
   (define (pict-of-state state)
-    (define p(match state
+    (define p (match state
                [`("Terminated" ,heap)
                 (bg "white"
                     (ht-append padding

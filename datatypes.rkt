@@ -1,5 +1,5 @@
 #lang plait
-#:untyped
+
 (require "io.rkt")
 (require "error.rkt")
 (require "utilities.rkt")
@@ -26,6 +26,7 @@
   (t-if [cnd : Term] [thn : Term] [els : Term]))
 
 (define-type-alias (Result 'a) 'a)
+(define-type-alias Heap (Hashof HeapAddress HeapValue))
 (define-type HeapAddress
   (ha-prim [it : PrimitiveHeapAddress])
   (ha-user [it : Number]))
@@ -39,7 +40,6 @@
   (h-cons [it : (Val * Val)])
   (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
   (h-env [parent : Env] [map : (Hashof Id (Optionof Val))]))
-(define-type-alias Heap (Hashof HeapAddress HeapValue))
 (define-type Val
   (v-addr [it : HeapAddress])
   (v-prim [name : PrimitiveOp])
@@ -61,7 +61,16 @@
   (let* ([addr (ha-user (find-heap-addr the-heap (base-addr h)))]
          [the-heap (hash-set the-heap addr h)])
     (values the-heap addr)))
-(define (v-list the-heap it)
+(define (v-fun [the-heap : Heap] [env : Env] name arg* def* body)
+  (let-values (((the-heap addr) (allocate! the-heap (h-fun env name arg* def* body))))
+    (values the-heap (v-addr addr))))
+(define (v-vec [the-heap : Heap] it)
+  (let-values (((the-heap addr) (allocate! the-heap (h-vec it))))
+    (values the-heap (v-addr addr))))
+(define (v-cons [the-heap : Heap] it)
+  (let-values (((the-heap addr) (allocate! the-heap (h-cons it))))
+    (values the-heap (v-addr addr))))
+(define (v-list [the-heap : Heap] it)
   (if (empty? it)
       (values the-heap (v-empty))
       (let-values (((the-heap v) (v-list the-heap (rest it))))
@@ -95,20 +104,19 @@
   (po-mvec)
   (po-first)
   (po-rest)
-  (po-list)
-  (po-pause))
+  (po-list))
 
 (define-type-alias Env (Optionof HeapAddress))
-(define (env-declare the-heap [env : Env] x*): Env
-  (if (no-duplicates x*)
-      (let-values (((the-heap addr) (allocate! the-heap (h-env env (make-hash (map (λ (x) (pair x (none))) x*))))))
-        (some addr))
-      (raise (exn-rt "redeclare"))))
-(define (env-extend the-heap [env : Env] [x&v* : (Listof (Id * Val))]): Env
+(define (env-declare the-heap [env : Env] x*)
+  (env-extend/declare the-heap env (map (lambda (x) (values x (none))) x*)))
+(define (env-extend the-heap [env : Env] [x&v* : (Listof (Id * Val))])
   (env-extend/declare the-heap env (map2 pair (map fst x&v*) (map some (map snd x&v*)))))
-(define (env-extend/declare the-heap [env : Env] [x&v* : (Listof (Id * (Optionof Val)))]): Env
-  (let-values (((the-heap addr) (allocate! the-heap (h-env env (make-hash x&v*)))))
-    (some addr)))
+(define (env-extend/declare the-heap [env : Env] [x&v* : (Listof (Id * (Optionof Val)))]): (Heap * Env)
+  (let ((x* (map fst x&v*)))
+    (if (no-duplicates x*)
+    (let-values (((the-heap addr) (allocate! the-heap (h-env env (hash x&v*)))))
+    (values the-heap (some addr)))
+    (raise (exn-rt "redeclare")))))
 
 (define (no-duplicates x*)
   (= (length x*)
@@ -193,8 +201,7 @@
                   (values 'cons (po-cons))
                   (values 'vset! (po-vset!))
                   (values 'mvec (po-mvec))
-                  (values 'list (po-list))
-                  (values 'pause (po-pause)))
+                  (values 'list (po-list)))
                  (list)
                  (λ (IH e)
                    (cons (values (fst e)

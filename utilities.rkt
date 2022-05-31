@@ -1,5 +1,5 @@
 #lang plait
-#:untyped
+
 (require (rename-in (typed-in racket [format : (String 'a -> String)])
                     [format raw-format]))
 

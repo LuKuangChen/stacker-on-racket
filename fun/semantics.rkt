@@ -2,8 +2,8 @@
 (provide (rename-out [my-module-begin #%module-begin])
          (rename-out [my-top-interaction #%top-interaction]))
 
+(require "../s-exp-of-state.rkt")
 (require "../pict-of-state.rkt")
-; (require "./checker.rkt")
 (require "../parse.rkt")
 (require "../runtime.rkt")
 (require "../string-of-state.rkt")
@@ -44,7 +44,7 @@
   (rec s-exp))
 (define preprocess (compose defvar-lambda-as-deffun set!-as-def-1 begin-as-block))
 (define (my-pict-of-state state)
-  ((pict-of-state #t) (preprocess state)))
+  ((pict-of-state #t) (preprocess ((s-exp-of-state #f) state))))
 
 (define (run tracing? e)
   (define check void)

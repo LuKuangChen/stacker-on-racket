@@ -1,5 +1,5 @@
 #lang plait
-#:untyped
+
 (require (rename-in 
            (typed-in "./error-racket.rkt"
                      [catch : ((-> 'a) ('error -> 'a) -> 'a)])

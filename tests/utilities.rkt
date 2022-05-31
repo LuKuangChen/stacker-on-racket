@@ -1,5 +1,4 @@
 #lang racket
-#:untyped
 (provide (all-defined-out))
 (require racket/sandbox)
 
