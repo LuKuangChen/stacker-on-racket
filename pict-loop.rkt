@@ -61,14 +61,14 @@
                 (send dc clear)
                 (send canvas min-width (inexact->exact (floor (pict-width current-pict))))
                 (send canvas min-height (inexact->exact (floor (pict-height current-pict))))
-                (send the-last-button enable (has-past?))
+                (send the-prev-button enable (has-past?))
                 (send the-next-button enable (or (has-future?) (not (terminate? state))))
                 (send the-frame set-status-text (if (terminate? state) "terminated" "still running"))
                 (send the-frame resize 10 10)
                 (draw-pict current-pict dc 0 0))))]))
-  (define the-last-button
+  (define the-prev-button
     (new button%
-         [label "Last"]
+         [label "Previous"]
          [parent button-panel]
          [callback
           (lambda (_button _event)
