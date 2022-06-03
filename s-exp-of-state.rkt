@@ -19,13 +19,24 @@
     (local ((define (s-exp-of-stack stack)
               (inj (map s-exp-of-sf stack)))
             (define (s-exp-of-heap heap)
-              (let ([heap (heap-heap-it heap)])
+              (let* ([heap (heap-heap-it heap)]
+                     [interesting-items 
+                       (map
+                         (lambda (key)
+                           (pair key (some-v (hash-ref heap key))))
+                         (filter ha-user? (hash-keys heap)))]
+                     [interesting-items
+                      (sort interesting-items
+                        (lambda (item1 item2)
+                          (< (fst (snd item1))
+                             (fst (snd item2)))))])
                 (inj
                   (map
-                    (lambda (key)
-                      (inj (list (s-exp-of-addr key)
-                                (s-exp-of-hv (some-v (hash-ref heap key))))))
-                    (filter ha-user? (hash-keys heap))))))
+                    (lambda (item)
+                      (let-values ([(ha hv) item])
+                        (inj (list (s-exp-of-addr ha)
+                                   (s-exp-of-hv (snd hv))))))
+                    interesting-items))))
             (define (s-exp-of-hv hv): Any
               (type-case HeapValue hv
                 ((h-env env map)

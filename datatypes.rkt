@@ -26,33 +26,38 @@
   (t-if [cnd : Term] [thn : Term] [els : Term]))
 
 (define-type-alias (Result 'a) 'a)
-(define-type Heap
-  (heap-heap [it : (Hashof HeapAddress HeapValue)]))
-(define (empty-heap)
+(define-type Heap 
+  (heap-heap [it : (Hashof HeapAddress (Number * HeapValue))]))
+(define (empty-heap) : Heap
   (heap-heap (hash (list))))
 (define the-heap-size 1000)
 (define (find-heap-addr the-heap [base : Number]) : Number
   (let ([propose (+ base (random the-heap-size))])
-    (type-case (Optionof HeapValue) (hash-ref the-heap (ha-user propose))
+    (type-case (Optionof (Number * HeapValue)) (hash-ref the-heap (ha-user propose))
       [(none) propose]
       [(some hv) (find-heap-addr the-heap base)])))
-(define (base-addr h)
-  (type-case HeapValue h
+(define (base-addr [hv : HeapValue])
+  (type-case HeapValue hv
     [(h-env env map) the-heap-size]
     [else 0]))
-(define (allocate! [a-heap : Heap] h) : (Heap * HeapAddress)
+(define (allocate! [a-heap : Heap] [hv : HeapValue]) : (Heap * HeapAddress)
   (let* ([a-heap (heap-heap-it a-heap)]
-         [addr (ha-user (find-heap-addr a-heap (base-addr h)))]
-         [a-heap (hash-set a-heap addr h)])
+         [addr (ha-user (find-heap-addr a-heap (base-addr hv)))]
+         [a-heap (hash-set a-heap addr (pair (length (hash-keys a-heap)) hv))])
     (values (heap-heap a-heap) addr)))
-(define (heap-ref a-heap a-heap-address)
-  (type-case (Optionof HeapValue) (hash-ref (heap-heap-it a-heap) a-heap-address)
+(define (heap-ref a-heap a-heap-address) : HeapValue
+  (type-case (Optionof (Number * HeapValue)) (hash-ref (heap-heap-it a-heap) a-heap-address)
     [(none)
      (raise (exn-internal 'heap-ref "Invalid address"))]
     [(some hv)
-     hv]))
-(define (heap-set h ha hv)
-  (heap-heap (hash-set (heap-heap-it h) ha hv)))
+     (snd hv)]))
+(define (heap-set [h : Heap] [ha : HeapAddress] [hv : HeapValue]) : Heap
+  (let* ([h (heap-heap-it h)]
+         [timestamp 
+          (type-case (Optionof (Number * HeapValue)) (hash-ref h ha)
+            [(none) (length (hash-keys h))]
+            [(some v) (fst v)])])
+    (heap-heap (hash-set h ha (pair timestamp hv)))))
 
 (define-type HeapAddress
   (ha-prim [it : PrimitiveHeapAddress])
