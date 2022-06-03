@@ -44,7 +44,7 @@
   (rec s-exp))
 (define preprocess (compose defvar-lambda-as-deffun set!-as-def-1 begin-as-block))
 (define (my-pict-of-state state)
-  ((pict-of-state #t) (preprocess ((s-exp-of-state #f) state))))
+  ((pict-of-state #t #t) (preprocess ((s-exp-of-state #f) state))))
 
 (define (run tracing? e)
   (define check void)

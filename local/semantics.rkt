@@ -11,7 +11,7 @@
 
 (define preprocess (compose))
 (define (my-pict-of-state state)
-  ((pict-of-state #f) (preprocess ((s-exp-of-state #t) state))))
+  ((pict-of-state #f #f) (preprocess ((s-exp-of-state #f) state))))
 
 (define (run tracing? e)
   (define check void)

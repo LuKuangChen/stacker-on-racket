@@ -3,10 +3,12 @@
 (require "utilities.rkt")
 (require "datatypes.rkt")
 (require (typed-in "string-of-state.rkt" [block : Symbol]))
+(require (typed-in "show.rkt" [string-of-o : (Obs -> String)]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
-                   [sort : ((Listof 'x) ('x 'x -> Boolean) -> (Listof 'x))]))
+                   [sort : ((Listof 'x) ('x 'x -> Boolean) -> (Listof 'x))]
+                   [append* : ((Listof (Listof 'x)) -> (Listof 'x))]))
 (require (opaque-type-in racket [Any any/c]))
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
@@ -17,12 +19,13 @@
     (local ((define (s-exp-of-stack stack)
               (inj (map s-exp-of-sf stack)))
             (define (s-exp-of-heap heap)
-              (inj
-               (map
-                (lambda (key)
-                  (inj (list (s-exp-of-addr key)
-                             (s-exp-of-hv (some-v (hash-ref heap key))))))
-                (filter ha-user? (hash-keys heap)))))
+              (let ([heap (heap-heap-it heap)])
+                (inj
+                  (map
+                    (lambda (key)
+                      (inj (list (s-exp-of-addr key)
+                                (s-exp-of-hv (some-v (hash-ref heap key))))))
+                    (filter ha-user? (hash-keys heap))))))
             (define (s-exp-of-hv hv): Any
               (type-case HeapValue hv
                 ((h-env env map)
@@ -118,10 +121,12 @@
                          (append
                           (map s-exp-of-set! d*)
                           (map s-exp-of-e e*)))))
-                  ((P-exp e*)
-                   (inj (append (list (inj block)
-                                      □)
-                                (map s-exp-of-e e*)))))))
+                  ((P-exp o* e*)
+                   (inj (append*
+                          (list (list (inj block))
+                                (map inj (map string-of-o o*))
+                                (list □)
+                                (map s-exp-of-e e*))))))))
             (define (s-exp-of-prim p)
               (type-case PrimitiveOp p
                 [(po-not)
@@ -182,7 +187,7 @@
               (type-case HeapAddress it
                 [(ha-user it)
                  (let ([printing (format "~a" (inj it))])
-                   (type-case HeapValue (some-v (hash-ref the-heap (ha-user it)))
+                   (type-case HeapValue (heap-ref the-heap (ha-user it))
                      ((h-fun env name arg* def* body)
                       (type-case (Optionof Symbol) name
                         ((none)
@@ -292,6 +297,17 @@
                     (s-exp-of-ectx ectx)
                     (s-exp-of-stack stack)
                     (s-exp-of-heap the-heap)))]
-        [(terminate)
+        [(ref x env ectx stack)
+         (inj (list (inj "Computing")
+                    (s-exp-of-x x)
+                    (s-exp-of-env env)
+                    (s-exp-of-ectx ectx)
+                    (s-exp-of-stack stack)
+                    (s-exp-of-heap the-heap)))]
+        [(s-finish o*)
          (inj (list (inj "Terminated")
+                    (inj (map string-of-o o*))
+                    (s-exp-of-heap the-heap)))]
+        [(s-error)
+         (inj (list (inj "Errored")
                     (s-exp-of-heap the-heap)))])))))

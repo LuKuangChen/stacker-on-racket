@@ -9,26 +9,35 @@
 (define (text s)
   (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
 
-(define (pict-of-state hide-closure?)
+(define (pict-of-state hide-closure? hide-env-lable?)
 
 
   (define (pict-of-focus focus)
     (match focus
-      [`("Terminated")
-       (box (field-label "Terminated") "black")]
       [`("Computing" ,term)
        (box (field "Computing" term) "orange")]
       [`("Returning" ,term)
-       (box (field "Returning" term) "brown")]))
+       (box (field "Returning" term) "brown")]
+      [`("Terminated" ,term)
+       (box (field "Terminated" term) "blue")]
+      [`("Referring to" ,term)
+       (box (field "Returning" term) "orange")]))
 
   (define (pict-of-state state)
     (define p (match state
-               [`("Terminated" ,heap)
+               [`("Errored" ,heap)
                 (bg "white"
                     (ht-append padding
                                (vl-append padding
                                           (pict-of-stack empty)
-                                          (pict-of-focus `("Terminated")))
+                                          (box (field-label "Errored") "red"))
+                               (pict-of-heap heap)))]
+               [`("Terminated" ,o* ,heap)
+                (bg "white"
+                    (ht-append padding
+                               (vl-append padding
+                                          (pict-of-stack empty)
+                                          (pict-of-focus `("Terminated" (,block ,@o*))))
                                (pict-of-heap heap)))]
                [`(,message ,term ,env ,ectx ,stack ,heap)
                 (bg "white"
@@ -38,7 +47,7 @@
                                           (pict-of-focus `(,message ,term)))
                                (pict-of-heap heap)))]))
     (define dim (max (pict-width p) (pict-height p)))
-    (scale p (/ 600 dim)))
+    (scale p (/ 700 dim)))
 
   (define (pict-of-stack stack)
     (box
@@ -83,37 +92,40 @@
       [`(Environment ,bindings ,outer-addr)
        (plate (vl-append
                (field "@" this-addr)
-               (white (text "Environment Frame"))
+               (if hide-env-lable?
+                  (blank)
+                  (white (text "Environment Frame")))
                (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
                                           (field-value '...)
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key (compose symbol->string car))))))
                (field "Rest" outer-addr))
-              (color-of-environment this-addr))]
+               (make-object color% 0 150 0)
+              #;(color-of-environment this-addr))]
       [`(Closure ,env ,name ,code)
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-label "Closure")
                          (field "Environment @" env)
                          (field "Code" (string-of-s-exp code)))
-              "blue")]
+              "grey")]
       [`,vec
        #:when (vector? vec)
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec)))))
-              "blue")]
+              "grey")]
       [`(Cons ,v1 ,v2)
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
-              "blue")]
+              "grey")]
       [else
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field "cons" hv))
-              "blue")]))
+                         (field "content" hv))
+              "grey")]))
   (define (plate p color)
     (define w (pict-width p))
     (define h (pict-height p))
