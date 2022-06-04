@@ -161,15 +161,15 @@
                (raise (exn-internal 'apply-stack "The empty stack should have been caught by P-exp")))
               ((cons sf0 stack)
                (local ((define-values (env ectx ann) sf0))
-                 (do-apply-k the-heap v env ectx stack)))))
-          (define (do-return the-heap v env stack)
-            (apply-stack the-heap v stack))
+                 (values the-heap (return v env ectx stack))))))
+          (define (do-return the-heap v env ectx stack)
+            (do-apply-k the-heap v env ectx stack))
           (define (do-apply-k the-heap v env ectx [stack : Stack])
             : State
             (begin
               (type-case (Listof ECFrame) ectx
                 [empty
-                 (values the-heap (return v env ectx stack))]
+                 (apply-stack the-heap v stack)]
                 ((cons f ectx)
                  (type-case ECFrame f
                    ((F-begin e* e)
@@ -233,6 +233,8 @@
                 e
                 ((t-quote v) (do-apply-k the-heap v env ectx stack))
                 ((t-var x)
+                 (do-ref the-heap x env ectx stack)
+                 #;
                  (if (uninteresting-variable? x)
                      (do-ref the-heap x env ectx stack)
                      (values the-heap (ref x env ectx stack))))
@@ -309,8 +311,8 @@
                  (let-values (((the-heap v) (delta the-heap op arg-v* env ectx stack)))
                    (do-apply-k the-heap v env ectx stack)))
                 ((op-fun clos-env arg-x* def* body)
-                 (values the-heap (to-fun-call fun arg-v* env ectx stack clos-env arg-x* def* body))))))
-          (define (do-fun-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body) : State
+                 (values the-heap (before-call fun arg-v* env ectx stack clos-env arg-x* def* body))))))
+          (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body) : State
             (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
               (let ([ectx (list)])
                 (let-values (((the-heap env) (env-extend/declare the-heap clos-env
@@ -320,7 +322,7 @@
                                                                                   (values name (none))))
                                                                               def*)))))
                   (let ((e (t-init! def* body)))
-                    (do-interp the-heap e env ectx stack))))))
+                    (values the-heap (after-call e env ectx stack)))))))
           (define (t-init! bind* body)
             (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
           (define (do-equal? the-heap v1 v2)
@@ -535,10 +537,12 @@
               (catch
                (λ ()
                  (type-case OtherState state
-                   [(to-fun-call fun arg-v* env ectx stack clos-env arg-x* def* body)
-                    (do-fun-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body)]
+                   [(before-call fun arg-v* env ectx stack clos-env arg-x* def* body)
+                    (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body)]
+                   [(after-call e env ectx stack)
+                    (do-interp the-heap e env ectx stack)]
                    [(return v env ectx stack)
-                    (do-return the-heap v env stack)]
+                    (do-return the-heap v env ectx stack)]
                    [(ref x env ectx stack)
                     (do-ref the-heap x env ectx stack)]
                    [else

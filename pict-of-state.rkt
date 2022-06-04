@@ -16,12 +16,12 @@
     (match focus
       [`("Computing" ,term)
        (box (field "Computing" term) "orange")]
-      [`("Returning" ,term)
-       (box (field "Returning" term) "brown")]
+      [`("Returned" ,term)
+       (box (field "Returned" term) "brown")]
       [`("Terminated" ,term)
        (box (field "Terminated" term) "blue")]
       [`("Referring to" ,term)
-       (box (field "Returning" term) "orange")]))
+       (box (field "Returned" term) "orange")]))
 
   (define (pict-of-state state)
     (define p (match state

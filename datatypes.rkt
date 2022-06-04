@@ -286,8 +286,9 @@
   (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
 
 (define-type OtherState
-  (to-fun-call [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
+  (before-call [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
                [clos-env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
+  (after-call [e : Term] [env : Env] [ectx : ECtx] [stack : Stack])
   (return [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])
   (ref [x : Id] [env : Env] [ectx : ECtx] [stack : Stack])
   (s-finish [o* : (Listof Obs)])
