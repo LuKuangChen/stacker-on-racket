@@ -106,7 +106,6 @@
       [`(Closure ,env ,name ,code)
        (plate (vl-append padding
                          (field "@" this-addr)
-                         (field-label "Closure")
                          (field "Environment @" env)
                          (field "Code" (string-of-s-exp code)))
               "grey")]
