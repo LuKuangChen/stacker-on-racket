@@ -13,6 +13,7 @@
     [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
     [(o-list? o) (format "'(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]
     [(o-fun? o) "#<procedure>"]
+    [(o-void? o) "#<void>"]
     [else (error 'show "internal error ~a" o)]))
 (define (string-of-o-internal o)
   (cond
