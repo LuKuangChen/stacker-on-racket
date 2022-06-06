@@ -7,7 +7,7 @@
 (define (string-of-o o)
   (cond
     [(o-exn? o)
-     (error)
+     "error"
      #;(format "error: ~a" (o-exn-it o))]
     [(o-con? o) (string-of-c (o-con-it o))]
     [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
