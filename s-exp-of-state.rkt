@@ -66,7 +66,7 @@
             (define (s-exp-of-optionof-v ov)
               (type-case (Optionof Val) ov
                 [(none)
-                 (inj '_)]
+                 (inj '💣)]
                 [(some v)
                  (s-exp-of-v v)]))
             (define (s-exp-of-sf sf)
