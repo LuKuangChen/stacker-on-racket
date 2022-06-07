@@ -49,4 +49,6 @@
   (o-vec [it : (Vectorof Obs)])
   (o-list [it : (Listof Obs)])
   (o-fun)
+  (o-rec [id : Number] [content : Obs])
+  (o-var [id : Number])
   (o-exn [it : String]))

@@ -120,25 +120,43 @@
   (string-of-o ((obs-of-val the-heap) v)))
 (define (obs-of-val the-heap)
   (lambda (v)
-    (type-case
-        Val
-      v
-      ((v-str it) (o-con (c-str it)))
-      ((v-num it) (o-con (c-num it)))
-      ((v-bool it) (o-con (c-bool it)))
-      ((v-prim name) (o-fun))
-      ((v-empty) (o-list '()))
-      ((v-void) (o-void))
-      ((v-addr it)
-       (obs-of-hv the-heap (heap-ref the-heap it))))))
-(define (obs-of-hv the-heap hv)
-  (type-case HeapValue hv
-    ((h-vec vs) (o-vec (vector-map (obs-of-val the-heap) vs)))
-    ((h-cons vs) (o-list (cons ((obs-of-val the-heap) (fst vs))
-                               (o-list-it ((obs-of-val the-heap) (snd vs))))))
-    ((h-fun env name arg* def* body) (o-fun))
-    ((h-env _env _map)
-     (raise (exn-internal 'obs-of-val "Impossible.")))))
+  (local ([define counter 0]
+          (define visited (make-hash (list)))
+          (define (obs-of-hv hv)
+            (type-case HeapValue hv
+              ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
+              ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
+                                        (o-list-it (obs-of-val (snd vs))))))
+              ((h-fun env name arg* def* body) (o-fun))
+              ((h-env _env _map)
+              (raise (exn-internal 'obs-of-val "Impossible.")))))
+          [define obs-of-val
+            (lambda (v)
+              (type-case
+                  Val
+                v
+                ((v-str it) (o-con (c-str it)))
+                ((v-num it) (o-con (c-num it)))
+                ((v-bool it) (o-con (c-bool it)))
+                ((v-prim name) (o-fun))
+                ((v-empty) (o-list '()))
+                ((v-void) (o-void))
+                ((v-addr addr)
+                 (type-case (Optionof (Optionof Number)) (hash-ref visited addr)
+                   [(none)
+                    (begin
+                      (hash-set! visited addr (none))
+                      (let ([o (obs-of-hv (heap-ref the-heap addr))])
+                        (type-case (Optionof Number) (some-v (hash-ref visited addr))
+                          [(none) o]
+                          [(some id) (o-rec id o)])))]
+                   [(some optionof-id)
+                    (begin
+                      (when (equal? optionof-id (none))
+                        (hash-set! visited addr (some counter))
+                        (set! counter (add1 counter)))
+                      (o-var (some-v (some-v (hash-ref visited addr)))))]))))])
+    (obs-of-val v))))
 (define (as-fun the-heap (v : Val))
   (type-case Val v
     ((v-prim name) (op-prim name))
