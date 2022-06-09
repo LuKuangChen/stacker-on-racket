@@ -217,7 +217,7 @@
               (type-case PrimitiveHeapAddress pa
                 [(pa-map) (inj 'map)]
                 [(pa-filter) (inj 'filter)]
-                [(pa-base-env) (inj 'base-env)]
+                [(pa-base-env) (inj 'primordial-env)]
                 [(pa-empty) (inj 'empty)]))
             (define (s-exp-of-v v)
               (type-case Val v

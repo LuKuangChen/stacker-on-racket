@@ -24,9 +24,9 @@
     (match s-exp
       [`(set! ,x (,lambda (,@args) ,@body))
        #:when (memv lambda '(lambda λ))
-       `(deffun-1 (,x ,@args) ,@(map rec body))]
+       `(deffun (,x ,@args) ,@(map rec body))]
       [`(set! ,x ,e)
-       `(defvar-1 ,x ,(rec e))]
+       `(defvar ,x ,(rec e))]
       [else
        (if (list? s-exp)
            (map rec s-exp)
