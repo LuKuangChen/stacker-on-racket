@@ -25,6 +25,22 @@ To uninstall
 6. Select the first result
 7. `Remove`
 
+## How to test whether an installation is successful?
+
+Run the following program in DrRacket
+
+```racket
+#lang smol-step/fun
+
+(defvar x 2)
+(defvar y 3)
+(+ x y)
+```
+
+You should see a screenshot like this. The number `1834` might be different.
+
+<img width="812" alt="image" src="https://user-images.githubusercontent.com/10260693/172886242-700273b3-87e6-4682-8e45-c7ec04510405.png">
+
 ## Usage
 
 If you want to see the stack diagrams
