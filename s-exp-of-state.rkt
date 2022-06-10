@@ -132,10 +132,10 @@
                          (append
                           (map s-exp-of-set! d*)
                           (map s-exp-of-e e*)))))
-                  ((P-exp o* e*)
+                  ((P-exp v* e*)
                    (inj (append*
                           (list (list (inj block))
-                                (map inj (map string-of-o o*))
+                                (map s-exp-of-v v*)
                                 (list □)
                                 (map s-exp-of-e e*))))))))
             (define (s-exp-of-prim p)
@@ -324,9 +324,9 @@
                     (s-exp-of-ectx ectx)
                     (s-exp-of-stack stack)
                     (s-exp-of-heap the-heap)))]
-        [(s-finish o*)
+        [(s-finish v*)
          (inj (list (inj "Terminated")
-                    (inj (map string-of-o o*))
+                    (inj (map s-exp-of-v v*))
                     (s-exp-of-heap the-heap)))]
         [(s-error)
          (inj (list (inj "Errored")

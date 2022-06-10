@@ -212,14 +212,14 @@
                         (raise (exn-internal 'apply-k "The ectx and the stack must be empty.")))
                       (let ([the-heap (env-set the-heap env x v)])
                         (do-interp-program-def* the-heap d* e* env))))
-                   ((P-exp o* e*)
+                   ((P-exp v* e*)
                     (begin
                       (unless (and (empty? ectx) (empty? stack))
                         (raise (exn-internal 'apply-k "The ectx and the stack must be empty.")))
                       (let ([o ((obs-of-val the-heap) v)])
                         (begin
                           (output! o)
-                          (do-interp-program-exp* the-heap (append o* (list o)) e* env))))))))))
+                          (do-interp-program-exp* the-heap (append v* (list v)) e* env))))))))))
           (define (do-interp-program the-heap [p : CompiledProgram]) : State
             (local ((define-values (bind* exp*) p))
               (let ((var* (map var-of-bind bind*)))
@@ -233,12 +233,12 @@
                (let* ([x (fst bind)]
                       [e (snd bind)])
                  (do-interp the-heap e env (list (P-def x bind* exp*)) empty))]))
-          (define (do-interp-program-exp* the-heap [o* : (Listof Obs)] [e* : (Listof Term)] [env : Env]): State
+          (define (do-interp-program-exp* the-heap [v* : (Listof Val)] [e* : (Listof Term)] [env : Env]): State
             (type-case (Listof Term) e*
               [empty
-               (values the-heap (s-finish o*))]
+               (values the-heap (s-finish v*))]
               [(cons e e*)
-               (do-interp the-heap e env (list (P-exp o* e*)) empty)]))
+               (do-interp the-heap e env (list (P-exp v* e*)) empty)]))
           (define (do-ref the-heap x env ectx stack)
             (type-case (Optionof Val) (env-lookup the-heap env x)
               [(some v) (do-apply-k the-heap v env ectx stack)]

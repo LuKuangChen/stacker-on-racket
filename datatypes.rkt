@@ -183,7 +183,7 @@
   (F-if [thn : Term] [els : Term])
   (F-set! [var : Id])
   (P-def [x : Id] [d* : (Listof (Id * Term))] [e* : (Listof Term)])
-  (P-exp [o* : (Listof Obs)] [e* : (Listof Term)]))
+  (P-exp [v* : (Listof Val)] [e* : (Listof Term)]))
 (define-type-alias ECtx (Listof ECFrame))
 (define-type CtxAnn
   (ca-app [v : Val] [v* : (Listof Val)])
@@ -291,6 +291,6 @@
   (after-call [e : Term] [env : Env] [ectx : ECtx] [stack : Stack])
   (return [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])
   (ref [x : Id] [env : Env] [ectx : ECtx] [stack : Stack])
-  (s-finish [o* : (Listof Obs)])
+  (s-finish [v* : (Listof Val)])
   (s-error))
 (define-type-alias State (Heap * OtherState))
