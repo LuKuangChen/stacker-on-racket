@@ -6,24 +6,32 @@
 (require racket/draw)
 (require "./string-of-state.rkt")
 
+(define color-blue (make-object color% 68 119 170))
+(define color-cyne (make-object color% 102 204 238))
+(define color-green (make-object color% 34 136 51))
+(define color-yellow (make-object color% 204 187 68))
+(define color-black (make-object color% 0 0 0))
+(define color-purple (make-object color% 170 51 119))
+(define color-grey (make-object color% 187 187 187))
+(define color-red (make-object color% 238 102 119))
 
 ;;; The color palette is from https://personal.sron.nl/~pault/#fig:scheme_bright
 ;;; dark blue
-(define color-stack-item (make-object color% 68 119 170))
+(define color-stack-item color-blue)
 ;;; light blue
-(define color-stack-bg (make-object color% 102 204 238))
+(define color-stack-bg color-cyne)
 ;;; green
-(define color-env (make-object color% 34 136 51))
+(define color-env color-green)
 ;;; yellow
-(define color-closure (make-object color% 204 187 68))
+(define color-closure color-yellow)
 ;;; black
-(define color-vector (make-object color% 0 0 0))
+(define color-vector color-black)
 ;;; purple
-(define color-cons (make-object color% 170 51 119))
+(define color-cons color-purple)
 ;;; grey
-(define color-other (make-object color% 187 187 187))
+(define color-other color-grey)
 ;; A special color
-(define color-error (make-object color% 238 102 119))
+(define color-error color-red)
 
 (define (text s)
   (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
@@ -46,27 +54,27 @@
 
   (define (pict-of-state state)
     (define p (match state
-               [`("Errored" ,heap)
-                (bg "white"
-                    (ht-append padding
-                               (vl-append padding
-                                          (pict-of-stack empty)
-                                          (box (field-label "Errored") color-error))
-                               (pict-of-heap heap)))]
-               [`("Terminated" ,o* ,heap)
-                (bg "white"
-                    (ht-append padding
-                               (vl-append padding
-                                          (pict-of-stack empty)
-                                          (pict-of-focus `("Terminated" (,block ,@o*))))
-                               (pict-of-heap heap)))]
-               [`(,message ,term ,env ,ectx ,stack ,heap)
-                (bg "white"
-                    (ht-append padding
-                               (vl-append padding
-                                          (pict-of-stack (cons (list env ectx term) stack))
-                                          (pict-of-focus `(,message ,term)))
-                               (pict-of-heap heap)))]))
+                [`("Errored" ,heap)
+                 (bg "white"
+                     (ht-append padding
+                                (vl-append padding
+                                           (pict-of-stack empty)
+                                           (box (field-label "Errored") color-error))
+                                (pict-of-heap heap)))]
+                [`("Terminated" ,o* ,heap)
+                 (bg "white"
+                     (ht-append padding
+                                (vl-append padding
+                                           (pict-of-stack empty)
+                                           (pict-of-focus `("Terminated" (,block ,@o*))))
+                                (pict-of-heap heap)))]
+                [`(,message ,term ,env ,ectx ,stack ,heap)
+                 (bg "white"
+                     (ht-append padding
+                                (vl-append padding
+                                           (pict-of-stack (cons (list env ectx term) stack))
+                                           (pict-of-focus `(,message ,term)))
+                                (pict-of-heap heap)))]))
     (define dim (max (pict-width p) (pict-height p)))
     (scale p (/ 700 dim)))
 
@@ -100,8 +108,14 @@
       [else #f]))
 
   (define (pict-of-heapitems heapitems)
-    (apply vl-append padding
-           (map pict-of-heapitem (filter heapitem-interesting? heapitems))))
+    (let-values ([(envs others) (partition is-env?
+                                           (filter heapitem-interesting? heapitems))])
+      (ht-append
+        padding
+       (apply vl-append padding
+              (map pict-of-heapitem envs))
+       (apply vl-append padding
+              (map pict-of-heapitem others)))))
   (define (color-of-environment addr)
     (define addr-as-num (string->number addr))
     (define ratio (/ (- addr-as-num 1000) 1000))
@@ -114,15 +128,15 @@
        (plate (vl-append
                (field "@" this-addr)
                (if hide-env-lable?
-                  (blank)
-                  (white (text "Environment Frame")))
+                   (blank)
+                   (white (text "Environment Frame")))
                (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
                                           (field-value '...)
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key (compose symbol->string car))))))
                (field "Rest @" outer-addr))
-               color-env)]
+              color-env)]
       [`(Closure ,env ,name ,code)
        (plate (vl-append padding
                          (field "@" this-addr)
