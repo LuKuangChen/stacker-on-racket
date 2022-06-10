@@ -11,6 +11,8 @@
     [`(,maybe-block ,@body)
      #:when (eqv? maybe-block block)
      (apply v-append (map doc-of-s-exp body))]
+    [`(quote ,e)
+      (align (h-append (text "'") (doc-of-s-exp e) (text "")))]
     [`(,defvar/set! ,x ,e)
      #:when (memv defvar/set! '(defvar defvar-1 set!))
      (align
@@ -21,6 +23,8 @@
      (align
       (nest 2 (vs-append (h-append (text (format "(~a " deffun?)) (doc-of-s-exp head))
                          (h-append (vs-concat (map doc-of-s-exp body)) (text ")")))))]
+    [`(begin ,e)
+      (doc-of-s-exp e)]
     [`(begin ,@e*)
      (align
       (nest 2 (v-append (text "(begin ")

@@ -232,7 +232,9 @@
                 ((v-bool it)
                  (inj it))
                 ((v-empty)
-                 (inj '()))
+                 (inj (list (inj 'quote) (inj (list))))
+                 #;
+                 (inj (list (inj 'quote) (inj (list)))))
                 ((v-void)
                  (inj '|#<void>|))))
             (define (s-exp-of-x x) (inj x))

@@ -6,22 +6,43 @@
 (require racket/draw)
 (require "./string-of-state.rkt")
 
+
+;;; The color palette is from https://personal.sron.nl/~pault/#fig:scheme_bright
+;;; dark blue
+(define color-stack-item (make-object color% 68 119 170))
+;;; light blue
+(define color-stack-bg (make-object color% 102 204 238))
+;;; green
+(define color-env (make-object color% 34 136 51))
+;;; yellow
+(define color-closure (make-object color% 204 187 68))
+;;; black
+(define color-vector (make-object color% 0 0 0))
+;;; purple
+(define color-cons (make-object color% 170 51 119))
+;;; grey
+(define color-other (make-object color% 187 187 187))
+;; A special color
+(define color-error (make-object color% 238 102 119))
+
 (define (text s)
   (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
 
 (define (pict-of-state hide-closure? hide-env-lable?)
-
-
+  (define color-comp color-closure)
+  (define color-return color-stack-item)
+  (define color-terminate color-stack-bg)
+  (define color-refer color-other)
   (define (pict-of-focus focus)
     (match focus
       [`("Computing" ,term)
-       (box (field "Computing" term) "orange")]
+       (box (field "Computing" term) color-comp)]
       [`("Returned" ,term)
-       (box (field "Returned" term) "brown")]
+       (box (field "Returned" term) color-return)]
       [`("Terminated" ,term)
-       (box (field "Terminated" term) "blue")]
+       (box (field "Terminated" term) color-terminate)]
       [`("Referring to" ,term)
-       (box (field "Returned" term) "orange")]))
+       (box (field "Returned" term) color-refer)]))
 
   (define (pict-of-state state)
     (define p (match state
@@ -30,7 +51,7 @@
                     (ht-append padding
                                (vl-append padding
                                           (pict-of-stack empty)
-                                          (box (field-label "Errored") "red"))
+                                          (box (field-label "Errored") color-error))
                                (pict-of-heap heap)))]
                [`("Terminated" ,o* ,heap)
                 (bg "white"
@@ -54,7 +75,7 @@
      (apply vl-append
             (field-label "Stack")
             (map pict-of-sf (reverse stack)))
-     "blue"))
+     color-stack-bg))
 
   (define (is-env? heapitem)
     (match-define (list addr hv) heapitem)
@@ -100,31 +121,30 @@
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key (compose symbol->string car))))))
-               (field "Rest" outer-addr))
-               (make-object color% 0 150 0)
-              #;(color-of-environment this-addr))]
+               (field "Rest @" outer-addr))
+               color-env)]
       [`(Closure ,env ,name ,code)
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field "Environment @" env)
                          (field "Code" (string-of-s-exp code)))
-              "grey")]
+              color-closure)]
       [`,vec
        #:when (vector? vec)
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec)))))
-              "grey")]
+              color-vector)]
       [`(Cons ,v1 ,v2)
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
-              "grey")]
+              color-cons)]
       [else
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field "content" hv))
-              "grey")]))
+              color-other)]))
   (define (plate p color)
     (define w (pict-width p))
     (define h (pict-height p))
@@ -192,11 +212,9 @@
   (define (bg color p)
     (cc-superimpose (filled-rectangle (pict-width p) (pict-height p) #:draw-border? #f #:color color) p))
 
-  (define color-of-sf
-    "royalblue")
   (define (pict-of-sf sf)
     (match-define (list env ectx ann) sf)
-    (bg color-of-sf
+    (bg color-stack-item
         (frame
          (pad padding
               (vl-append padding
