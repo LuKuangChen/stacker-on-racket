@@ -23,10 +23,11 @@
   (t-letrec [bind* : (Listof (Id * Term))] [body : Term])
   (t-set! [var : Id] [val : Term])
   (t-begin [prelude* : (Listof Term)] [result : Term])
-  (t-if [cnd : Term] [thn : Term] [els : Term]))
+  (t-if [cnd : Term] [thn : Term] [els : Term])
+  (t-cond [cnd-thn* : (Listof (Term * Term))] [els : Term]))
 
 (define-type-alias (Result 'a) 'a)
-(define-type Heap 
+(define-type Heap
   (heap-heap [it : (Hashof HeapAddress (Number * HeapValue))]))
 (define (empty-heap) : Heap
   (heap-heap (hash (list))))
@@ -53,7 +54,7 @@
      (snd hv)]))
 (define (heap-set [h : Heap] [ha : HeapAddress] [hv : HeapValue]) : Heap
   (let* ([h (heap-heap-it h)]
-         [timestamp 
+         [timestamp
           (type-case (Optionof (Number * HeapValue)) (hash-ref h ha)
             [(none) (length (hash-keys h))]
             [(some v) (fst v)])])
@@ -77,6 +78,7 @@
   (v-prim [name : PrimitiveOp])
   (v-str [it : String])
   (v-num [it : Number])
+  (v-char [it : Char])
   (v-bool [it : Boolean])
   (v-empty)
   (v-void))
@@ -101,6 +103,9 @@
   (po-left)
   (po-right)
   (po-vlen)
+  (po-string-length)
+  (po-string-append)
+  (po-string->list)
   (po-eqp)
   (po-equalp)
   (po-zerop)
@@ -113,11 +118,13 @@
   (po-<=)
   (po->=)
   (po-=)
+  (po-emptyp)
   (po-pairp)
   (po-mpair)
   (po-set-left!)
   (po-set-right!)
   (po-vref)
+  (po-consp)
   (po-cons)
   (po-vset!)
   (po-mvec)
@@ -133,9 +140,9 @@
 (define (env-extend/declare the-heap [env : Env] [x&v* : (Listof (Id * (Optionof Val)))]): (Heap * Env)
   (let ((x* (map fst x&v*)))
     (if (no-duplicates x*)
-    (let-values (((the-heap addr) (allocate! the-heap (h-env env (hash x&v*)))))
-    (values the-heap (some addr)))
-    (raise (exn-rt "redeclare")))))
+        (let-values (((the-heap addr) (allocate! the-heap (h-env env (hash x&v*)))))
+          (values the-heap (some addr)))
+        (raise (exn-rt "redeclare")))))
 
 (define (no-duplicates x*)
   (= (length x*)
@@ -198,8 +205,13 @@
   (let* ((the-heap (empty-heap))
          [x&v*  (ind-List
                  (list
+                  (values 'string->list (po-string->list))
+                  (values 'first (po-first))
+                  (values 'rest (po-rest))
                   (values 'not (po-not))
                   (values 'left (po-left))
+                  (values 'string-length (po-string-length))
+                  (values 'string-append (po-string-append))
                   (values 'right (po-right))
                   (values 'vlen (po-vlen))
                   (values 'equal? (po-equalp))
@@ -214,12 +226,14 @@
                   (values '<= (po-<=))
                   (values '>= (po->=))
                   (values '= (po-=))
+                  (values 'empty? (po-emptyp))
                   (values 'pair? (po-pairp))
                   (values 'mpair (po-mpair))
                   (values 'set-left! (po-set-left!))
                   (values 'set-right! (po-set-right!))
                   (values 'vref (po-vref))
                   (values 'cons (po-cons))
+                  (values 'cons? (po-consp))
                   (values 'vset! (po-vset!))
                   (values 'mvec (po-mvec))
                   (values 'list (po-list)))
@@ -229,14 +243,14 @@
                                  (v-prim (snd e)))
                          IH)))]
          [base-env-map (hash (append
-                                        (map2 pair
-                                              (map fst x&v*)
-                                              (map some (map snd x&v*)))
-                                        (list (pair 'empty (some (v-empty)))
-                                              (pair 'map (some (v-addr (ha-prim (pa-map)))))
-                                              (pair 'filter (some (v-addr (ha-prim (pa-filter)))))
-                                              (pair 'false (some (v-bool #f)))
-                                              (pair 'true (some (v-bool #t))))))]
+                              (map2 pair
+                                    (map fst x&v*)
+                                    (map some (map snd x&v*)))
+                              (list (pair 'empty (some (v-empty)))
+                                    (pair 'map (some (v-addr (ha-prim (pa-map)))))
+                                    (pair 'filter (some (v-addr (ha-prim (pa-filter)))))
+                                    (pair 'false (some (v-bool #f)))
+                                    (pair 'true (some (v-bool #t))))))]
          [builtins (hash-keys base-env-map)]
          [addr (ha-prim (pa-base-env))]
          [hv (h-env (none) base-env-map)]

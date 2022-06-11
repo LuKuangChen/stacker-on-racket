@@ -2,13 +2,11 @@
 (provide (rename-out [my-module-begin #%module-begin])
          (rename-out [my-top-interaction #%top-interaction]))
 
-(require "../pict-of-state.rkt")
-(require "../s-exp-of-state.rkt")
-(require "../parse.rkt")
-(require "../show.rkt")
-(require "../runtime.rkt")
-(require "../string-of-state.rkt")
-
+(require "./s-exp-of-state.rkt")
+(require "./pict-of-state.rkt")
+(require "./parse.rkt")
+(require "./runtime.rkt")
+(require "./string-of-state.rkt")
 
 (define (defvar-lambda-as-deffun s-exp)
   (define (rec s-exp)
@@ -26,15 +24,37 @@
     (match s-exp
       [`(set! ,x (,lambda (,@args) ,@body))
        #:when (memv lambda '(lambda λ))
-       `(deffun-1 (,x ,@args) ,@(map rec body))]
+       `(deffun (,x ,@args) ,@(map rec body))]
+      [`(set! ,x ,e)
+       `(defvar ,x ,(rec e))]
       [else
        (if (list? s-exp)
            (map rec s-exp)
            s-exp)]))
   (rec s-exp))
-(define preprocess (compose defvar-lambda-as-deffun set!-as-def-1))
+(define (begin-as-block s-exp)
+  (define (rec s-exp)
+    (match s-exp
+      [`(begin ,@e)
+       `(,block ,@(map rec e))]
+      [else
+       (if (list? s-exp)
+           (map rec s-exp)
+           s-exp)]))
+  (rec s-exp))
+(define (remove-else-void s-exp)
+  (define (rec s-exp)
+    (match s-exp
+      [`(cond ,@cnd-thn [else |#<void>|])
+       (rec `(cond ,@cnd-thn))]
+      [else
+       (if (list? s-exp)
+           (map rec s-exp)
+           s-exp)]))
+  (rec s-exp))
+(define preprocess (compose defvar-lambda-as-deffun set!-as-def-1 begin-as-block remove-else-void))
 (define (my-pict-of-state state)
-  ((pict-of-state #t #t) (preprocess ((s-exp-of-state #t) state))))
+  ((pict-of-state #t #t) (preprocess ((s-exp-of-state #f) state))))
 
 (define (run tracing? e)
   (define check void)

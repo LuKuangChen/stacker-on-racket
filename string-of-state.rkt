@@ -19,10 +19,18 @@
       (nest 2 (vs-append (h-append (text (format "(~a " defvar/set!)) (doc-of-s-exp x))
                          (h-append (doc-of-s-exp e) (text ")")))))]
     [`(,deffun? ,head ,@body)
-     #:when (memv deffun? '(deffun deffun-1))
+     #:when (memv deffun? '(deffun deffun-1 define))
      (align
       (nest 2 (vs-append (h-append (text (format "(~a " deffun?)) (doc-of-s-exp head))
                          (h-append (vs-concat (map doc-of-s-exp body)) (text ")")))))]
+    [`(cond ,@cases)
+     (align (h-append
+              (text "(cond")
+              (nest 2
+                (h-append
+                  line
+                  (v-concat (map doc-of-case cases))
+                  (text ")")))))]
     [`(begin ,e)
       (doc-of-s-exp e)]
     [`(begin ,@e*)
@@ -42,4 +50,13 @@
     [else
      (if (list? e)
          (h-append (text "(") (apply hs-append (map doc-of-s-exp e)) (text ")"))
-         (text (format "~a" e)))]))
+         (let* ([p (open-output-string)]
+                [_ (write e p)])
+           (text (get-output-string p))))]))
+(define (doc-of-case case)
+  ;;; (match-define `(,cnd ,@cont) case)
+  (h-append
+    (text "[")
+    (align
+      (v-concat (map doc-of-s-exp case)))
+    (text "]")))

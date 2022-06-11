@@ -172,8 +172,18 @@
                  (inj '>=)]
                 [(po-=)
                  (inj '=)]
+                [(po-emptyp)
+                 (inj 'empty?)]
+                [(po-consp)
+                 (inj 'cons?)]
                 [(po-pairp)
                  (inj 'pair?)]
+                [(po-string-length)
+                 (inj 'string-length)]
+                [(po-string-append)
+                 (inj 'string-append)]
+                [(po-string->list)
+                 (inj 'string->list)]
                 [(po-mpair)
                  (inj 'mpair)]
                 [(po-set-left!)
@@ -231,13 +241,15 @@
                  (inj it))
                 ((v-bool it)
                  (inj it))
+                ((v-char it)
+                 (inj it))
                 ((v-empty)
                  (inj (list (inj 'quote) (inj (list))))
                  #;
                  (inj (list (inj 'quote) (inj (list)))))
                 ((v-void)
                  (inj '|#<void>|))))
-            (define (s-exp-of-x x) (inj x))
+            (define (s-exp-of-x [x : Id]) (inj x))
             (define (s-exp-of-def def)
               (local ((define-values (x e) def))
                 (inj (list (inj 'defvar)
@@ -253,7 +265,7 @@
                (list (inj 'lambda)
                      (inj (map s-exp-of-x args))
                      (inj (cons (inj block) (append (map s-exp-of-def def*) (list (s-exp-of-e body))))))))
-            (define (s-exp-of-e e)
+            (define (s-exp-of-e e) : Any
               (type-case Term e
                 [(t-quote v)
                  (s-exp-of-v v)]
@@ -290,9 +302,18 @@
                    (inj 'if)
                    (s-exp-of-e cnd)
                    (s-exp-of-e thn)
-                   (s-exp-of-e els)))]))
+                   (s-exp-of-e els)))]
+                [(t-cond cnd-thn* els)
+                 (inj
+                  (append*
+                   (list 
+                     (list (inj 'cond))
+                     (map s-exp-of-ee cnd-thn*)
+                     (list (inj (list (inj 'else) (s-exp-of-e els)))))))]))
             (define (s-exp-of-xe xe)
               (inj (list (s-exp-of-x (fst xe)) (s-exp-of-e (snd xe)))))
+            (define (s-exp-of-ee [ee : (Term * Term)])
+              (inj (list (s-exp-of-e (fst ee)) (s-exp-of-e (snd ee)))))
             (define (s-exp-of-b xe)
               (inj (list (inj 'set!) (s-exp-of-x (fst xe)) (s-exp-of-e (snd xe))))))
       (type-case OtherState state

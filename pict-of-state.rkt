@@ -76,7 +76,7 @@
                                            (pict-of-focus `(,message ,term)))
                                 (pict-of-heap heap)))]))
     (define dim (max (pict-width p) (pict-height p)))
-    (scale p (/ 700 dim)))
+    (scale p (min (/ 700 (pict-height p)) (/ 1200 (pict-width p)))))
 
   (define (pict-of-stack stack)
     (box
@@ -126,7 +126,7 @@
     (match hv
       [`(Environment ,bindings ,outer-addr)
        (plate (vl-append
-               (field "@" this-addr)
+               (field "@" (immediate this-addr))
                (if hide-env-lable?
                    (blank)
                    (white (text "Environment Frame")))
@@ -135,28 +135,28 @@
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key (compose symbol->string car))))))
-               (field "Rest @" outer-addr))
+               (field "Rest @" (immediate outer-addr)))
               color-env)]
       [`(Closure ,env ,name ,code)
        (plate (vl-append padding
-                         (field "@" this-addr)
+                         (field "@" (immediate this-addr))
                          (field "Environment @" env)
                          (field "Code" (string-of-s-exp code)))
               color-closure)]
       [`,vec
        #:when (vector? vec)
        (plate (vl-append padding
-                         (field "@" this-addr)
+                         (field "@" (immediate this-addr))
                          (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec)))))
               color-vector)]
       [`(Cons ,v1 ,v2)
        (plate (vl-append padding
-                         (field "@" this-addr)
+                         (field "@" (immediate this-addr))
                          (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
               color-cons)]
       [else
        (plate (vl-append padding
-                         (field "@" this-addr)
+                         (field "@" (immediate this-addr))
                          (field "content" hv))
               color-other)]))
   (define (plate p color)
@@ -171,40 +171,6 @@
 
   (define (box p color)
     (frame (bg color (pad padding p))))
-  (define (pict-of-envs all-env-heapitems)
-    (define (rec root)
-      (let ([env (car (dict-ref all-env-heapitems root))])
-        (define children-pict
-          (apply hb-append padding
-                 (map rec (map addr-of-heapitem (filter (is-sub-env? root) all-env-heapitems)))))
-        (define children-width (pict-width children-pict))
-        (vc-append
-         children-pict
-         (pict-of-env children-width root env))))
-    (rec '|@base-env|))
-  (define (addr-of-heapitem item)
-    (match-define (list addr hv) item)
-    addr)
-  (define ((is-sub-env? root-addr) heapitem)
-    (match heapitem
-      [`(,this-addr (Environment ,bindings ,outer-addr))
-       (equal? root-addr outer-addr)]
-      [else #f]))
-  (define (pict-of-env children-width this-addr env)
-    (match-define `(Environment ,bindings ,outer-addr) env)
-    (define content-pict
-      (vl-append
-       (field "@" this-addr)
-       (white (text "Environment Frame"))
-       (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
-                                  (field-value '...)
-                                  (apply vl-append padding (map pict-of-binding bindings))))
-       (field "Rest" outer-addr)))
-    (define content-width (pict-width content-pict))
-    (frame
-     (bg "blue"
-         (pad padding
-              (ht-append content-pict (blank (max 0 (- children-width content-width)) 0))))))
   (define (pict-of-binding binding)
     (match-define (list x v) binding)
     (ht-append padding
@@ -214,12 +180,14 @@
 
   (define padding 5)
 
+  (struct immediate (it))
+
   (define (field name value)
     (ht-append padding (white (text name)) (field-value value)))
   (define (field-label name)
     (white (text name)))
   (define (field-value value)
-    (bg "white" (text (if (string? value) value (string-of-s-exp value)))))
+    (bg "white" (text (if (immediate? value) (format "~a" (immediate-it value)) (string-of-s-exp value)))))
   (define (field-pict name p)
     (ht-append padding (white (text name)) p))
 

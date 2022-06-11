@@ -53,7 +53,13 @@
     [(e-if cnd thn els)
      (t-if (compile-e cnd)
            (compile-e thn)
-           (compile-e els))]))
+           (compile-e els))]
+    [(e-cond thn-cnd* els)
+     (t-cond (map compile-e&e thn-cnd*)
+             (compile-e els))]))
+(define (compile-e&e e&e)
+  (pair (compile-e (fst e&e))
+        (compile-e (snd e&e))))
 (define (compile-def def) : (Id * Term)
   (type-case Def def
     ((d-var x e)
@@ -98,6 +104,8 @@
   (type-case Constant c
     ((c-void)
      (t-quote (v-void)))
+    ((c-char it)
+     (t-quote (v-char it)))
     ((c-str it)
      (t-quote (v-str it)))
     ((c-num it)
@@ -138,6 +146,7 @@
                 ((v-str it) (o-con (c-str it)))
                 ((v-num it) (o-con (c-num it)))
                 ((v-bool it) (o-con (c-bool it)))
+                ((v-char it) (o-con (c-char it)))
                 ((v-prim name) (o-fun))
                 ((v-empty) (o-list '()))
                 ((v-void) (o-void))
@@ -277,7 +286,17 @@
                 ((t-if cnd thn els)
                  (let ((e cnd))
                    (let ((ectx (cons (F-if thn els) ectx)))
-                     (do-interp the-heap e env ectx stack)))))))
+                     (do-interp the-heap e env ectx stack))))
+                ((t-cond cnd-thn* els)
+                 (type-case (Listof '_) cnd-thn*
+                  [empty
+                   (let ([e els])
+                     (do-interp the-heap e env ectx stack))]
+                  [(cons cnd-thn cnd-thn*)
+                   (let ([e (t-if (fst cnd-thn)
+                                  (snd cnd-thn)
+                                  (t-cond cnd-thn* els))])
+                     (do-interp the-heap e env ectx stack))])))))
           (define (interp-app the-heap v* e* env ectx stack) : State
             (type-case
                 (Listof Term)
@@ -393,9 +412,23 @@
                (let ((v (list-ref v-arg* 0)))
                  (let ((v (as-vec the-heap v)))
                    (values the-heap (v-num (vector-length v))))))
+              ((po-string-length)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-str v)))
+                   (values the-heap (v-num (string-length v))))))
+              ((po-string-append)
+               (let ((v* (map as-str v-arg*)))
+                 (values the-heap (v-str (foldr string-append "" v*)))))
+              ((po-string->list)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-str v)))
+                   (v-list the-heap (map v-char (string->list v))))))
               ((po-zerop)
                (let ((v1 (list-ref v-arg* 0)))
                  (values the-heap (v-bool (equal? v1 (v-num 0))))))
+              ((po-emptyp)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (values the-heap (v-bool (equal? v1 (v-empty))))))
               ((po-eqp)
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
@@ -460,6 +493,14 @@
                       (values the-heap (v-bool (= (vector-length v) 2)))))
                   (lambda (exn)
                     (values the-heap (v-bool #f))))))
+              ((po-consp)
+               (let ((v (list-ref v-arg* 0)))
+                 (catch
+                  (lambda ()
+                    (let ([v (as-cons the-heap v)])
+                      (values the-heap (v-bool #t))))
+                  (lambda (exn)
+                    (values the-heap (v-bool #f))))))
               ((po-mpair)
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
@@ -504,6 +545,10 @@
             :
             Number
             (type-case Val v ((v-num it) it) (else (raise (exn-rt "not a number")))))
+          (define (as-str (v : Val))
+            :
+            String
+            (type-case Val v ((v-str it) it) (else (raise (exn-rt "not a string")))))
           (define (as-bool (v : Val))
             :
             Boolean
