@@ -10,7 +10,9 @@ Please follow these instructions to install
 2. `File`
 3. `Install Package...`
 4. `Package Source` = `https://github.com/LuKC1024/smol-step.git`
-5. `Install`
+5. `Show Details`
+6. `Dependencies Mode` = `Auto`
+7. `Install`
 
 Update is basically the same. Once you installed `smol-step`,
 the `Install` button will become `Update`.
