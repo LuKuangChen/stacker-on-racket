@@ -29,6 +29,13 @@ To uninstall
 
 ## How to test whether an installation is successful?
 
+First, make sure you are in the Racket language:
+
+1. `DrRacket`
+2. `Language`
+3. `Choose Language...`
+4. `The Racket Language`
+
 Run the following program in DrRacket
 
 ```racket
