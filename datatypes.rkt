@@ -26,6 +26,15 @@
   (t-if [cnd : Term] [thn : Term] [els : Term])
   (t-cond [cnd-thn* : (Listof (Term * Term))] [els : Term]))
 
+(define (t-or t1 t2)
+  (t-if t1
+        (t-quote (v-bool #t))
+        t2))
+(define (t-and t1 t2)
+  (t-if t1
+        t2
+        (t-quote (v-bool #f))))
+
 (define-type-alias (Result 'a) 'a)
 (define-type Heap
   (heap-heap [it : (Hashof HeapAddress (Number * HeapValue))]))
@@ -49,7 +58,7 @@
 (define (heap-ref a-heap a-heap-address) : HeapValue
   (type-case (Optionof (Number * HeapValue)) (hash-ref (heap-heap-it a-heap) a-heap-address)
     [(none)
-     (raise (exn-internal 'heap-ref "Invalid address"))]
+     (raise (exn-internal 'heap-ref (format "Invalid address ~a" a-heap-address)))]
     [(some hv)
      (snd hv)]))
 (define (heap-set [h : Heap] [ha : HeapAddress] [hv : HeapValue]) : Heap
@@ -67,6 +76,11 @@
   (pa-empty)
   (pa-map)
   (pa-filter)
+  (pa-memberp)
+  (pa-foldl)
+  (pa-foldr)
+  (pa-andmap)
+  (pa-ormap)
   (pa-base-env))
 (define-type HeapValue
   (h-vec [it : (Vectorof Val)])
@@ -106,6 +120,7 @@
   (po-string-length)
   (po-string-append)
   (po-string->list)
+  (po-list->string)
   (po-eqp)
   (po-equalp)
   (po-zerop)
@@ -212,6 +227,8 @@
                   (values 'left (po-left))
                   (values 'string-length (po-string-length))
                   (values 'string-append (po-string-append))
+                  (values 'string->list (po-string->list))
+                  (values 'list->string (po-list->string))
                   (values 'right (po-right))
                   (values 'vlen (po-vlen))
                   (values 'equal? (po-equalp))
@@ -249,6 +266,11 @@
                               (list (pair 'empty (some (v-empty)))
                                     (pair 'map (some (v-addr (ha-prim (pa-map)))))
                                     (pair 'filter (some (v-addr (ha-prim (pa-filter)))))
+                                    (pair 'member? (some (v-addr (ha-prim (pa-memberp)))))
+                                    (pair 'foldl (some (v-addr (ha-prim (pa-foldl)))))
+                                    (pair 'foldr (some (v-addr (ha-prim (pa-foldr)))))
+                                    (pair 'andmap (some (v-addr (ha-prim (pa-andmap)))))
+                                    (pair 'ormap (some (v-addr (ha-prim (pa-ormap)))))
                                     (pair 'false (some (v-bool #f)))
                                     (pair 'true (some (v-bool #t))))))]
          [builtins (hash-keys base-env-map)]
@@ -271,6 +293,21 @@
                                                               (list (t-var 'f)
                                                                     (t-app (t-quote (v-prim (po-rest)))
                                                                            (list (t-var 'xs)))))))))))
+         (the-heap (heap-set the-heap (ha-prim (pa-memberp))
+                             (h-fun base-env
+                                    (some 'member?)
+                                    (list 'x 'l)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
+                                          (t-quote (v-bool #f))
+                                          (t-or (t-app (t-var 'equal?)
+                                                      (list (t-app (t-quote (v-prim (po-first)))
+                                                                           (list (t-var 'l)))
+                                                            (t-var 'x)))
+                                                (t-app (t-var 'member?)
+                                                      (list (t-var 'x)
+                                                            (t-app (t-quote (v-prim (po-rest)))
+                                                                    (list (t-var 'l))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-filter))
                              (h-fun base-env
                                     (some 'filter)
@@ -292,6 +329,72 @@
                                                        (list (t-var 'f)
                                                              (t-app (t-quote (v-prim (po-rest)))
                                                                     (list (t-var 'xs))))))))))
+         (the-heap (heap-set the-heap (ha-prim (pa-foldl))
+                             (h-fun base-env
+                                    (some 'foldl)
+                                    (list 'f 'base 'l)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
+                                          (t-var 'base)
+                                          (t-app (t-var 'foldl)
+                                                 (list
+                                                  (t-var 'f)
+                                                  (t-app (t-var 'f)
+                                                         (list
+                                                           (t-app (t-quote (v-prim (po-first)))
+                                                                  (list (t-var 'l)))
+                                                           (t-var 'base)))
+                                                  (t-app (t-quote (v-prim (po-rest)))
+                                                         (list (t-var 'l)))))))))
+         (the-heap (heap-set the-heap (ha-prim (pa-foldr))
+                             (h-fun base-env
+                                    (some 'foldr)
+                                    (list 'f 'base 'l)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
+                                          (t-var 'base)
+                                          (t-app (t-var 'f)
+                                                 (list
+                                                  (t-app (t-quote (v-prim (po-first)))
+                                                         (list (t-var 'l)))
+                                                  (t-app (t-var 'foldr)
+                                                         (list
+                                                           (t-var 'f)
+                                                           (t-var 'base)
+                                                           (t-app (t-quote (v-prim (po-rest)))
+                                                                  (list (t-var 'l)))))))))))
+         (the-heap (heap-set the-heap (ha-prim (pa-andmap))
+                             (h-fun base-env
+                                    (some 'andmap)
+                                    (list 'p? 'l)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
+                                          (t-quote (v-bool #t))
+                                          (t-and (t-app (t-var 'p?)
+                                                        (list
+                                                          (t-app (t-quote (v-prim (po-first)))
+                                                                (list (t-var 'l)))))
+                                                 (t-app (t-var 'andmap)
+                                                        (list
+                                                          (t-var 'p?)
+                                                          (t-app (t-quote (v-prim (po-rest)))
+                                                                 (list (t-var 'l))))))))))
+         (the-heap (heap-set the-heap (ha-prim (pa-ormap))
+                             (h-fun base-env
+                                    (some 'andmap)
+                                    (list 'p? 'l)
+                                    (list)
+                                    (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
+                                          (t-quote (v-bool #t))
+                                          (t-or (t-app (t-var 'p?)
+                                                        (list
+                                                          (t-app (t-quote (v-prim (po-first)))
+                                                                (list (t-var 'l)))))
+                                                 (t-app (t-var 'andmap)
+                                                        (list
+                                                          (t-var 'p?)
+                                                          (t-app (t-quote (v-prim (po-rest)))
+                                                                 (list (t-var 'l))))))))))
          )
     (values the-heap base-env builtins)))
 

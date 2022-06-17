@@ -423,6 +423,11 @@
                (let ((v (list-ref v-arg* 0)))
                  (let ((v (as-str v)))
                    (v-list the-heap (map v-char (string->list v))))))
+              ((po-list->string)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-plait-list the-heap v)))
+                   (let ((v (map as-char v)))
+                     (values the-heap (v-str (list->string v)))))))
               ((po-zerop)
                (let ((v1 (list-ref v-arg* 0)))
                  (values the-heap (v-bool (equal? v1 (v-num 0))))))
@@ -553,6 +558,10 @@
             :
             Boolean
             (type-case Val v ((v-bool it) it) (else (raise (exn-rt "not a boolean")))))
+          (define (as-char (v : Val))
+            :
+            Char
+            (type-case Val v ((v-char it) it) (else (raise (exn-rt "not a char")))))
           (define (functional-vector-set vec i elm)
             (let ((lst (vector->list vec)))
               (let ((pre (take lst i))
@@ -584,6 +593,16 @@
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) v)
+                 (else
+                  (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
+              (else (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
+          (define (as-plait-list the-heap (v : Val))
+            (type-case Val v
+              ((v-empty) (list))
+              ((v-addr addr)
+               (type-case HeapValue (heap-ref the-heap addr)
+                 ((h-cons it)
+                  (cons (fst it) (as-plait-list the-heap (snd it))))
                  (else
                   (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
               (else (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))

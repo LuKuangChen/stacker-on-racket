@@ -184,6 +184,8 @@
                  (inj 'string-append)]
                 [(po-string->list)
                  (inj 'string->list)]
+                [(po-list->string)
+                 (inj 'list->string)]
                 [(po-mpair)
                  (inj 'mpair)]
                 [(po-set-left!)
@@ -227,6 +229,11 @@
               (type-case PrimitiveHeapAddress pa
                 [(pa-map) (inj 'map)]
                 [(pa-filter) (inj 'filter)]
+                [(pa-memberp) (inj 'member?)]
+                [(pa-foldl) (inj 'foldl)]
+                [(pa-foldr) (inj 'foldr)]
+                [(pa-andmap) (inj 'andmap)]
+                [(pa-ormap) (inj 'ormap)]
                 [(pa-base-env) (inj 'primordial-env)]
                 [(pa-empty) (inj 'empty)]))
             (define (s-exp-of-v v)

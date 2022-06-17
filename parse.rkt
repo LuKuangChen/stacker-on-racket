@@ -8,6 +8,7 @@
   (pattern x:string)
   (pattern x:number)
   (pattern x:boolean)
+  (pattern x:char)
   (pattern #(c:constant ...))
   (pattern ((~datum quote) #(c:constant ...)))
   (pattern ((~datum quote) (c:constant ...))))
@@ -120,6 +121,8 @@
      (c-num (syntax-e #'x))]
     [x:boolean
      (c-bool (syntax-e #'x))]
+    [x:char
+     (c-char (syntax-e #'x))]
     [x:string
      (c-str (syntax-e #'x))]
     [((~datum quote) #(x:constant ...))
