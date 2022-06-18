@@ -7,7 +7,7 @@ Another implementation of [`smol`](https://github.com/shriram/smol). This implem
 Please follow these instructions to install
 
 1. Make sure you are in the `DrRacket` app.
-2. Go to the menu `File` | `Install Package...`. A window will pop up.
+2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Do What I Mean` tab of the pop-up window.
 4. Set the `Package Source` field to `https://github.com/LuKC1024/smol-step.git`
 5. Click the `Show Details` butoon.
@@ -20,7 +20,7 @@ the `Install` button will become `Update`.
 To uninstall
 
 1. Make sure you are in the `DrRacket` app.
-2. Go to the menu `File` | `Install Package...`. A window will pop up.
+2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Currently Installed` tab of the pop-up window.
 4. Set the `Filter` field to `smol-step`.
 5. Select the first result.
