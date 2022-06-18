@@ -6,35 +6,34 @@ Another implementation of [`smol`](https://github.com/shriram/smol). This implem
 
 Please follow these instructions to install
 
-1. `DrRacket`
-2. `File`
-3. `Install Package...`
-4. `Package Source` = `https://github.com/LuKC1024/smol-step.git`
-5. `Show Details`
-6. `Dependencies Mode` = `Auto`
-7. `Install`
+1. Make sure you are in the `DrRacket` app.
+2. Go to the menu `File` | `Install Package...`. A window will pop up.
+3. Make sure you are in `Do What I Mean` tab of the pop-up window.
+4. Set the `Package Source` field to `https://github.com/LuKC1024/smol-step.git`
+5. Click the `Show Details` butoon.
+6. Set the `Dependencies Mode` field to `Auto`.
+7. Click the `Install` button. (If you have installed, the button will write "Update")
 
 Update is basically the same. Once you installed `smol-step`,
 the `Install` button will become `Update`.
 
 To uninstall
 
-1. `DrRacket`
-2. `File`
-3. `Install Package...`
-4. `Currently Installed`
-5. `Filter` = `smol-step`
-6. Select the first result
-7. `Remove`
+1. Make sure you are in the `DrRacket` app.
+2. Go to the menu `File` | `Install Package...`. A window will pop up.
+3. Make sure you are in `Currently Installed` tab of the pop-up window.
+4. Set the `Filter` field to `smol-step`.
+5. Select the first result.
+6. Click the `Remove` button.
 
 ## How to test whether an installation is successful?
 
 First, make sure you are in the Racket language:
 
-1. `DrRacket`
-2. `Language`
-3. `Choose Language...`
-4. `The Racket Language`
+1. Make sure you are in the `DrRacket` app.
+2. Go to the menu `Language` | `Choose Language...`. A window will pop up.
+3. Select the `The Racket Language`.
+4. Click the `OK` button.
 
 Run the following program in DrRacket
 
