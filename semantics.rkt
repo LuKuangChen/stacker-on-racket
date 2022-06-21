@@ -1,7 +1,6 @@
 #lang racket
 (provide (rename-out [my-module-begin #%module-begin])
          (rename-out [my-top-interaction #%top-interaction]))
-
 (require "./s-exp-of-state.rkt")
 (require "./pict-of-state.rkt")
 (require "./parse.rkt")
@@ -58,7 +57,9 @@
 
 (define (run tracing? e)
   (define check void)
-  (eval tracing? check my-pict-of-state (parse e)))
+  (eval tracing? check my-pict-of-state (parse e))
+  #;(eval tracing? check pictify (parse e))
+  )
 
 (define-syntax (my-module-begin stx)
   (syntax-case stx ()
