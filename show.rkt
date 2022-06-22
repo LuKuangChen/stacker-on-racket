@@ -12,9 +12,14 @@
     [(o-con? o) (string-of-c (o-con-it o))]
     [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
     [(o-list? o) (format "'(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]
-    [(o-fun? o) (if (some? (o-fun-it o))
-                    (format "#<procedure:~a>" (some-v (o-fun-it o)))
-                    "#<procedure>")]
+    [(o-fun? o)
+     (if (some? (o-fun-it o))
+         (some-v (o-fun-it o))
+         "#<procedure>")
+     #;
+     (if (some? (o-fun-it o))
+         (format "#<procedure:~a>" (some-v (o-fun-it o)))
+         "#<procedure>")]
     [(o-void? o) "#<void>"]
     [(o-rec? o) (format "#~a=~a" (o-rec-id o) (string-of-o (o-rec-content o)))]
     [(o-var? o) (format "#~a#" (o-var-id o))]
