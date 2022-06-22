@@ -407,6 +407,7 @@
   (calling [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
            [clos-env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
   (called [e : Term] [env : Env] [stack : Stack])
+  (returning [v : Val] [stack : Stack])
   (returned [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])
   (terminated [v* : (Listof Val)])
   (errored))

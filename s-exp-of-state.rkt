@@ -493,6 +493,11 @@
                       (inj (string-of-ectx ectx))
                       (s-exp-of-stack stack)
                       (s-exp-of-heap the-heap)))]
+          [(returning v stack)
+           (inj (list (inj "returning")
+                      (inj ((string-of-val the-heap) v))
+                      (s-exp-of-stack stack)
+                      (s-exp-of-heap the-heap)))]
           [(terminated v*)
            (inj (list (inj "terminated")
                       (inj (map (string-of-val the-heap) v*))

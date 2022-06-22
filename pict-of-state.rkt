@@ -31,10 +31,11 @@
 (define tp-black (text-palette color-white color-black))
 
 (define tp-stack tp-black)
-(define tp-stack-frame tp-A-L)
+(define tp-stack-frame tp-B-D)
 (define tp-calling tp-B-D)
-(define tp-called tp-B-L)
-(define tp-returned tp-B-D)
+(define tp-called tp-A-D)
+(define tp-returning tp-B-L)
+(define tp-returned tp-A-L)
 (define tp-terminated tp-black)
 (define tp-errored tp-C)
 
@@ -78,26 +79,30 @@
            (string-split s "\n")))))
 
 (define (pict-of-state hide-closure? hide-env-lable?)
-  (define (pict-of-focus focus)
+  (define ((pict-of-focus heap) focus)
     (match focus
       [`("calling" ,app ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
                          (field "Calling" app)
-                         (field "Context" ectx)
-                         (field "Environment @" env))))]
+                         (field "in" ectx)
+                         (field-pict "where" (pict-env heap env)))))]
       [`("called" ,body ,env)
        (parameterize ([current-text-palette tp-called])
        (plate (vl-append padding
-                         (field-label "Computing")
+                         (field-label "Evaluating")
                          (field-value body)
-                         (field "Environment @" env))))]
+                         (field-pict "where" (pict-env heap env)))))]
       [`("returned" ,v ,env ,ectx)
        (parameterize ([current-text-palette tp-returned])
        (plate (vl-append padding
                          (field "Returned" v)
-                         (field "Context" ectx)
-                         (field "Environment @" env))))]
+                         (field "to" ectx)
+                         (field-pict "where" (pict-env heap env)))))]
+      [`("returning" ,v)
+       (parameterize ([current-text-palette tp-returning])
+       (plate (vl-append padding
+                         (field "Returning" v))))]
       [`("terminated" ,v*)
        (parameterize ([current-text-palette tp-terminated])
        (plate (vl-append padding
@@ -112,7 +117,7 @@
     (bg (ht-append padding
                    (vl-append padding
                               ((pict-of-stack heap) stack)
-                              (pict-of-focus focus))
+                              ((pict-of-focus heap) focus))
                    #;
                    (pict-of-heap heap))))
 
@@ -125,6 +130,8 @@
          (main-pict stack `("called" ,body ,env) heap)]
         [`("returned" ,v ,env ,ectx ,stack ,heap)
          (main-pict stack `("returned" ,v ,env ,ectx) heap)]
+        [`("returning" ,v ,stack ,heap)
+         (main-pict stack `("returning" ,v) heap)]
         [`("terminated" ,v* ,heap)
          (main-pict empty `("terminated" ,v*) heap)]
         [`("errored" ,heap)
@@ -254,14 +261,15 @@
       (bg (frame
          (pad padding
               (vl-append padding
-                         (field "Context" ectx)
+                         (field-label "Waiting for a value")
+                         (field "in" ectx)
                          #;(field "Environment @" env)
-                         (match-let ([`("env" ,env ,bindings) (first (dict-ref heap env))])
-                           (field-pict
-                             "Environment"
-                             (apply vl-append padding
-                                    (map pict-of-binding
-                                         (sort bindings string<=? #:key first)))))))))))
+                         (field-pict "where" (pict-env heap env))))))))
+  (define (pict-env heap env)
+    (match-let ([`("env" ,env ,bindings) (first (dict-ref heap env))])
+      (apply vl-append padding
+              (map pict-of-binding
+                    (sort bindings string<=? #:key first)))))
 
   (define (pad n p)
     (hc-append (blank n)

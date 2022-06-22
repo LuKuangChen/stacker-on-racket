@@ -146,15 +146,19 @@
                (raise (exn-internal 'apply-stack "The empty stack should have been caught by P-exp")))
               ((cons sf0 stack)
                (local ((define-values (env ectx ann) sf0))
+                 (continue-returned the-heap v env ectx stack)
+                 #;
                  (values the-heap (returned v env ectx stack))))))
-          (define (do-return the-heap v env ectx stack)
+          (define (continue-returning the-heap v stack)
+            (apply-stack the-heap v stack))
+          (define (continue-returned the-heap v env ectx stack)
             (do-apply-k the-heap v env ectx stack))
           (define (do-apply-k the-heap v env ectx [stack : Stack])
             : State
             (begin
               (type-case (Listof ECFrame) ectx
                 [empty
-                 (apply-stack the-heap v stack)]
+                 (values the-heap (returning v stack))]
                 ((cons f ectx)
                  (type-case ECFrame f
                    ((F-begin e* e)
@@ -580,8 +584,10 @@
                     (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body)]
                    [(called e env stack)
                     (do-interp the-heap e env (list) stack)]
+                   [(returning v stack)
+                    (continue-returning the-heap v stack)]
                    [(returned v env ectx stack)
-                    (do-return the-heap v env ectx stack)]
+                    (continue-returned the-heap v env ectx stack)]
                    [else
                     (raise (exn-internal 'forward "The program has terminated"))]))
                (λ (exn)
