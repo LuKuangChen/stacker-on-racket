@@ -56,7 +56,10 @@
            (compile-e els))]
     [(e-cond thn-cnd* els)
      (t-cond (map compile-e&e thn-cnd*)
-             (compile-e els))]))
+             (type-case (Optionof '_) els
+               [(none) (none)]
+               [(some e)
+                (some (compile-e e))]))]))
 (define (compile-e&e e&e)
   (pair (compile-e (fst e&e))
         (compile-e (snd e&e))))
@@ -252,8 +255,11 @@
                 ((t-cond cnd-thn* els)
                  (type-case (Listof '_) cnd-thn*
                   [empty
-                   (let ([e els])
-                     (do-interp the-heap e env ectx stack))]
+                   (type-case (Optionof Term) els
+                     [(none)
+                      (do-apply-k the-heap (v-void) env ectx stack)]
+                     [(some e)
+                      (do-interp the-heap e env ectx stack)])]
                   [(cons cnd-thn cnd-thn*)
                    (let ([e (t-if (fst cnd-thn)
                                   (snd cnd-thn)

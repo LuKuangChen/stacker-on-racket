@@ -40,7 +40,7 @@
   (e-set! [var : Id] [val : Expr])
   (e-begin [prelude* : (Listof Expr)] [result : Expr])
   (e-if [cnd : Expr] [thn : Expr] [els : Expr])
-  (e-cond [cnd-thn* : (Listof (Expr * Expr))] [els : Expr]))
+  (e-cond [cnd-thn* : (Listof (Expr * Expr))] [els : (Optionof Expr)]))
 (define (bind x e) (values x e))
 (define-type-alias Bind (Id * Expr))
 (define (var-of-bind bind) (fst bind))

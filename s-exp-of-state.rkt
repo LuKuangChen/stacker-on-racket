@@ -253,7 +253,6 @@
                      (symbol "defvar")
                      (doc-of-x x)
                      (doc-of-e e))))))
-          
               (define (doc-lambda arg* def* body)
                 (head-body
                  (list
@@ -340,7 +339,10 @@
                     (map doc-of-ee
                          (append
                           cnd-thn*
-                          (list (values (t-var 'else) els)))))]))
+                          (type-case (Optionof '_) els
+                            [(none) (list)]
+                            [(some e)
+                             (list (values (t-var 'else) e))]))))]))
               (define (doc-of-xe xe)
                 (local [(define-values (x e) xe)]
                   (doc-of-ee (values (t-var x) e))))

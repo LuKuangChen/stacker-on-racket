@@ -25,7 +25,7 @@
   (t-set! [var : Id] [val : Term])
   (t-begin [prelude* : (Listof Term)] [result : Term])
   (t-if [cnd : Term] [thn : Term] [els : Term])
-  (t-cond [cnd-thn* : (Listof (Term * Term))] [els : Term]))
+  (t-cond [cnd-thn* : (Listof (Term * Term))] [els : (Optionof Term)]))
 
 (define (t-or t1 t2)
   (t-if t1

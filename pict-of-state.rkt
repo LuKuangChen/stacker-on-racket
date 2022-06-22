@@ -90,7 +90,7 @@
       [`("called" ,body ,env)
        (parameterize ([current-text-palette tp-called])
        (plate (vl-append padding
-                         (field-label "Evaluating")
+                         (field-label "Evaluating the function body")
                          (field-value body)
                          (field-pict "where" (pict-env heap env)))))]
       [`("returned" ,v ,env ,ectx)
@@ -108,7 +108,7 @@
        (plate (vl-append padding
                          (field-label "Terminated")
                          (field-value (string-join v* "\n")))))]
-      [`("errored" ,v*)
+      [`("errored")
        (parameterize ([current-text-palette tp-errored])
        (plate (vl-append padding
                          (field-label "Errored"))))]))
