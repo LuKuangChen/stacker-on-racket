@@ -3,6 +3,7 @@
 (require "io.rkt")
 (require "error.rkt")
 (require "utilities.rkt")
+(require (typed-in "show.rkt" [string-of-o : (Obs -> String)]))
 (require (typed-in racket
                    [random : (Number -> Number)]
                    [list->vector : ((Listof 'a) -> (Vectorof 'a))]

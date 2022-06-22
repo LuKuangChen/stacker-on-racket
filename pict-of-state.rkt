@@ -152,7 +152,7 @@
                                           (field-value '...)
                                           (apply vl-append padding
                                                  (map pict-of-binding
-                                                      (sort bindings string<=? #:key (compose symbol->string car))))))
+                                                      (sort bindings string<=? #:key first)))))
                (field "Rest @" env))
               color-env)]
       [`("fun" ,env ,code)

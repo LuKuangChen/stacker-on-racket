@@ -2,6 +2,8 @@
 
 (require "utilities.rkt")
 (require "datatypes.rkt")
+(require "error.rkt")
+(require "io.rkt")
 (require
   (opaque-type-in racket
                   (Port port?))
@@ -30,6 +32,55 @@
                    [append* : ((Listof (Listof 'x)) -> (Listof 'x))]))
 (require (opaque-type-in racket [Any any/c]))
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
+
+
+(define (string-of-val the-heap)
+  (let ([obs (obs-of-val the-heap)])
+    (lambda (v)
+      (string-of-o (obs v)))))
+(define (obs-of-val the-heap)
+  (lambda (v)
+  (local ([define counter 0]
+          (define visited (make-hash (list)))
+          (define (obs-of-hv hv)
+            (type-case HeapValue hv
+              ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
+              ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
+                                        (o-list-it (obs-of-val (snd vs))))))
+              ((h-fun env name arg* def* body)
+               (o-fun (type-case (Optionof '_) name
+                        [(none) (none)]
+                        [(some x) (some (symbol->string x))])))
+              ((h-env _env _map)
+              (raise (exn-internal 'obs-of-val "Impossible.")))))
+          [define obs-of-val
+            (lambda (v)
+              (type-case
+                  Val
+                v
+                ((v-str it) (o-con (c-str it)))
+                ((v-num it) (o-con (c-num it)))
+                ((v-bool it) (o-con (c-bool it)))
+                ((v-char it) (o-con (c-char it)))
+                ((v-prim name) (o-fun (some (pretty-format (doc-of-prim name)))))
+                ((v-empty) (o-list '()))
+                ((v-void) (o-void))
+                ((v-addr addr)
+                 (type-case (Optionof (Optionof Number)) (hash-ref visited addr)
+                   [(none)
+                    (begin
+                      (hash-set! visited addr (none))
+                      (let ([o (obs-of-hv (heap-ref the-heap addr))])
+                        (type-case (Optionof Number) (some-v (hash-ref visited addr))
+                          [(none) o]
+                          [(some id) (o-rec id o)])))]
+                   [(some optionof-id)
+                    (begin
+                      (when (equal? optionof-id (none))
+                        (hash-set! visited addr (some counter))
+                        (set! counter (add1 counter)))
+                      (o-var (some-v (some-v (hash-ref visited addr)))))]))))])
+    (obs-of-val v))))
 
 (define (symbol x)
   (text x))
@@ -175,6 +226,8 @@
                   [(pa-base-env) (doc-of-x 'primordial-env)]
                   [(pa-empty) (doc-of-x 'empty)]))
               (define (doc-of-v v)
+                (text ((string-of-val the-heap) v))
+                #;
                 (type-case Val v
                   ((v-addr it)
                    (doc-of-ha it))
@@ -393,7 +446,7 @@
                   [(none)
                    "💣"]
                   [(some v)
-                  (string-of-v v)]))
+                   ((string-of-val the-heap) v)]))
               (define (string-of-env env)
                 (type-case (Optionof '_) env
                   [(none)
@@ -435,14 +488,14 @@
                       (s-exp-of-heap the-heap)))]
           [(returned v env ectx stack)
            (inj (list (inj "returned")
-                      (inj (string-of-v v))
+                      (inj ((string-of-val the-heap) v))
                       (inj (string-of-env env))
                       (inj (string-of-ectx ectx))
                       (s-exp-of-stack stack)
                       (s-exp-of-heap the-heap)))]
           [(terminated v*)
            (inj (list (inj "terminated")
-                      (inj (map string-of-v v*))
+                      (inj (map (string-of-val the-heap) v*))
                       (s-exp-of-heap the-heap)))]
           [(errored)
            (inj (list (inj "errored")

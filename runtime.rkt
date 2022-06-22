@@ -124,48 +124,6 @@
     ((t-quote _) #t)
     (else #f)))
 
-(define (string-of-val the-heap v)
-  (string-of-o ((obs-of-val the-heap) v)))
-(define (obs-of-val the-heap)
-  (lambda (v)
-  (local ([define counter 0]
-          (define visited (make-hash (list)))
-          (define (obs-of-hv hv)
-            (type-case HeapValue hv
-              ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
-              ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
-                                        (o-list-it (obs-of-val (snd vs))))))
-              ((h-fun env name arg* def* body) (o-fun))
-              ((h-env _env _map)
-              (raise (exn-internal 'obs-of-val "Impossible.")))))
-          [define obs-of-val
-            (lambda (v)
-              (type-case
-                  Val
-                v
-                ((v-str it) (o-con (c-str it)))
-                ((v-num it) (o-con (c-num it)))
-                ((v-bool it) (o-con (c-bool it)))
-                ((v-char it) (o-con (c-char it)))
-                ((v-prim name) (o-fun))
-                ((v-empty) (o-list '()))
-                ((v-void) (o-void))
-                ((v-addr addr)
-                 (type-case (Optionof (Optionof Number)) (hash-ref visited addr)
-                   [(none)
-                    (begin
-                      (hash-set! visited addr (none))
-                      (let ([o (obs-of-hv (heap-ref the-heap addr))])
-                        (type-case (Optionof Number) (some-v (hash-ref visited addr))
-                          [(none) o]
-                          [(some id) (o-rec id o)])))]
-                   [(some optionof-id)
-                    (begin
-                      (when (equal? optionof-id (none))
-                        (hash-set! visited addr (some counter))
-                        (set! counter (add1 counter)))
-                      (o-var (some-v (some-v (hash-ref visited addr)))))]))))])
-    (obs-of-val v))))
 (define (as-fun the-heap (v : Val))
   (type-case Val v
     ((v-prim name) (op-prim name))
@@ -576,16 +534,16 @@
                       (raise (exn-rt "the length of the vector is not what I expected.")))
                     (heap-set the-heap addr (functional-vector-set it i velm))))
                  (else
-                  (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
           (define (as-vec the-heap (v : Val))
             (type-case Val v
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-vec it) it)
                  (else
-                  (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
           (define (as-list the-heap (v : Val))
             (type-case Val v
               ((v-empty) v)
@@ -593,8 +551,8 @@
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) v)
                  (else
-                  (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
           (define (as-plait-list the-heap (v : Val))
             (type-case Val v
               ((v-empty) (list))
@@ -603,16 +561,16 @@
                  ((h-cons it)
                   (cons (fst it) (as-plait-list the-heap (snd it))))
                  (else
-                  (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
           (define (as-cons the-heap (v : Val))
             (type-case Val v
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) it)
                  (else
-                  (raise (exn-rt (format "not a cons ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a cons ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a cons ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a cons ~a" ((string-of-val the-heap) v)))))))
           (define (forward [state : State])
             (let-values (((the-heap state) state))
               (catch
