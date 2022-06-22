@@ -4,7 +4,6 @@
 (require (rename-in pict [text pict-text]))
 (require pict/color)
 (require racket/draw)
-(require "./string-of-state.rkt")
 
 (define color-blue (make-object color% 68 119 170))
 (define color-cyne (make-object color% 102 204 238))
@@ -34,7 +33,9 @@
 (define color-error color-red)
 
 (define (text s)
-  (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
+  (if (equal? s "")
+      (pict-text " ")
+      (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n")))))
 
 (define (pict-of-state hide-closure? hide-env-lable?)
   (define color-comp color-closure)
@@ -43,38 +44,55 @@
   (define color-refer color-other)
   (define (pict-of-focus focus)
     (match focus
-      [`("Computing" ,term)
-       (box (field "Computing" term) color-comp)]
-      [`("Returned" ,term)
-       (box (field "Returned" term) color-return)]
-      [`("Terminated" ,term)
-       (box (field "Terminated" term) color-terminate)]
-      [`("Referring to" ,term)
-       (box (field "Returned" term) color-refer)]))
+      [`("calling" ,app ,env ,ectx)
+       (plate (vl-append padding
+                         (field "Calling" app)
+                         (field "Context" ectx)
+                         (field "Environment @" env))
+              color-comp)]
+      [`("called" ,body ,env)
+       (plate (vl-append padding
+                         (field-label "Computing")
+                         (field-value body)
+                         (field "Environment @" env))
+              color-comp)]
+      [`("returned" ,v ,env ,ectx)
+       (plate (vl-append padding
+                         (field "Returned" v)
+                         (field "Context" ectx)
+                         (field "Environment @" env))
+              color-return)]
+      [`("terminated" ,v*)
+       (plate (vl-append padding
+                         (field-label "Terminated")
+                         (field-value (string-join v* "\n")))
+              color-terminate)]
+      [`("errored" ,v*)
+       (plate (vl-append padding
+                         (field-label "Errored"))
+              color-error)]))
+
+  (define (main-pict stack focus heap)
+    (bg "white"
+        (ht-append padding
+                   (vl-append padding
+                              (pict-of-stack stack)
+                              (pict-of-focus focus))
+                   (pict-of-heap heap))))
 
   (define (pict-of-state state)
-    (define p (match state
-                [`("Errored" ,heap)
-                 (bg "white"
-                     (ht-append padding
-                                (vl-append padding
-                                           (pict-of-stack empty)
-                                           (box (field-label "Errored") color-error))
-                                (pict-of-heap heap)))]
-                [`("Terminated" ,o* ,heap)
-                 (bg "white"
-                     (ht-append padding
-                                (vl-append padding
-                                           (pict-of-stack empty)
-                                           (pict-of-focus `("Terminated" (,block ,@o*))))
-                                (pict-of-heap heap)))]
-                [`(,message ,term ,env ,ectx ,stack ,heap)
-                 (bg "white"
-                     (ht-append padding
-                                (vl-append padding
-                                           (pict-of-stack (cons (list env ectx term) stack))
-                                           (pict-of-focus `(,message ,term)))
-                                (pict-of-heap heap)))]))
+    (define p
+      (match state
+        [`("calling" ,app ,env ,ectx ,stack ,heap)
+         (main-pict stack `("calling" ,app ,env ,ectx) heap)]
+        [`("called" ,body ,env ,stack ,heap)
+         (main-pict stack `("called" ,body ,env) heap)]
+        [`("returned" ,v ,env ,ectx ,stack ,heap)
+         (main-pict stack `("returned" ,v ,env ,ectx) heap)]
+        [`("terminated" ,v* ,heap)
+         (main-pict empty `("terminated" ,v*) heap)]
+        [`("errored" ,heap)
+         (main-pict empty `("errored") heap)]))
     (define dim (max (pict-width p) (pict-height p)))
     (scale p (min (/ 700 (pict-height p)) (/ 1200 (pict-width p)))))
 
@@ -88,7 +106,7 @@
   (define (is-env? heapitem)
     (match-define (list addr hv) heapitem)
     (match hv
-      [`(Environment ,@_)
+      [`("env" ,@_)
        #t]
       [else
        #f]))
@@ -111,7 +129,7 @@
     (let-values ([(envs others) (partition is-env?
                                            (filter heapitem-interesting? heapitems))])
       (ht-append
-        padding
+       padding
        (apply vl-append padding
               (map pict-of-heapitem envs))
        (apply vl-append padding
@@ -124,49 +142,45 @@
   (define (pict-of-heapitem item)
     (match-define `(,this-addr ,hv) item)
     (match hv
-      [`(Environment ,bindings ,outer-addr)
+      [`("env" ,env ,bindings)
        (plate (vl-append
-               (field "@" (immediate this-addr))
+               (field "@" this-addr)
                (if hide-env-lable?
                    (blank)
                    (white (text "Environment Frame")))
-               (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
+               (field-pict "bindings" (if (equal? this-addr '|@base-env|)
                                           (field-value '...)
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key (compose symbol->string car))))))
-               (field "Rest @" (immediate outer-addr)))
+               (field "Rest @" env))
               color-env)]
-      [`(Closure ,env ,name ,code)
+      [`("fun" ,env ,code)
        (plate (vl-append padding
-                         (field "@" (immediate this-addr))
+                         (field "@" this-addr)
                          (field "Environment @" env)
-                         (field "Code" (string-of-s-exp code)))
+                         (field "Code" code))
               color-closure)]
-      [`,vec
-       #:when (vector? vec)
+      [`("vec" ,vec)
        (plate (vl-append padding
-                         (field "@" (immediate this-addr))
-                         (field-pict "mvec" (apply hb-append padding (map field-value (vector->list vec)))))
+                         (field "@" this-addr)
+                         (field-pict "mvec" (apply hb-append padding (map field-value vec))))
               color-vector)]
-      [`(Cons ,v1 ,v2)
+      [`("cons" ,v1 ,v2)
        (plate (vl-append padding
-                         (field "@" (immediate this-addr))
+                         (field "@" this-addr)
                          (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
-              color-cons)]
-      [else
-       (plate (vl-append padding
-                         (field "@" (immediate this-addr))
-                         (field "content" hv))
-              color-other)]))
+              color-cons)]))
   (define (plate p color)
     (define w (pict-width p))
     (define h (pict-height p))
+    (define r 10)
     (cc-superimpose
-     (filled-ellipse
-      (* (sqrt 2) (+ (pict-width p) 6))
-      (* (sqrt 2) (+ (pict-height p) 6))
-      #:color color)
+     (filled-rounded-rectangle
+       (+ (pict-width p) (* r 2))
+       (+ (pict-height p) (* r 2))
+       r
+       #:color color)
      p))
 
   (define (box p color)
@@ -180,14 +194,12 @@
 
   (define padding 5)
 
-  (struct immediate (it))
-
   (define (field name value)
     (ht-append padding (white (text name)) (field-value value)))
   (define (field-label name)
     (white (text name)))
   (define (field-value value)
-    (bg "white" (text (if (immediate? value) (format "~a" (immediate-it value)) (string-of-s-exp value)))))
+    (bg "white" (text value)))
   (define (field-pict name p)
     (ht-append padding (white (text name)) p))
 

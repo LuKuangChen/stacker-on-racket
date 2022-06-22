@@ -188,7 +188,7 @@
                (raise (exn-internal 'apply-stack "The empty stack should have been caught by P-exp")))
               ((cons sf0 stack)
                (local ((define-values (env ectx ann) sf0))
-                 (values the-heap (return v env ectx stack))))))
+                 (values the-heap (returned v env ectx stack))))))
           (define (do-return the-heap v env ectx stack)
             (do-apply-k the-heap v env ectx stack))
           (define (do-apply-k the-heap v env ectx [stack : Stack])
@@ -245,7 +245,7 @@
           (define (do-interp-program-exp* the-heap [v* : (Listof Val)] [e* : (Listof Term)] [env : Env]): State
             (type-case (Listof Term) e*
               [empty
-               (values the-heap (s-finish v*))]
+               (values the-heap (terminated v*))]
               [(cons e e*)
                (do-interp the-heap e env (list (P-exp v* e*)) empty)]))
           (define (do-ref the-heap x env ectx stack)
@@ -348,18 +348,17 @@
                  (let-values (((the-heap v) (delta the-heap op arg-v* env ectx stack)))
                    (do-apply-k the-heap v env ectx stack)))
                 ((op-fun clos-env arg-x* def* body)
-                 (values the-heap (before-call fun arg-v* env ectx stack clos-env arg-x* def* body))))))
+                 (values the-heap (calling fun arg-v* env ectx stack clos-env arg-x* def* body))))))
           (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body) : State
             (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
-              (let ([ectx (list)])
-                (let-values (((the-heap env) (env-extend/declare the-heap clos-env
-                                                                 (append (map2 pair arg-x* (map some arg-v*))
-                                                                         (map (lambda (def)
-                                                                                (let ([name (fst def)])
-                                                                                  (values name (none))))
-                                                                              def*)))))
-                  (let ((e (t-init! def* body)))
-                    (values the-heap (after-call e env ectx stack)))))))
+              (let-values (((the-heap env) (env-extend/declare the-heap clos-env
+                                                                (append (map2 pair arg-x* (map some arg-v*))
+                                                                        (map (lambda (def)
+                                                                              (let ([name (fst def)])
+                                                                                (values name (none))))
+                                                                            def*)))))
+                (let ((e (t-init! def* body)))
+                  (values the-heap (called e env stack))))))
           (define (t-init! bind* body)
             (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
           (define (do-equal? the-heap v1 v2)
@@ -619,25 +618,23 @@
               (catch
                (λ ()
                  (type-case OtherState state
-                   [(before-call fun arg-v* env ectx stack clos-env arg-x* def* body)
+                   [(calling fun arg-v* env ectx stack clos-env arg-x* def* body)
                     (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body)]
-                   [(after-call e env ectx stack)
-                    (do-interp the-heap e env ectx stack)]
-                   [(return v env ectx stack)
+                   [(called e env stack)
+                    (do-interp the-heap e env (list) stack)]
+                   [(returned v env ectx stack)
                     (do-return the-heap v env ectx stack)]
-                   [(ref x env ectx stack)
-                    (do-ref the-heap x env ectx stack)]
                    [else
                     (raise (exn-internal 'forward "The program has terminated"))]))
                (λ (exn)
                  (begin
                    (handle-exn exn)
-                   (values the-heap (s-error)))))))
-          (define (terminate? [s : OtherState])
-            (or (s-finish? s)
-                (s-error? s)))
+                   (values the-heap (errored)))))))
+          (define (final? [s : OtherState])
+            (or (terminated? s)
+                (errored? s)))
           (define (trampoline [state : State])
-            (when (not (terminate? (snd state)))
+            (when (not (final? (snd state)))
               (trampoline (forward state))))
           (define (handle-exn exn)
             (type-case
@@ -660,7 +657,7 @@
         [(none) (void)]
         [(some state)
          (if tracing?
-             (pict-loop state (lambda (state) (terminate? (snd state))) forward pict-of-state)
+             (pict-loop state (lambda (state) (final? (snd state))) forward pict-of-state)
              (catch
               (λ ()
                 (trampoline state))
