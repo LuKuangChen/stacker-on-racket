@@ -1,6 +1,6 @@
 # smol-step
 
-Another implementation of [`smol`](https://github.com/shriram/smol). This implementation can show the *stack diagrams* whenever function calls begin and return.
+Another implementation of HtDP Beginning Student with Abbreviations. This implementation can show the *stack diagrams* whenever function calls begin and return.
 
 ## How to install, update, and uninstall
 
@@ -9,7 +9,7 @@ Please follow these instructions to install
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Do What I Mean` tab of the pop-up window.
-4. Set the `Package Source` field to `https://github.com/LuKC1024/smol-step.git`
+4. Set the `Package Source` field to `https://github.com/brownplt/cs19-step.git`
 5. Click the `Show Details` butoon.
 6. Set the `Dependencies Mode` field to `Auto`.
 7. Click the `Install` button. Most buttons will grey out immediatel (except the `Abort Install`).

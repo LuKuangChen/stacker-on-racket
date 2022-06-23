@@ -1,10 +1,10 @@
 #lang scribble/manual
-@require[@for-label[smol-step
+@require[@for-label[cs19-step
                     racket/base]]
 
-@title{smol-step}
+@title{cs19-step}
 @author{lukc}
 
-@defmodule[smol-step]
+@defmodule[cs19-step]
 
 Package Description Here
