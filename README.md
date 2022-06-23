@@ -15,7 +15,7 @@ Please follow these instructions to install
 7. Click the `Install` button. Most buttons will grey out immediatel (except the `Abort Install`).
 8. After the color of those buttons come back, you can close the pop-up window. This usually takes less than 1 min.
 
-Update is basically the same. Once you installed `smol-step`,
+Update is basically the same. Once you installed `cs19-step`,
 the `Install` button will become `Update`.
 
 To uninstall
@@ -23,7 +23,7 @@ To uninstall
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Currently Installed` tab of the pop-up window.
-4. Set the `Filter` field to `smol-step`.
+4. Set the `Filter` field to `cs19-step`.
 5. Select the first result.
 6. Click the `Remove` button. A confirmation window will pop up.
 7. Click the `Remove` button in the confirmation window. Most buttons will grey out immediatel (except the `Abort Install`).
@@ -41,40 +41,14 @@ First, make sure you are in the Racket language:
 Run the following program in DrRacket
 
 ```racket
-#lang smol-step/fun
+#lang cs19-step
 
-(defvar x 2)
-(defvar y 3)
-(+ x y)
+(define x 2)
+(define (add1 n)
+  (+ n 1))
+(add1 x)
 ```
 
-You should see a screenshot like this. The number `1834` might be different.
+You should see a screenshot like this.
 
-<img width="812" alt="image" src="https://user-images.githubusercontent.com/10260693/172886242-700273b3-87e6-4682-8e45-c7ec04510405.png">
-
-## Usage
-
-If you want to see the stack diagrams
-
-```racket
-#lang smol-step/fun
-
-(deffun (fact n)
-  (if (zero? n)
-      1
-      (* (fact (- n 1)) n)))
-(fact 3)
-```
-
-If you don't want to see the stack diagrams (note the second line)
-
-```racket
-#lang smol-step/fun
-#:no-trace
-
-(deffun (fact n)
-  (if (zero? n)
-      1
-      (* (fact (- n 1)) n)))
-(fact 3)
-```
+<img width="303" alt="image" src="https://user-images.githubusercontent.com/10260693/175200899-1236b6fd-7fee-4f14-9798-78ee05fd8fa8.png">
