@@ -9,7 +9,7 @@ Please follow these instructions to install
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Do What I Mean` tab of the pop-up window.
-4. Set the `Package Source` field to [`https://github.com/LuKC1024/smol-step.git`]([https://github.com/brownplt/cs19-step.git)
+4. Set the `Package Source` field to [`https://github.com/LuKC1024/smol-step.git`](https://github.com/brownplt/cs19-step.git)
 5. Click the `Show Details` butoon.
 6. Set the `Dependencies Mode` field to `Auto`.
 7. Click the `Install` button. Most buttons will grey out immediatel (except the `Abort Install`).
