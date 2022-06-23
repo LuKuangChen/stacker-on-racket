@@ -34,7 +34,13 @@
 (define color-error color-red)
 
 (define (text s)
-  (apply vl-append (map (lambda (s) (pict-text s 'modern)) (string-split s "\n"))))
+  (apply vl-append
+    (map
+      (lambda (s)
+        (if (equal? s "#<void>")
+            (pict-text "...void...")
+            (pict-text s 'modern)))
+      (string-split s "\n"))))
 
 (define (pict-of-state hide-closure? hide-env-lable?)
   (define color-comp color-closure)
