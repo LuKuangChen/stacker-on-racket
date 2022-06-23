@@ -1,4 +1,4 @@
-# smol-step
+# cs19-step
 
 Another implementation of HtDP Beginning Student with Abbreviations. This implementation can show the *stack diagrams* whenever function calls begin and return.
 
