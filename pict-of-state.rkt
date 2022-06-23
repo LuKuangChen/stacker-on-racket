@@ -37,9 +37,21 @@
   (apply vl-append
     (map
       (lambda (s)
+        ;;; (if (equal? s "#<void>")
+        ;;;     (pict-text "...void...")
+            (pict-text s 'modern)
+        ;;; )
+      )
+      (string-split s "\n"))))
+(define (text-top-level s)
+  (apply vl-append
+    (map
+      (lambda (s)
         (if (equal? s "#<void>")
             (pict-text "...void...")
-            (pict-text s 'modern)))
+            (pict-text s 'modern)
+        )
+      )
       (string-split s "\n"))))
 
 (define (pict-of-state hide-closure? hide-env-lable?)
@@ -54,7 +66,7 @@
       [`("Returned" ,term)
        (box (field "Returned" term) color-return)]
       [`("Terminated" ,term)
-       (box (field "Terminated" term) color-terminate)]
+       (box (field-pict "Terminated" (field-top-level-value term)) color-terminate)]
       [`("Referring to" ,term)
        (box (field "Returned" term) color-refer)]))
 
@@ -226,6 +238,8 @@
     (white (text name)))
   (define (field-value value)
     (bg "white" (text (if (string? value) value (string-of-s-exp value)))))
+  (define (field-top-level-value value)
+    (bg "white" (text-top-level (if (string? value) value (string-of-s-exp value)))))
   (define (field-pict name p)
     (ht-append padding (white (text name)) p))
 
@@ -238,7 +252,7 @@
         (frame
          (pad padding
               (vl-append padding
-                         (field "Context" ectx)
+                         (field-pict "Context" (field-top-level-value ectx))
                          (field "Environment @" env))))))
 
   (define (pad n p)
