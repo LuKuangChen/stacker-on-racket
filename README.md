@@ -4,7 +4,7 @@ Another implementation of HtDP Beginning Student with Abbreviations. This implem
 
 ## How to install, update, and uninstall
 
-Please follow these instructions to install
+Please follow these instructions to install or update
 
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
@@ -12,11 +12,8 @@ Please follow these instructions to install
 4. Set the `Package Source` field to `https://github.com/brownplt/cs19-step.git`
 5. Click the `Show Details` butoon.
 6. Set the `Dependencies Mode` field to `Auto`.
-7. Click the `Install` button. Most buttons will grey out immediatel (except the `Abort Install`).
+7. Click the `Install` button. (If you have already installed, you will see "Update" instead of "Install".) Most buttons will grey out immediatel (except the `Abort Install`).
 8. After the color of those buttons come back, you can close the pop-up window. This usually takes less than 1 min.
-
-Update is basically the same. Once you installed `smol-step`,
-the `Install` button will become `Update`.
 
 To uninstall
 
