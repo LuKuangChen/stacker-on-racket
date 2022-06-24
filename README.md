@@ -32,7 +32,7 @@ First, make sure you are in the Racket language:
 
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `Language` | `Choose Language...`. A window will pop up.
-3. Select the `The Racket Language`.
+3. Select `The Racket Language`.
 4. Click the `OK` button.
 
 Run the following program in DrRacket
