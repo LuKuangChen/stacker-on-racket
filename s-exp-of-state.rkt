@@ -2,7 +2,28 @@
 
 (require "utilities.rkt")
 (require "datatypes.rkt")
-(require (typed-in "string-of-state.rkt" [block : Symbol]))
+(require "error.rkt")
+(require "io.rkt")
+(require
+  (opaque-type-in racket
+                  (Port port?))
+  (typed-in racket
+            (open-output-string : (-> Port))
+            (get-output-string : (Port -> String))
+            (write : ('a Port -> Void))
+            (append* : ((Listof (Listof 'a)) -> (Listof 'a)))
+            (vector->list : ((Vectorof 'a) -> (Listof 'a)))))
+(require (opaque-type-in pprint (Doc doc?))
+         (typed-in pprint
+                   (text : (String -> Doc))
+                   (align : (Doc -> Doc))
+                   (hang : (Number Doc -> Doc))
+                   (v-concat : ((Listof Doc) -> Doc))
+                   (v-append : (Doc Doc -> Doc))
+                   (vsb-concat : ((Listof Doc) -> Doc))
+                   (h-concat : ((Listof Doc) -> Doc))
+                   (hs-concat : ((Listof Doc) -> Doc))
+                   (pretty-format : (Doc -> String))))
 (require (typed-in "show.rkt" [string-of-o : (Obs -> String)]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
@@ -13,321 +34,476 @@
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
 
+(define (string-of-val the-heap)
+  (let ([obs (obs-of-val the-heap)])
+    (lambda (v)
+      (string-of-o (obs v)))))
+(define (obs-of-val the-heap)
+  (lambda (v)
+  (local ([define counter 0]
+          (define visited (make-hash (list)))
+          (define (obs-of-hv hv)
+            (type-case HeapValue hv
+              ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
+              ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
+                                        (o-list-it (obs-of-val (snd vs))))))
+              ((h-fun env name arg* def* body)
+               (o-fun (type-case (Optionof '_) name
+                        [(none) (none)]
+                        [(some x) (some (symbol->string x))])))
+              ((h-env _env _map)
+              (raise (exn-internal 'obs-of-val "Impossible.")))))
+          [define obs-of-val
+            (lambda (v)
+              (type-case
+                  Val
+                v
+                ((v-str it) (o-con (c-str it)))
+                ((v-num it) (o-con (c-num it)))
+                ((v-bool it) (o-con (c-bool it)))
+                ((v-char it) (o-con (c-char it)))
+                ((v-prim name) (o-fun (some (pretty-format (doc-of-prim name)))))
+                ((v-empty) (o-list '()))
+                ((v-void) (o-void))
+                ((v-addr addr)
+                 (type-case (Optionof (Optionof Number)) (hash-ref visited addr)
+                   [(none)
+                    (begin
+                      (hash-set! visited addr (none))
+                      (let ([o (obs-of-hv (heap-ref the-heap addr))])
+                        (type-case (Optionof Number) (some-v (hash-ref visited addr))
+                          [(none) o]
+                          [(some id) (o-rec id o)])))]
+                   [(some optionof-id)
+                    (begin
+                      (when (equal? optionof-id (none))
+                        (hash-set! visited addr (some counter))
+                        (set! counter (add1 counter)))
+                      (o-var (some-v (some-v (hash-ref visited addr)))))]))))])
+    (obs-of-val v))))
+
+(define (symbol x)
+  (text x))
+
+(define (doc-of-any s)
+  (let* ([p (open-output-string)]
+         [_ (write s p)])
+    (text (get-output-string p))))
+
+(define (doc-of-x (x : Symbol))
+  (symbol (symbol->string x)))
+
+(define (doc-of-prim p)
+  (type-case PrimitiveOp p
+    [(po-not)
+     (doc-of-x 'not)]
+    [(po-left)
+     (doc-of-x 'left)]
+    [(po-right)
+     (doc-of-x 'right)]
+    [(po-vlen)
+     (doc-of-x 'vlen)]
+    [(po-eqp)
+     (doc-of-x 'equal?)]
+    [(po-equalp)
+     (doc-of-x 'equal?)]
+    [(po-zerop)
+     (doc-of-x 'zero?)]
+    [(po-+)
+     (doc-of-x '+)]
+    [(po--)
+     (doc-of-x '-)]
+    [(po-*)
+     (doc-of-x '*)]
+    [(po-/)
+     (doc-of-x '/)]
+    [(po-<)
+     (doc-of-x '<)]
+    [(po->)
+     (doc-of-x '>)]
+    [(po-<=)
+     (doc-of-x '<=)]
+    [(po->=)
+     (doc-of-x '>=)]
+    [(po-=)
+     (doc-of-x '=)]
+    [(po-emptyp)
+     (doc-of-x 'empty?)]
+    [(po-consp)
+     (doc-of-x 'cons?)]
+    [(po-pairp)
+     (doc-of-x 'pair?)]
+    [(po-string-length)
+     (doc-of-x 'string-length)]
+    [(po-string-append)
+     (doc-of-x 'string-append)]
+    [(po-string->list)
+     (doc-of-x 'string->list)]
+    [(po-list->string)
+     (doc-of-x 'list->string)]
+    [(po-mpair)
+     (doc-of-x 'mpair)]
+    [(po-set-left!)
+     (doc-of-x 'set-left!)]
+    [(po-set-right!)
+     (doc-of-x 'set-right!)]
+    [(po-vref)
+     (doc-of-x 'vref)]
+    [(po-cons)
+     (doc-of-x 'cons)]
+    [(po-first)
+     (doc-of-x 'first)]
+    [(po-rest)
+     (doc-of-x 'rest)]
+    [(po-vset!)
+     (doc-of-x 'vset!)]
+    [(po-mvec)
+     (doc-of-x 'mvec)]
+    [(po-list)
+     (doc-of-x 'list)]))
+
+(define (doc-list d*)
+  (doc-paren (hs-concat d*)))
+
+(define (doc-paren d)
+  (h-concat
+   (list
+    (text "(")
+    (align d)
+    (text ")"))))
+
+(define (doc-brack d)
+  (h-concat
+   (list
+    (text "[")
+    (align d)
+    (text "]"))))
+
+(define (doc-brack-pair d1 d2)
+  (doc-brack
+   (hs-concat
+    (list
+     d1
+     d2))))
+
+(define (head-body head-element* body)
+  (doc-paren
+   (v-concat
+    (list
+     (hang 1 (v-append (hs-concat head-element*) body))))))
+
+
 (define (s-exp-of-state fun-addr?)
- (lambda (state)
-  (let-values (((the-heap state) state))
-    (local ((define (s-exp-of-stack stack)
-              (inj (map s-exp-of-sf stack)))
-            (define (s-exp-of-heap heap)
-              (let* ([heap (heap-heap-it heap)]
-                     [interesting-items 
-                       (map
+  (lambda (state)
+    (let-values (((the-heap state) state))
+      (local ((define (doc-of-ha [it : HeapAddress])
+                (type-case HeapAddress it
+                  [(ha-user it)
+                   (text
+                    (let ([printing (format "@~a" it)])
+                      (type-case HeapValue (heap-ref the-heap (ha-user it))
+                        ((h-fun env name arg* def* body)
+                         (type-case (Optionof Symbol) name
+                           ((some s)
+                            (if fun-addr?
+                                (string-append printing (format ".~a" s))
+                                (format "@~a" s)))
+                           ((none)
+                            printing)))
+                        (else
+                         printing))))]
+                  [(ha-prim it)
+                   (doc-of-primitive-address it)]))
+              (define (doc-of-primitive-address pa)
+                (type-case PrimitiveHeapAddress pa
+                  [(pa-map) (doc-of-x 'map)]
+                  [(pa-filter) (doc-of-x 'filter)]
+                  [(pa-memberp) (doc-of-x 'member?)]
+                  [(pa-foldl) (doc-of-x 'foldl)]
+                  [(pa-foldr) (doc-of-x 'foldr)]
+                  [(pa-andmap) (doc-of-x 'andmap)]
+                  [(pa-ormap) (doc-of-x 'ormap)]
+                  [(pa-base-env) (doc-of-x 'primordial-env)]
+                  [(pa-empty) (doc-of-x 'empty)]))
+              (define (doc-of-v v)
+                (text ((string-of-val the-heap) v))
+                #;
+                (type-case Val v
+                  ((v-addr it)
+                   (doc-of-ha it))
+                  ((v-prim name)
+                   (doc-of-prim name))
+                  ((v-str it)
+                   (doc-of-any it))
+                  ((v-num it)
+                   (doc-of-any it))
+                  ((v-bool it)
+                   (doc-of-any it))
+                  ((v-char it)
+                   (doc-of-any it))
+                  ((v-empty)
+                   (text "'()"))
+                  ((v-void)
+                   (doc-of-x '|#<void>|))))
+              (define (doc-of-def def)
+                (local ((define-values (x e) def))
+                  (doc-paren
+                   (vsb-concat
+                    (list
+                     (symbol "defvar")
+                     (doc-of-x x)
+                     (doc-of-e e))))))
+              (define (doc-lambda arg* def* body)
+                (head-body
+                 (list
+                  (symbol "lambda")
+                  (doc-list arg*))
+                 (v-concat
+                  (append
+                   def*
+                   (list body)))))
+              (define (doc-app e*)
+                (doc-list e*))
+              (define (doc-let bind* body)
+                (head-body
+                 (list
+                  (symbol "let")
+                  (doc-paren
+                   (v-concat bind*)))
+                 body))
+              (define (doc-letrec bind* body)
+                (head-body
+                 (list
+                  (symbol "letrec")
+                  (doc-paren
+                   (v-concat bind*)))
+                 body))
+              (define (doc-set! x e)
+                (doc-paren
+                 (vsb-concat
+                  (list
+                   (symbol "set!")
+                   x
+                   e))))
+              (define (doc-begin e* e)
+                (if (empty? e*)
+                    e
+                    (head-body
+                      (list
+                        (symbol "begin"))
+                        (v-concat (append e* (list e))))))
+              (define (doc-if e*)
+                (doc-paren
+                 (hs-concat
+                  (list
+                   (text "if")
+                   (align (v-concat e*))))))
+              (define (doc-cond ee*)
+                (head-body
+                 (list
+                  (symbol "cond"))
+                 (v-concat
+                  ee*)))
+              (define (doc-of-e e) : Doc
+                (type-case Term e
+                  [(t-quote v)
+                   (doc-of-v v)]
+                  [(t-var x)
+                   (doc-of-x x)]
+                  [(t-fun name arg* def* body)
+                   (doc-lambda
+                    (map doc-of-x arg*)
+                    (map doc-of-def def*)
+                    (doc-of-e body))]
+                  [(t-app fun arg*)
+                   (doc-app
+                    (map doc-of-e (cons fun arg*)))]
+                  [(t-let bind* body)
+                   (doc-let
+                    (map doc-of-xe bind*)
+                    (doc-of-e body))]
+                  [(t-letrec bind* body)
+                   (doc-letrec
+                    (map doc-of-xe bind*)
+                    (doc-of-e body))]
+                  [(t-set! x e)
+                   (doc-set!
+                    (doc-of-x x)
+                    (doc-of-e e))]
+                  [(t-begin e* e)
+                   (doc-begin (map doc-of-e e*) (doc-of-e e))]
+                  [(t-if cnd thn els)
+                   (doc-if (map doc-of-e (list cnd thn els)))]
+                  [(t-cond cnd-thn* els)
+                   (doc-cond
+                    (map doc-of-ee
+                         (append
+                          cnd-thn*
+                          (type-case (Optionof '_) els
+                            [(none) (list)]
+                            [(some e)
+                             (list (values (t-var 'else) e))]))))]))
+              (define (doc-of-xe xe)
+                (local [(define-values (x e) xe)]
+                  (doc-of-ee (values (t-var x) e))))
+              (define (doc-of-ee [ee : (Term * Term)])
+                (local [(define-values (e1 e2) ee)]
+                  (doc-brack
+                   (hs-concat
+                    (list
+                     (doc-of-e e1)
+                     (doc-of-e e2))))))
+              (define (doc-of-xv [xv : (Id * Val)])
+                (local [(define-values (x v) xv)]
+                  (doc-brack-pair
+                   (doc-of-x x)
+                   (doc-of-v v))))
+              (define (doc-of-f f)
+                (lambda ([□ : Doc])
+                  (type-case ECFrame f
+                    ((F-begin e* e)
+                     (doc-begin (cons □ (map doc-of-e e*)) (doc-of-e e)))
+                    ((F-app v* e*)
+                     (doc-app (append
+                       (map doc-of-v v*)
+                       (cons
+                        □
+                        (map doc-of-e e*)))))
+                    ((F-let xv* x xe* body)
+                     (doc-let
+                       (append*
+                          (list
+                           (map doc-of-xv xv*)
+                           (list (doc-brack-pair (doc-of-x x) □))
+                           (map doc-of-xe xe*)))
+                        (doc-of-e body)))
+                    ((F-if thn els)
+                     (doc-if (list □ (doc-of-e thn) (doc-of-e els))))
+                    ((F-set! x)
+                     (doc-set! (doc-of-x x) □))
+                    ((P-def x d* e*)
+                     (v-concat
+                      (append*
+                       (list
+                        (list (doc-set! (doc-of-x x) □))
+                        (map doc-of-def d*)
+                        (map doc-of-e e*)))))
+                    ((P-exp v* e*)
+                     (v-concat
+                      (append
+                       (map doc-of-v v*)
+                       (cons □ (map doc-of-e e*))))))))
+              (define (s-exp-of-stack stack)
+                (inj (map s-exp-of-sf stack)))
+              (define (s-exp-of-heap heap)
+                (let* ([heap (heap-heap-it heap)]
+                       [interesting-items 
+                        (map
                          (lambda (key)
                            (pair key (some-v (hash-ref heap key))))
                          (filter ha-user? (hash-keys heap)))]
-                     [interesting-items
-                      (sort interesting-items
-                        (lambda (item1 item2)
-                          (< (fst (snd item1))
-                             (fst (snd item2)))))])
-                (inj
-                  (map
+                       [interesting-items
+                        (sort interesting-items
+                              (lambda (item1 item2)
+                                (< (fst (snd item1))
+                                   (fst (snd item2)))))])
+                  (inj
+                   (map
                     (lambda (item)
-                      (let-values ([(ha hv) item])
-                        (inj (list (s-exp-of-addr ha)
-                                   (s-exp-of-hv (snd hv))))))
+                      (let-values ([(ha timestamp&hv) item])
+                        (inj (list (inj (string-of-ha ha)) (s-exp-of-hv (snd timestamp&hv))))))
                     interesting-items))))
-            (define (s-exp-of-hv hv): Any
-              (type-case HeapValue hv
-                ((h-env env map)
-                 (inj
-                  (list (inj 'Environment)
-                        (inj (ind-List (hash-keys map)
-                                       (list)
-                                       (lambda (IH k)
-                                         (cons (inj (list (inj k) (s-exp-of-optionof-v (some-v (hash-ref map k)))))
-                                               IH))))
-                        (s-exp-of-env env))))
-                ((h-vec vs)
-                 (inj (vector-map s-exp-of-v vs)))
-                ((h-cons it)
-                 (inj (list (inj 'Cons)
-                            (s-exp-of-v (fst it))
-                            (s-exp-of-v (snd it)))))
-                ((h-fun env name arg* def* body)
-                 (inj (list (inj 'Closure)
-                            (s-exp-of-env env)
-                            (inj (s-exp-of-funname name))
-                            (make-fun arg* def* body))))))
-            (define (s-exp-of-funname nm)
-              (type-case (Optionof Symbol) nm
-                [(none) (inj '_)]
-                [(some s) (inj s)]))
-            (define (s-exp-of-optionof-v ov)
-              (type-case (Optionof Val) ov
-                [(none)
-                 (inj '💣)]
-                [(some v)
-                 (s-exp-of-v v)]))
-            (define (s-exp-of-sf sf)
-              (local ((define-values (env ectx ann) sf))
-                (inj (list (s-exp-of-env env)
-                           (s-exp-of-ectx ectx)
-                           (s-exp-of-ann ann)))))
-            (define (s-exp-of-ann ann)
-              (type-case CtxAnn ann
-                #;
-                ((ca-toplevel)
-                 (inj 'the-top-level))
-                ((ca-let)
-                 (inj 'let))
-                ((ca-letrec)
-                 (inj 'letrec))
-                ((ca-app fun arg*)
-                 (inj (cons (s-exp-of-v fun) (map s-exp-of-v arg*))))))
-            (define (s-exp-of-env env): Any
-              (type-case Env env
-                ((none)
-                 (inj '_))
-                ((some addr)
-                 (s-exp-of-addr addr))))
-            (define (s-exp-of-ectx ectx)
-              (inj (ind-List (reverse (map s-exp-of-f ectx))
-                             (inj '□)
-                             (lambda (IH x)
-                               (x IH)))))
-            (define (s-exp-of-xv xv)
-              (inj (list (s-exp-of-x (fst xv)) (s-exp-of-v (snd xv)))))
-            (define (s-exp-of-f f)
-              (lambda ([□ : Any])
-                (type-case ECFrame f
-                  ((F-begin prelude* result)
-                   (inj (append
-                         (list (inj 'begin) □)
-                         (append
-                          (map s-exp-of-e prelude*)
-                          (list (s-exp-of-e result))))))
-                  ((F-app v* e*)
-                   (inj (append
-                         (map s-exp-of-v v*)
-                         (cons
-                          □
-                          (map s-exp-of-e e*)))))
-                  ((F-let xv* x xe* body)
-                   (inj (list (inj 'let)
-                              (inj
-                               (append
-                                (map s-exp-of-xv xv*)
-                                (cons (inj (list (s-exp-of-x x) □))
-                                      (map s-exp-of-xe xe*))))
-                              (s-exp-of-e body))))
-                  ((F-if thn els)
-                   (inj (list (inj 'if) □ (s-exp-of-e thn) (s-exp-of-e els))))
-                  ((F-set! var)
-                   (inj (list (inj 'set!) (s-exp-of-x var) □)))
-                  ((P-def x d* e*)
-                   (inj (append
-                         (list (inj block)
-                               ((s-exp-of-f (F-set! x)) □))
-                         (append
-                          (map s-exp-of-set! d*)
-                          (map s-exp-of-e e*)))))
-                  ((P-exp v* e*)
-                   (inj (append*
-                          (list (list (inj block))
-                                (map s-exp-of-v v*)
-                                (list □)
-                                (map s-exp-of-e e*))))))))
-            (define (s-exp-of-prim p)
-              (type-case PrimitiveOp p
-                [(po-not)
-                 (inj 'not)]
-                [(po-left)
-                 (inj 'left)]
-                [(po-right)
-                 (inj 'right)]
-                [(po-vlen)
-                 (inj 'vlen)]
-                [(po-eqp)
-                 (inj 'equal?)]
-                [(po-equalp)
-                 (inj 'equal?)]
-                [(po-zerop)
-                 (inj 'zero?)]
-                [(po-+)
-                 (inj '+)]
-                [(po--)
-                 (inj '-)]
-                [(po-*)
-                 (inj '*)]
-                [(po-/)
-                 (inj '/)]
-                [(po-<)
-                 (inj '<)]
-                [(po->)
-                 (inj '>)]
-                [(po-<=)
-                 (inj '<=)]
-                [(po->=)
-                 (inj '>=)]
-                [(po-=)
-                 (inj '=)]
-                [(po-pairp)
-                 (inj 'pair?)]
-                [(po-mpair)
-                 (inj 'mpair)]
-                [(po-set-left!)
-                 (inj 'set-left!)]
-                [(po-set-right!)
-                 (inj 'set-right!)]
-                [(po-vref)
-                 (inj 'vref)]
-                [(po-cons)
-                 (inj 'cons)]
-                [(po-first)
-                 (inj 'first)]
-                [(po-rest)
-                 (inj 'rest)]
-                [(po-vset!)
-                 (inj 'vset!)]
-                [(po-mvec)
-                 (inj 'mvec)]
-                [(po-list)
-                 (inj 'list)]))
-            (define (s-exp-of-addr it)
-              (type-case HeapAddress it
-                [(ha-user it)
-                 (let ([printing (format "~a" (inj it))])
-                   (type-case HeapValue (heap-ref the-heap (ha-user it))
-                     ((h-fun env name arg* def* body)
-                      (type-case (Optionof Symbol) name
-                        ((none)
-                         (inj printing))
-                        ((some s)
-                         (if fun-addr?
-                         (let ([printing (string-append printing (format ".~a" (inj s)))])
-                           (inj printing))
-                           (inj (format "~a" s)))
-                     )))
-                     (else
-                      (inj printing))))]
-                [(ha-prim it)
-                 (s-exp-of-primitive-address it)]))
-            (define (s-exp-of-primitive-address pa)
-              (type-case PrimitiveHeapAddress pa
-                [(pa-map) (inj 'map)]
-                [(pa-filter) (inj 'filter)]
-                [(pa-base-env) (inj 'primordial-env)]
-                [(pa-empty) (inj 'empty)]))
-            (define (s-exp-of-v v)
-              (type-case Val v
-                ((v-addr it)
-                 (inj (string->symbol (format "@~a" (s-exp-of-addr it)))))
-                ((v-prim name)
-                 (s-exp-of-prim name))
-                ((v-str it)
-                 (inj it))
-                ((v-num it)
-                 (inj it))
-                ((v-bool it)
-                 (inj it))
-                ((v-empty)
-                 (inj (list (inj 'quote) (inj (list))))
-                 #;
-                 (inj (list (inj 'quote) (inj (list)))))
-                ((v-void)
-                 (inj '|#<void>|))))
-            (define (s-exp-of-x x) (inj x))
-            (define (s-exp-of-def def)
-              (local ((define-values (x e) def))
-                (inj (list (inj 'defvar)
-                           (s-exp-of-x x)
-                           (s-exp-of-e e)))))
-            (define (s-exp-of-set! def)
-              (local ((define-values (x e) def))
-                (inj (list (inj 'set!)
-                           (s-exp-of-x x)
-                           (s-exp-of-e e)))))
-            (define (make-fun args def* body)
-              (inj
-               (list (inj 'lambda)
-                     (inj (map s-exp-of-x args))
-                     (inj (cons (inj block) (append (map s-exp-of-def def*) (list (s-exp-of-e body))))))))
-            (define (s-exp-of-e e)
-              (type-case Term e
-                [(t-quote v)
-                 (s-exp-of-v v)]
-                [(t-var x)
-                 (s-exp-of-x x)]
-                [(t-fun name args def* body)
-                 (make-fun args def* body)]
-                [(t-app fun arg*)
-                 (inj (map s-exp-of-e (cons fun arg*)))]
-                [(t-let bind* body)
-                 (inj
-                  (list (inj 'let)
-                        (inj (map s-exp-of-xe bind*))
-                        (s-exp-of-e body)))]
-                [(t-letrec bind* body)
-                 (inj
-                  (list (inj 'letrec)
-                        (inj (map s-exp-of-xe bind*))
-                        (s-exp-of-e body)))]
-                [(t-set! x e)
-                 (inj
-                  (list
-                   (inj 'set!)
-                   (s-exp-of-x x)
-                   (s-exp-of-e e)))]
-                [(t-begin e* e)
-                 (inj
-                  (cons
-                   (inj 'begin)
-                   (map s-exp-of-e (append e* (list e)))))]
-                [(t-if cnd thn els)
-                 (inj
-                  (list
-                   (inj 'if)
-                   (s-exp-of-e cnd)
-                   (s-exp-of-e thn)
-                   (s-exp-of-e els)))]))
-            (define (s-exp-of-xe xe)
-              (inj (list (s-exp-of-x (fst xe)) (s-exp-of-e (snd xe)))))
-            (define (s-exp-of-b xe)
-              (inj (list (inj 'set!) (s-exp-of-x (fst xe)) (s-exp-of-e (snd xe))))))
-      (type-case OtherState state
-        [(before-call fun arg* env ectx stack clos-env arg-x* def* body)
-         (inj (list (inj "Computing")
-                    (s-exp-of-e (t-app (t-quote fun) (map t-quote arg*)))
-                    (s-exp-of-env env)
-                    (s-exp-of-ectx ectx)
-                    (s-exp-of-stack stack)
-                    (s-exp-of-heap the-heap)))]
-        [(after-call e env ectx stack)
-         (inj (list (inj "Computing")
-                    (s-exp-of-e e)
-                    (s-exp-of-env env)
-                    (s-exp-of-ectx ectx)
-                    (s-exp-of-stack stack)
-                    (s-exp-of-heap the-heap)))]
-        [(return v env ectx stack)
-         (inj (list (inj "Returned")
-                    (s-exp-of-v v)
-                    (s-exp-of-env env)
-                    (s-exp-of-ectx ectx)
-                    (s-exp-of-stack stack)
-                    (s-exp-of-heap the-heap)))]
-        [(ref x env ectx stack)
-         (inj (list (inj "Computing")
-                    (s-exp-of-x x)
-                    (s-exp-of-env env)
-                    (s-exp-of-ectx ectx)
-                    (s-exp-of-stack stack)
-                    (s-exp-of-heap the-heap)))]
-        [(s-finish v*)
-         (inj (list (inj "Terminated")
-                    (inj (map s-exp-of-v v*))
-                    (s-exp-of-heap the-heap)))]
-        [(s-error)
-         (inj (list (inj "Errored")
-                    (s-exp-of-heap the-heap)))])))))
+              (define (doc-of-ca ca)
+                (type-case CtxAnn ca
+                  [(ca-app v v*)
+                   (doc-app (map doc-of-v (cons v v*)))]
+                  [(ca-let)
+                   (text "(let ...)")]
+                  [(ca-letrec)
+                   (text "(letrec ...)")]))
+              (define (s-exp-of-hv [hv : HeapValue]) : Any
+                (type-case HeapValue hv
+                  [(h-vec it)
+                   (inj (cons "vec" (map string-of-v (vector->list it))))]
+                  [(h-cons it)
+                   (inj (list "cons" (string-of-v (fst it)) (string-of-v (snd it))))]
+                  [(h-fun env name arg* def* body)
+                   (inj (list "fun" (string-of-env env) (string-of-e (t-fun name arg* def* body))))]
+                  [(h-env env binding*)
+                   (inj
+                   (list
+                     (inj "env")
+                     (inj (string-of-env env)) 
+                     (inj 
+                       (ind-List (hash-keys binding*)
+                        (list)
+                        (lambda (IH x)
+                          (cons 
+                            (list
+                              (string-of-x x)
+                              (string-of-optionof-v (some-v (hash-ref binding* x))))
+                            IH))))))]))
+              (define (string-of-optionof-v ov)
+                (type-case (Optionof '_) ov
+                  [(none)
+                   "💣"]
+                  [(some v)
+                   ((string-of-val the-heap) v)]))
+              (define (string-of-env env)
+                (type-case (Optionof '_) env
+                  [(none)
+                   "💣"]
+                  [(some ha)
+                  (string-of-ha ha)]))
+              (define (s-exp-of-sf sf)
+                (local ((define-values (env ectx ann) sf))
+                  (inj (list (string-of-env env) (string-of-ectx ectx) (string-of-ann ann)))))
+              (define (string-of-ann ann)
+                (pretty-format (doc-of-ca ann)))
+              (define (string-of-x x)
+                (pretty-format (doc-of-x x)))
+              (define (string-of-e e)
+                (pretty-format (doc-of-e e)))
+              (define (string-of-ha ha)
+                (pretty-format (doc-of-ha ha)))
+              (define (string-of-v v)
+                (pretty-format (doc-of-v v)))
+              (define (string-of-ectx ectx)
+                (pretty-format
+                  (ind-List (reverse (map doc-of-f ectx))
+                    (text "□")
+                    (lambda (IH x)
+                      (x IH))))))
+        (type-case OtherState state
+          [(calling fun arg* env ectx stack clos-env arg-x* def* body)
+           (inj (list (inj "calling")
+                      (inj (string-of-e (t-app (t-quote fun) (map t-quote arg*))))
+                      (inj (string-of-env env))
+                      (inj (string-of-ectx ectx))
+                      (s-exp-of-stack stack)
+                      (s-exp-of-heap the-heap)))]
+          [(called e env stack)
+           (inj (list (inj "called")
+                      (inj (string-of-e e))
+                      (inj (string-of-env env))
+                      (s-exp-of-stack stack)
+                      (s-exp-of-heap the-heap)))]
+          [(returned v env ectx stack)
+           (inj (list (inj "returned")
+                      (inj ((string-of-val the-heap) v))
+                      (inj (string-of-env env))
+                      (inj (string-of-ectx ectx))
+                      (s-exp-of-stack stack)
+                      (s-exp-of-heap the-heap)))]
+          [(returning v stack)
+           (inj (list (inj "returning")
+                      (inj ((string-of-val the-heap) v))
+                      (s-exp-of-stack stack)
+                      (s-exp-of-heap the-heap)))]
+          [(terminated v*)
+           (inj (list (inj "terminated")
+                      (inj (map (string-of-val the-heap) v*))
+                      (s-exp-of-heap the-heap)))]
+          [(errored)
+           (inj (list (inj "errored")
+                      (s-exp-of-heap the-heap)))])))))

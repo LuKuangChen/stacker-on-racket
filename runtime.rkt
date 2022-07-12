@@ -53,7 +53,16 @@
     [(e-if cnd thn els)
      (t-if (compile-e cnd)
            (compile-e thn)
-           (compile-e els))]))
+           (compile-e els))]
+    [(e-cond thn-cnd* els)
+     (t-cond (map compile-e&e thn-cnd*)
+             (type-case (Optionof '_) els
+               [(none) (none)]
+               [(some e)
+                (some (compile-e e))]))]))
+(define (compile-e&e e&e)
+  (pair (compile-e (fst e&e))
+        (compile-e (snd e&e))))
 (define (compile-def def) : (Id * Term)
   (type-case Def def
     ((d-var x e)
@@ -98,6 +107,8 @@
   (type-case Constant c
     ((c-void)
      (t-quote (v-void)))
+    ((c-char it)
+     (t-quote (v-char it)))
     ((c-str it)
      (t-quote (v-str it)))
     ((c-num it)
@@ -116,47 +127,6 @@
     ((t-quote _) #t)
     (else #f)))
 
-(define (string-of-val the-heap v)
-  (string-of-o ((obs-of-val the-heap) v)))
-(define (obs-of-val the-heap)
-  (lambda (v)
-  (local ([define counter 0]
-          (define visited (make-hash (list)))
-          (define (obs-of-hv hv)
-            (type-case HeapValue hv
-              ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
-              ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
-                                        (o-list-it (obs-of-val (snd vs))))))
-              ((h-fun env name arg* def* body) (o-fun))
-              ((h-env _env _map)
-              (raise (exn-internal 'obs-of-val "Impossible.")))))
-          [define obs-of-val
-            (lambda (v)
-              (type-case
-                  Val
-                v
-                ((v-str it) (o-con (c-str it)))
-                ((v-num it) (o-con (c-num it)))
-                ((v-bool it) (o-con (c-bool it)))
-                ((v-prim name) (o-fun))
-                ((v-empty) (o-list '()))
-                ((v-void) (o-void))
-                ((v-addr addr)
-                 (type-case (Optionof (Optionof Number)) (hash-ref visited addr)
-                   [(none)
-                    (begin
-                      (hash-set! visited addr (none))
-                      (let ([o (obs-of-hv (heap-ref the-heap addr))])
-                        (type-case (Optionof Number) (some-v (hash-ref visited addr))
-                          [(none) o]
-                          [(some id) (o-rec id o)])))]
-                   [(some optionof-id)
-                    (begin
-                      (when (equal? optionof-id (none))
-                        (hash-set! visited addr (some counter))
-                        (set! counter (add1 counter)))
-                      (o-var (some-v (some-v (hash-ref visited addr)))))]))))])
-    (obs-of-val v))))
 (define (as-fun the-heap (v : Val))
   (type-case Val v
     ((v-prim name) (op-prim name))
@@ -179,15 +149,19 @@
                (raise (exn-internal 'apply-stack "The empty stack should have been caught by P-exp")))
               ((cons sf0 stack)
                (local ((define-values (env ectx ann) sf0))
-                 (values the-heap (return v env ectx stack))))))
-          (define (do-return the-heap v env ectx stack)
+                 (continue-returned the-heap v env ectx stack)
+                 #;
+                 (values the-heap (returned v env ectx stack))))))
+          (define (continue-returning the-heap v stack)
+            (apply-stack the-heap v stack))
+          (define (continue-returned the-heap v env ectx stack)
             (do-apply-k the-heap v env ectx stack))
           (define (do-apply-k the-heap v env ectx [stack : Stack])
             : State
             (begin
               (type-case (Listof ECFrame) ectx
                 [empty
-                 (apply-stack the-heap v stack)]
+                 (values the-heap (returning v stack))]
                 ((cons f ectx)
                  (type-case ECFrame f
                    ((F-begin e* e)
@@ -236,7 +210,7 @@
           (define (do-interp-program-exp* the-heap [v* : (Listof Val)] [e* : (Listof Term)] [env : Env]): State
             (type-case (Listof Term) e*
               [empty
-               (values the-heap (s-finish v*))]
+               (values the-heap (terminated v*))]
               [(cons e e*)
                (do-interp the-heap e env (list (P-exp v* e*)) empty)]))
           (define (do-ref the-heap x env ectx stack)
@@ -277,7 +251,20 @@
                 ((t-if cnd thn els)
                  (let ((e cnd))
                    (let ((ectx (cons (F-if thn els) ectx)))
-                     (do-interp the-heap e env ectx stack)))))))
+                     (do-interp the-heap e env ectx stack))))
+                ((t-cond cnd-thn* els)
+                 (type-case (Listof '_) cnd-thn*
+                  [empty
+                   (type-case (Optionof Term) els
+                     [(none)
+                      (do-apply-k the-heap (v-void) env ectx stack)]
+                     [(some e)
+                      (do-interp the-heap e env ectx stack)])]
+                  [(cons cnd-thn cnd-thn*)
+                   (let ([e (t-if (fst cnd-thn)
+                                  (snd cnd-thn)
+                                  (t-cond cnd-thn* els))])
+                     (do-interp the-heap e env ectx stack))])))))
           (define (interp-app the-heap v* e* env ectx stack) : State
             (type-case
                 (Listof Term)
@@ -329,18 +316,17 @@
                  (let-values (((the-heap v) (delta the-heap op arg-v* env ectx stack)))
                    (do-apply-k the-heap v env ectx stack)))
                 ((op-fun clos-env arg-x* def* body)
-                 (values the-heap (before-call fun arg-v* env ectx stack clos-env arg-x* def* body))))))
+                 (values the-heap (calling fun arg-v* env ectx stack clos-env arg-x* def* body))))))
           (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body) : State
             (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
-              (let ([ectx (list)])
-                (let-values (((the-heap env) (env-extend/declare the-heap clos-env
-                                                                 (append (map2 pair arg-x* (map some arg-v*))
-                                                                         (map (lambda (def)
-                                                                                (let ([name (fst def)])
-                                                                                  (values name (none))))
-                                                                              def*)))))
-                  (let ((e (t-init! def* body)))
-                    (values the-heap (after-call e env ectx stack)))))))
+              (let-values (((the-heap env) (env-extend/declare the-heap clos-env
+                                                                (append (map2 pair arg-x* (map some arg-v*))
+                                                                        (map (lambda (def)
+                                                                              (let ([name (fst def)])
+                                                                                (values name (none))))
+                                                                            def*)))))
+                (let ((e (t-init! def* body)))
+                  (values the-heap (called e env stack))))))
           (define (t-init! bind* body)
             (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
           (define (do-equal? the-heap v1 v2)
@@ -393,9 +379,28 @@
                (let ((v (list-ref v-arg* 0)))
                  (let ((v (as-vec the-heap v)))
                    (values the-heap (v-num (vector-length v))))))
+              ((po-string-length)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-str v)))
+                   (values the-heap (v-num (string-length v))))))
+              ((po-string-append)
+               (let ((v* (map as-str v-arg*)))
+                 (values the-heap (v-str (foldr string-append "" v*)))))
+              ((po-string->list)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-str v)))
+                   (v-list the-heap (map v-char (string->list v))))))
+              ((po-list->string)
+               (let ((v (list-ref v-arg* 0)))
+                 (let ((v (as-plait-list the-heap v)))
+                   (let ((v (map as-char v)))
+                     (values the-heap (v-str (list->string v)))))))
               ((po-zerop)
                (let ((v1 (list-ref v-arg* 0)))
                  (values the-heap (v-bool (equal? v1 (v-num 0))))))
+              ((po-emptyp)
+               (let ((v1 (list-ref v-arg* 0)))
+                 (values the-heap (v-bool (equal? v1 (v-empty))))))
               ((po-eqp)
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
@@ -460,6 +465,14 @@
                       (values the-heap (v-bool (= (vector-length v) 2)))))
                   (lambda (exn)
                     (values the-heap (v-bool #f))))))
+              ((po-consp)
+               (let ((v (list-ref v-arg* 0)))
+                 (catch
+                  (lambda ()
+                    (let ([v (as-cons the-heap v)])
+                      (values the-heap (v-bool #t))))
+                  (lambda (exn)
+                    (values the-heap (v-bool #f))))))
               ((po-mpair)
                (let ((v1 (list-ref v-arg* 0)))
                  (let ((v2 (list-ref v-arg* 1)))
@@ -508,10 +521,18 @@
             :
             Number
             (type-case Val v ((v-num it) it) (else (raise (exn-rt "not a number")))))
+          (define (as-str (v : Val))
+            :
+            String
+            (type-case Val v ((v-str it) it) (else (raise (exn-rt "not a string")))))
           (define (as-bool (v : Val))
             :
             Boolean
             (type-case Val v ((v-bool it) it) (else (raise (exn-rt "not a boolean")))))
+          (define (as-char (v : Val))
+            :
+            Char
+            (type-case Val v ((v-char it) it) (else (raise (exn-rt "not a char")))))
           (define (functional-vector-set vec i elm)
             (let ((lst (vector->list vec)))
               (let ((pre (take lst i))
@@ -527,16 +548,16 @@
                       (raise (exn-rt "the length of the vector is not what I expected.")))
                     (heap-set the-heap addr (functional-vector-set it i velm))))
                  (else
-                  (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
           (define (as-vec the-heap (v : Val))
             (type-case Val v
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-vec it) it)
                  (else
-                  (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a vector ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
           (define (as-list the-heap (v : Val))
             (type-case Val v
               ((v-empty) v)
@@ -544,40 +565,50 @@
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) v)
                  (else
-                  (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a list ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+          (define (as-plait-list the-heap (v : Val))
+            (type-case Val v
+              ((v-empty) (list))
+              ((v-addr addr)
+               (type-case HeapValue (heap-ref the-heap addr)
+                 ((h-cons it)
+                  (cons (fst it) (as-plait-list the-heap (snd it))))
+                 (else
+                  (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
           (define (as-cons the-heap (v : Val))
             (type-case Val v
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) it)
                  (else
-                  (raise (exn-rt (format "not a cons ~a" (string-of-val the-heap v)))))))
-              (else (raise (exn-rt (format "not a cons ~a" (string-of-val the-heap v)))))))
+                  (raise (exn-rt (format "not a cons ~a" ((string-of-val the-heap) v)))))))
+              (else (raise (exn-rt (format "not a cons ~a" ((string-of-val the-heap) v)))))))
           (define (forward [state : State])
             (let-values (((the-heap state) state))
               (catch
                (λ ()
                  (type-case OtherState state
-                   [(before-call fun arg-v* env ectx stack clos-env arg-x* def* body)
+                   [(calling fun arg-v* env ectx stack clos-env arg-x* def* body)
                     (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body)]
-                   [(after-call e env ectx stack)
-                    (do-interp the-heap e env ectx stack)]
-                   [(return v env ectx stack)
-                    (do-return the-heap v env ectx stack)]
-                   [(ref x env ectx stack)
-                    (do-ref the-heap x env ectx stack)]
+                   [(called e env stack)
+                    (do-interp the-heap e env (list) stack)]
+                   [(returning v stack)
+                    (continue-returning the-heap v stack)]
+                   [(returned v env ectx stack)
+                    (continue-returned the-heap v env ectx stack)]
                    [else
                     (raise (exn-internal 'forward "The program has terminated"))]))
                (λ (exn)
                  (begin
                    (handle-exn exn)
-                   (values the-heap (s-error)))))))
-          (define (terminate? [s : OtherState])
-            (or (s-finish? s)
-                (s-error? s)))
+                   (values the-heap (errored)))))))
+          (define (final? [s : OtherState])
+            (or (terminated? s)
+                (errored? s)))
           (define (trampoline [state : State])
-            (when (not (terminate? (snd state)))
+            (when (not (final? (snd state)))
               (trampoline (forward state))))
           (define (handle-exn exn)
             (type-case
@@ -600,7 +631,7 @@
         [(none) (void)]
         [(some state)
          (if tracing?
-             (pict-loop state (lambda (state) (terminate? (snd state))) forward pict-of-state)
+             (pict-loop state (lambda (state) (final? (snd state))) forward pict-of-state)
              (catch
               (λ ()
                 (trampoline state))

@@ -59,13 +59,13 @@
             (let ([current-pict (what-is-now)])
               (when current-pict
                 (send dc clear)
-                (send canvas min-width (inexact->exact (floor (pict-width current-pict))))
-                (send canvas min-height (inexact->exact (floor (pict-height current-pict))))
+                (send canvas min-width (add1 (inexact->exact (ceiling (pict-width current-pict)))))
+                (send canvas min-height (add1 (inexact->exact (ceiling (pict-height current-pict)))))
                 (send the-prev-button enable (has-past?))
                 (send the-next-button enable (or (has-future?) (not (terminate? state))))
                 (send the-frame set-status-text (if (terminate? state) "terminated" "still running"))
                 (send the-frame resize 10 10)
-                (draw-pict current-pict dc 0 0))))]))
+                (draw-pict current-pict dc 1 1))))]))
   (define the-prev-button
     (new button%
          [label "Previous"]
