@@ -12,3 +12,7 @@
 *.scm~
 *.scm#*
 .#*.scm
+*.rktd
+*.rktd
+*.html
+*.sxref
