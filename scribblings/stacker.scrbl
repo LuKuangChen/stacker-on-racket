@@ -1,10 +1,10 @@
 #lang scribble/manual
-@require[@for-label[smol-step
+@require[@for-label[stacker
                     racket/base]]
 
-@title{smol-step}
+@title{stacker}
 @author{lukc}
 
-@defmodule[smol-step]
+@defmodule[stacker]
 
 Package Description Here

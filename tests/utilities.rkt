@@ -12,12 +12,12 @@
   (list 'exists (current-directory))
   (sandbox-path-permissions)
   ))
-(define (eval-in-smol-step program)
+(define (eval-in-stacker/smol program)
   (parameterize ([sandbox-output 'string]
                  [sandbox-eval-limits (list 10 #f)]
                  [sandbox-propagate-exceptions #f])
     (define ev (make-module-evaluator
-                `(module m smol-step/hof/semantics
+                `(module m stacker/smol/hof/semantics
                    #:no-trace
                    ,@program)))
     (normalize (get-output ev))))
@@ -42,14 +42,14 @@
                            (displayln e)
                            (newline))])
     (let* ([oe-standard (eval-in-smol program)]
-           [oe-step (eval-in-smol-step program)]
+           [oe-step (eval-in-stacker/smol program)]
            [r (equal? oe-standard oe-step)])
       (when (not r)
         (displayln "-----------------------------")
         (displayln ";; smol")
         (writeln oe-standard)
         (displayln "-----------------------------")
-        (displayln ";; smol-step")
+        (displayln ";; stacker/smol")
         (writeln oe-step))))
   (newline))
 
@@ -72,19 +72,19 @@
           (writeln expect)
           (newline))))))
 
-(define (test-expect/smol-step program expect)
+(define (test-expect/stacker/smol program expect)
   (with-handlers ([any/c (lambda (e)
                            (displayln ";; exception")
                            (displayln e)
                            (newline))])
-    (let* ([result (eval-in-smol-step program)]
+    (let* ([result (eval-in-stacker/smol program)]
            [r (equal? result (normalize-expect expect))])
       (when (not r)
         (begin
           (displayln ";; Program")
           (writeln program)
           (displayln "-----------------------------")
-          (displayln ";; smol-step actual")
+          (displayln ";; stacker/smol actual")
           (writeln result)
           (displayln ";; expected")
           (writeln expect)

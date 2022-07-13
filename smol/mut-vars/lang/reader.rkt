@@ -1,2 +1,2 @@
 #lang s-exp syntax/module-reader
-smol-step/mut-vars/semantics
+stacker/smol/mut-vars/semantics

@@ -21,9 +21,9 @@ jobs:
           distribution: full
           variant: ${{ matrix.racket-variant }}
           version: ${{ matrix.racket-version }}
-      - name: Installing smol-step and its dependencies
-        run: raco pkg install --no-docs --auto --name smol-step
-      - name: Compiling smol-step and building its docs
-        run: raco setup --check-pkg-deps --unused-pkg-deps smol-step
-      - name: Testing smol-step
-        run: raco test -x -p smol-step
+      - name: Installing stacker and its dependencies
+        run: raco pkg install --no-docs --auto --name stacker
+      - name: Compiling stacker and building its docs
+        run: raco setup --check-pkg-deps --unused-pkg-deps stacker
+      - name: Testing stacker
+        run: raco test -x -p stacker

@@ -1,8 +1,8 @@
 #lang info
-(define collection "smol-step")
+(define collection "stacker")
 (define deps '("base" "plait" "pict-lib" "pprint" "gui-lib" "draw-lib" "redex-gui-lib" "sandbox-lib" "testing-util-lib" "rackunit-lib"))
 (define build-deps '("scribble-lib" "racket-doc" "rackunit-lib"))
-(define scribblings '(("scribblings/smol-step.scrbl" ())))
+(define scribblings '(("scribblings/stacker.scrbl" ())))
 (define pkg-desc "Description Here")
 (define version "0.0")
 (define pkg-authors '(lukc))

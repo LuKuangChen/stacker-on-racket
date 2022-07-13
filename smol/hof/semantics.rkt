@@ -2,12 +2,12 @@
 (provide (rename-out [my-module-begin #%module-begin])
          (rename-out [my-top-interaction #%top-interaction]))
 
-(require "../pict-of-state.rkt")
-(require "../s-exp-of-state.rkt")
-(require "../parse.rkt")
-(require "../show.rkt")
-(require "../runtime.rkt")
-(require "../string-of-state.rkt")
+(require "../../pict-of-state.rkt")
+(require "../../s-exp-of-state.rkt")
+(require "../../parse.rkt")
+(require "../../show.rkt")
+(require "../../runtime.rkt")
+(require "../../string-of-state.rkt")
 
 (define preprocess (compose))
 (define (my-pict-of-state state)

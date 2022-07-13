@@ -1,6 +1,6 @@
-# cs19-step
+# stacker
 
-Another implementation of HtDP Beginning Student with Abbreviations. This implementation can show the *stack diagrams* whenever function calls begin and return.
+Another implementation of smol. This implementation presents the execution with a stack-based model.
 
 ## How to install, update, and uninstall
 
@@ -9,7 +9,7 @@ Please follow these instructions to install or update
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Do What I Mean` tab of the pop-up window.
-4. Set the `Package Source` field to `https://github.com/brownplt/cs19-step.git`
+4. Set the `Package Source` field to `https://github.com/brownplt/stacker.git`
 5. Click the `Show Details` butoon.
 6. Set the `Dependencies Mode` field to `Auto`.
 7. Click the `Install` button. (If you have already installed, you will see "Update" instead of "Install".) Most buttons will grey out immediately (except the `Abort Install`).
@@ -20,7 +20,7 @@ To uninstall
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
 3. Make sure you are in `Currently Installed` tab of the pop-up window.
-4. Set the `Filter` field to `cs19-step`.
+4. Set the `Filter` field to `stacker`.
 5. Select the first result.
 6. Click the `Remove` button. A confirmation window will pop up.
 7. Click the `Remove` button in the confirmation window. Most buttons will grey out immediatel (except the `Abort Install`).
@@ -38,7 +38,7 @@ First, make sure you are in the Racket language:
 Run the following program in DrRacket
 
 ```racket
-#lang cs19-step
+#lang stacker
 
 (define x 2)
 (define (add1 n)
@@ -49,3 +49,12 @@ Run the following program in DrRacket
 You should see a screenshot like this.
 
 <img width="303" alt="image" src="https://user-images.githubusercontent.com/10260693/175200899-1236b6fd-7fee-4f14-9798-78ee05fd8fa8.png">
+
+
+# Language Levels
+
+1. `fun`
+2. `mut-vars`: mutable variables
+3. `vectors`: (mutable) vectors
+4. `hof`: higher-order functions
+5. `local`: local binding forms (e.g. `let` and `letrec`)
