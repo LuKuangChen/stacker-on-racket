@@ -21,8 +21,8 @@
   (pattern #(c:literal ...))
   (pattern (c:literal ...)))
 (define-syntax-class d
-  (pattern ((~datum define) x:identifier e:e))
-  (pattern ((~datum define) (x1:identifier x2:identifier ...) d1:d ... e1:e ... e2:e)))
+  (pattern ((~datum defvar) x:identifier e:e))
+  (pattern ((~datum deffun) (x1:identifier x2:identifier ...) d1:d ... e1:e ... e2:e)))
 (define-syntax-class e
   (pattern x:identifier)
   (pattern ((~datum lambda) (x:identifier ...) d:d ... e1:e ... e2:e))
@@ -67,9 +67,9 @@
   (map parse-d (syntax-e d)))
 (define (parse-d def)
   (syntax-parse def
-    [((~datum define) x:id e:e)
+    [((~datum defvar) x:id e:e)
      (d-var (parse-x #'x) (parse-e #'e))]
-    [((~datum define) (x1:identifier x2:identifier ...) d:d ... e1:e ... e2:e)
+    [((~datum deffun) (x1:identifier x2:identifier ...) d:d ... e1:e ... e2:e)
      (d-fun (parse-x #'x1)
             (parse-x* #'(x2 ...))
             (parse-d* #'(d ...))

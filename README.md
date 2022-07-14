@@ -38,20 +38,45 @@ First, make sure you are in the Racket language:
 Run the following program in DrRacket
 
 ```racket
-#lang stacker
+#lang stacker/smol/fun
 
-(define x 2)
-(define (add1 n)
-  (+ n 1))
-(add1 x)
+(defvar x 2)
+(defvar y 3)
+(+ x y)
 ```
 
 You should see a screenshot like this.
 
-<img width="303" alt="image" src="https://user-images.githubusercontent.com/10260693/175200899-1236b6fd-7fee-4f14-9798-78ee05fd8fa8.png">
+<img width="303" alt="image" src="https://user-images.githubusercontent.com/10260693/172886242-700273b3-87e6-4682-8e45-c7ec04510405.png">
 
+## Usage
 
-# Language Levels
+If you want to see the stack diagrams
+
+```
+#lang stacker/smol/fun
+
+(deffun (fact n)
+  (if (zero? n)
+      1
+      (* (fact (- n 1)) n)))
+(fact 3)
+```
+
+If you don't want to see the stack diagrams (note the second line)
+
+```
+#lang stacker/smol/fun
+#:no-trace
+
+(deffun (fact n)
+  (if (zero? n)
+      1
+      (* (fact (- n 1)) n)))
+(fact 3)
+```
+
+## Language Levels
 
 1. `fun`
 2. `mut-vars`: mutable variables

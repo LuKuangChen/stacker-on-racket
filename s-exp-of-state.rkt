@@ -20,7 +20,7 @@
                    (hang : (Number Doc -> Doc))
                    (v-concat : ((Listof Doc) -> Doc))
                    (v-append : (Doc Doc -> Doc))
-                   (vsb-concat : ((Listof Doc) -> Doc))
+                   (vs-concat : ((Listof Doc) -> Doc))
                    (h-concat : ((Listof Doc) -> Doc))
                    (hs-concat : ((Listof Doc) -> Doc))
                    (pretty-format : (Doc -> String))))
@@ -34,7 +34,7 @@
 (require (rename-in (typed-in racket [identity : ('a -> Any)]) [identity inj]))
 
 
-(define (string-of-val the-heap)
+(define (string-of-o-of-v the-heap)
   (let ([obs (obs-of-val the-heap)])
     (lambda (v)
       (string-of-o (obs v)))))
@@ -193,44 +193,43 @@
      (hang 1 (v-append (hs-concat head-element*) body))))))
 
 
-(define (s-exp-of-state fun-addr?)
+(define (s-exp-of-state hide-fun-addr? defvar-lambda-as-deffun? set!-lambda-as-def? set!-other-as-def?)
   (lambda (state)
     (let-values (((the-heap state) state))
-      (local ((define (doc-of-ha [it : HeapAddress])
+      (local ((define (stringify-ha [it : HeapAddress]) : String
                 (type-case HeapAddress it
                   [(ha-user it)
-                   (text
-                    (let ([printing (format "@~a" it)])
+                   (let ([printing (format "~a" it)])
                       (type-case HeapValue (heap-ref the-heap (ha-user it))
                         ((h-fun env name arg* def* body)
                          (type-case (Optionof Symbol) name
                            ((some s)
-                            (if fun-addr?
-                                (string-append printing (format ".~a" s))
-                                (format "@~a" s)))
+                            (if hide-fun-addr?
+                                (format "~a" s)
+                                (string-append printing (format ".~a" s))))
                            ((none)
                             printing)))
                         (else
-                         printing))))]
+                         printing)))]
                   [(ha-prim it)
-                   (doc-of-primitive-address it)]))
-              (define (doc-of-primitive-address pa)
+                   (string-of-primitive-address it)]))
+              (define (doc-of-ha ha)
+                (text (stringify-ha ha)))
+              (define (string-of-primitive-address pa)
                 (type-case PrimitiveHeapAddress pa
-                  [(pa-map) (doc-of-x 'map)]
-                  [(pa-filter) (doc-of-x 'filter)]
-                  [(pa-memberp) (doc-of-x 'member?)]
-                  [(pa-foldl) (doc-of-x 'foldl)]
-                  [(pa-foldr) (doc-of-x 'foldr)]
-                  [(pa-andmap) (doc-of-x 'andmap)]
-                  [(pa-ormap) (doc-of-x 'ormap)]
-                  [(pa-base-env) (doc-of-x 'primordial-env)]
-                  [(pa-empty) (doc-of-x 'empty)]))
+                  [(pa-map) (symbol->string 'map)]
+                  [(pa-filter) (symbol->string 'filter)]
+                  [(pa-memberp) (symbol->string 'member?)]
+                  [(pa-foldl) (symbol->string 'foldl)]
+                  [(pa-foldr) (symbol->string 'foldr)]
+                  [(pa-andmap) (symbol->string 'andmap)]
+                  [(pa-ormap) (symbol->string 'ormap)]
+                  [(pa-base-env) (symbol->string 'primordial-env)]
+                  [(pa-empty) (symbol->string 'empty)]))
               (define (doc-of-v v)
-                (text ((string-of-val the-heap) v))
-                #;
                 (type-case Val v
                   ((v-addr it)
-                   (doc-of-ha it))
+                   (h-concat (list (text "@") (doc-of-ha it))))
                   ((v-prim name)
                    (doc-of-prim name))
                   ((v-str it)
@@ -244,15 +243,31 @@
                   ((v-empty)
                    (text "'()"))
                   ((v-void)
-                   (doc-of-x '|#<void>|))))
+                   (text "#<void>"))))
               (define (doc-of-def def)
                 (local ((define-values (x e) def))
-                  (doc-paren
-                   (vsb-concat
-                    (list
-                     (symbol "defvar")
-                     (doc-of-x x)
-                     (doc-of-e e))))))
+                  (if (and defvar-lambda-as-deffun? (t-fun? e))
+                      (doc-of-deffun x
+                        (t-fun-arg* e)
+                        (t-fun-def* e)
+                        (t-fun-body e))
+                      (doc-paren
+                        (vs-concat
+                          (list
+                          (symbol "defvar")
+                          (doc-of-x x)
+                          (doc-of-e e)))))))
+              (define (doc-of-deffun x arg* def* body)
+                (head-body
+                  (list
+                    (symbol "deffun")
+                    (doc-list
+                      (cons (doc-of-x x)
+                        (map doc-of-x arg*))))
+                  (v-concat
+                    (append
+                      (map doc-of-def def*)
+                      (list (doc-of-e-top body))))))
               (define (doc-lambda arg* def* body)
                 (head-body
                  (list
@@ -279,12 +294,31 @@
                    (v-concat bind*)))
                  body))
               (define (doc-set! x e)
-                (doc-paren
-                 (vsb-concat
-                  (list
-                   (symbol "set!")
-                   x
-                   e))))
+                (if set!-other-as-def?
+                    (doc-paren
+                      (vs-concat
+                        (list
+                        (symbol "defvar")
+                        x
+                        e)))
+                    (doc-paren
+                      (vs-concat
+                        (list
+                        (symbol "set!")
+                        x
+                        e)))))
+              (define (doc-of-set! x e)
+                (cond
+                  [(and set!-lambda-as-def? (t-fun? e))
+                   (doc-of-def (values x e))]
+                  [(and set!-other-as-def? (not (t-fun? e)))
+                   (doc-of-def (values x e))]
+                  [else
+                   (vs-concat
+                      (list
+                      (symbol "set!")
+                      (doc-of-x x)
+                      (doc-of-e e)))]))
               (define (doc-begin e* e)
                 (if (empty? e*)
                     e
@@ -304,6 +338,12 @@
                   (symbol "cond"))
                  (v-concat
                   ee*)))
+              (define (doc-of-e-top e) : Doc
+                (type-case Term e
+                  [(t-begin e* e)
+                   (v-concat (map doc-of-e (append e* (list e))))]
+                  [else
+                   (doc-of-e e)]))
               (define (doc-of-e e) : Doc
                 (type-case Term e
                   [(t-quote v)
@@ -314,22 +354,20 @@
                    (doc-lambda
                     (map doc-of-x arg*)
                     (map doc-of-def def*)
-                    (doc-of-e body))]
+                    (doc-of-e-top body))]
                   [(t-app fun arg*)
                    (doc-app
                     (map doc-of-e (cons fun arg*)))]
                   [(t-let bind* body)
                    (doc-let
                     (map doc-of-xe bind*)
-                    (doc-of-e body))]
+                    (doc-of-e-top body))]
                   [(t-letrec bind* body)
                    (doc-letrec
                     (map doc-of-xe bind*)
-                    (doc-of-e body))]
+                    (doc-of-e-top body))]
                   [(t-set! x e)
-                   (doc-set!
-                    (doc-of-x x)
-                    (doc-of-e e))]
+                   (doc-of-set! x e)]
                   [(t-begin e* e)
                    (doc-begin (map doc-of-e e*) (doc-of-e e))]
                   [(t-if cnd thn els)
@@ -376,7 +414,7 @@
                            (map doc-of-xv xv*)
                            (list (doc-brack-pair (doc-of-x x) □))
                            (map doc-of-xe xe*)))
-                        (doc-of-e body)))
+                        (doc-of-e-top body)))
                     ((F-if thn els)
                      (doc-if (list □ (doc-of-e thn) (doc-of-e els))))
                     ((F-set! x)
@@ -448,7 +486,7 @@
                   [(none)
                    "💣"]
                   [(some v)
-                   ((string-of-val the-heap) v)]))
+                   (string-of-v v)]))
               (define (string-of-env env)
                 (type-case (Optionof '_) env
                   [(none)
@@ -464,6 +502,9 @@
                 (pretty-format (doc-of-x x)))
               (define (string-of-e e)
                 (pretty-format (doc-of-e e)))
+              (define (string-of-e-top body)
+                (begin
+                  (pretty-format (doc-of-e-top body))))
               (define (string-of-ha ha)
                 (pretty-format (doc-of-ha ha)))
               (define (string-of-v v)
@@ -482,27 +523,27 @@
                       (inj (string-of-ectx ectx))
                       (s-exp-of-stack stack)
                       (s-exp-of-heap the-heap)))]
-          [(called e env stack)
+          [(called body env stack)
            (inj (list (inj "called")
-                      (inj (string-of-e e))
+                      (inj (string-of-e-top body))
                       (inj (string-of-env env))
                       (s-exp-of-stack stack)
                       (s-exp-of-heap the-heap)))]
           [(returned v env ectx stack)
            (inj (list (inj "returned")
-                      (inj ((string-of-val the-heap) v))
+                      (inj (string-of-v v))
                       (inj (string-of-env env))
                       (inj (string-of-ectx ectx))
                       (s-exp-of-stack stack)
                       (s-exp-of-heap the-heap)))]
           [(returning v stack)
            (inj (list (inj "returning")
-                      (inj ((string-of-val the-heap) v))
+                      (inj (string-of-v v))
                       (s-exp-of-stack stack)
                       (s-exp-of-heap the-heap)))]
           [(terminated v*)
            (inj (list (inj "terminated")
-                      (inj (map (string-of-val the-heap) v*))
+                      (inj (map string-of-v v*))
                       (s-exp-of-heap the-heap)))]
           [(errored)
            (inj (list (inj "errored")

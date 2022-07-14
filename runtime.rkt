@@ -90,12 +90,9 @@
             (λ (IH bind)
               (t-let (list bind) IH))))
 (define (compile-begin prelude* result)
-  (maybe-begin (map compile-e prelude*)
-               (compile-e result)))
-(define (maybe-begin prelude* result)
-  (if (empty? prelude*)
-      result
-      (t-begin prelude* result)))
+  (t-begin
+    (map compile-e prelude*)
+    (compile-e result)))
 
 (define (truthy? [v : Val])
   (type-case Val v
@@ -328,7 +325,11 @@
                 (let ((e (t-init! def* body)))
                   (values the-heap (called e env stack))))))
           (define (t-init! bind* body)
-            (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body))
+            (t-begin
+              (append 
+                (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*)
+                (t-begin-prelude* body))
+              (t-begin-result body)))
           (define (do-equal? the-heap v1 v2)
             (let ([visited (list)])
               (local ((define (do-equal?-helper v1 v2)
@@ -548,16 +549,16 @@
                       (raise (exn-rt "the length of the vector is not what I expected.")))
                     (heap-set the-heap addr (functional-vector-set it i velm))))
                  (else
-                  (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
-              (else (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
+                  (raise (exn-rt (format "not a vector ~a" ((string-of-o-of-v the-heap) v)))))))
+              (else (raise (exn-rt (format "not a vector ~a" ((string-of-o-of-v the-heap) v)))))))
           (define (as-vec the-heap (v : Val))
             (type-case Val v
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-vec it) it)
                  (else
-                  (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
-              (else (raise (exn-rt (format "not a vector ~a" ((string-of-val the-heap) v)))))))
+                  (raise (exn-rt (format "not a vector ~a" ((string-of-o-of-v the-heap) v)))))))
+              (else (raise (exn-rt (format "not a vector ~a" ((string-of-o-of-v the-heap) v)))))))
           (define (as-list the-heap (v : Val))
             (type-case Val v
               ((v-empty) v)
@@ -565,8 +566,8 @@
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) v)
                  (else
-                  (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
-              (else (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+                  (raise (exn-rt (format "not a list ~a" ((string-of-o-of-v the-heap) v)))))))
+              (else (raise (exn-rt (format "not a list ~a" ((string-of-o-of-v the-heap) v)))))))
           (define (as-plait-list the-heap (v : Val))
             (type-case Val v
               ((v-empty) (list))
@@ -575,16 +576,16 @@
                  ((h-cons it)
                   (cons (fst it) (as-plait-list the-heap (snd it))))
                  (else
-                  (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
-              (else (raise (exn-rt (format "not a list ~a" ((string-of-val the-heap) v)))))))
+                  (raise (exn-rt (format "not a list ~a" ((string-of-o-of-v the-heap) v)))))))
+              (else (raise (exn-rt (format "not a list ~a" ((string-of-o-of-v the-heap) v)))))))
           (define (as-cons the-heap (v : Val))
             (type-case Val v
               ((v-addr addr)
                (type-case HeapValue (heap-ref the-heap addr)
                  ((h-cons it) it)
                  (else
-                  (raise (exn-rt (format "not a cons ~a" ((string-of-val the-heap) v)))))))
-              (else (raise (exn-rt (format "not a cons ~a" ((string-of-val the-heap) v)))))))
+                  (raise (exn-rt (format "not a cons ~a" ((string-of-o-of-v the-heap) v)))))))
+              (else (raise (exn-rt (format "not a cons ~a" ((string-of-o-of-v the-heap) v)))))))
           (define (forward [state : State])
             (let-values (((the-heap state) state))
               (catch

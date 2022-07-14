@@ -2,7 +2,6 @@
 (provide pict-of-state)
 (require pict)
 (require (rename-in pict [text pict-text]))
-(require pict/color)
 (require racket/draw)
 
 ;;; This color palette has been checked with
@@ -15,6 +14,9 @@
 (define color-B-L (make-object color% 255 223 64))
 ;; red (#FF7D6C)
 (define color-C (make-object color% 255 127 121))
+;; green (#C1E197)
+(define color-D (make-object color% 193 225 151))
+;; black and white
 (define color-black (make-object color% 0 0 0))
 (define color-white (make-object color% 255 255 255))
 
@@ -27,6 +29,7 @@
 (define tp-B-D (text-palette color-black color-B-D))
 (define tp-B-L (text-palette color-black color-B-L))
 (define tp-C (text-palette color-black color-C))
+(define tp-D (text-palette color-black color-D))
 (define tp-white (text-palette color-black color-white))
 (define tp-black (text-palette color-white color-black))
 
@@ -45,31 +48,11 @@
 (define (current-background-color)
   (text-palette-background (current-text-palette)))
 
-;;; ;;; The color palette is from https://personal.sron.nl/~pault/#fig:scheme_bright
-;;; ;;; dark blue
-;;; (define color-stack-item color-blue)
-;;; ;;; light blue
-;;; (define color-stack-bg color-cyne)
-;;; ;;; green
-;;; (define color-env color-green)
-;;; ;;; yellow
-;;; (define color-closure color-yellow)
-;;; ;;; black
-;;; (define color-vector color-black)
-;;; ;;; purple
-;;; (define color-cons color-purple)
-;;; ;;; grey
-;;; (define color-other color-grey)
-;;; ;; A special color
-;;; (define color-error color-red)
-  ;;; (define color-comp color-closure)
-  ;;; (define color-return color-stack-item)
-  ;;; (define color-terminate color-stack-bg)
-  ;;; (define color-refer color-other)
-
 (define (text s)
+  (pre-text s 'modern))
+(define (pre-text s font-family)
   (define style
-    (cons (current-text-color) 'modern))
+    (cons (current-text-color) font-family))
   (if (equal? s "")
       (pict-text " " style)
       (apply vl-append
@@ -78,27 +61,27 @@
              (pict-text s style)) 
            (string-split s "\n")))))
 
-(define (pict-of-state hide-closure? hide-env-lable?)
+(define (pict-of-state hide-closure? hide-env-label?)
   (define ((pict-of-focus heap) focus)
     (match focus
       [`("calling" ,app ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
                          (field "Calling" app)
-                         (field "in" ectx)
-                         (field-pict "where" (pict-env heap env)))))]
+                         (field "in context" ectx)
+                         (field "in environment @" env))))]
       [`("called" ,body ,env)
        (parameterize ([current-text-palette tp-called])
        (plate (vl-append padding
                          (field-label "Evaluating the function body")
                          (field-value body)
-                         (field-pict "where" (pict-env heap env)))))]
+                         (field "in environment @" env))))]
       [`("returned" ,v ,env ,ectx)
        (parameterize ([current-text-palette tp-returned])
        (plate (vl-append padding
                          (field "Returned" v)
-                         (field "to" ectx)
-                         (field-pict "where" (pict-env heap env)))))]
+                         (field "to contect" ectx)
+                         (field "in environment @" env))))]
       [`("returning" ,v)
        (parameterize ([current-text-palette tp-returning])
        (plate (vl-append padding
@@ -118,7 +101,6 @@
                    (vl-append padding
                               ((pict-of-stack heap) stack)
                               ((pict-of-focus heap) focus))
-                   #;
                    (pict-of-heap heap))))
 
   (define (pict-of-state state)
@@ -155,10 +137,7 @@
        #f]))
 
   (define (pict-of-heap heap)
-    (blank)
-    #;
-    (pict-of-heapitems heap)
-    )
+    (pict-of-heapitem* heap))
 
   (define (heapitem-interesting? item)
     (match-define `(,this-addr ,hv) item)
@@ -168,10 +147,9 @@
              #t)))
   (define (is-closure? hv)
     (match hv
-      [`(Closure ,@_) #t]
+      [`("fun" ,@_) #t]
       [else #f]))
-  #;
-  (define (pict-of-heapitems heapitems)
+  (define (pict-of-heapitem* heapitems)
     (let-values ([(envs others) (partition is-env?
                                            (filter heapitem-interesting? heapitems))])
       (ht-append
@@ -180,39 +158,42 @@
               (map pict-of-heapitem envs))
        (apply vl-append padding
               (map pict-of-heapitem others)))))
-  #;
   (define (pict-of-heapitem item)
     (match-define `(,this-addr ,hv) item)
     (match hv
       [`("env" ,env ,bindings)
+       (parameterize ([current-text-palette tp-D])
        (plate (vl-append
                (field "@" this-addr)
-               (if hide-env-lable?
+               (if hide-env-label?
                    (blank)
-                   (white (text "Environment Frame")))
-               (field-pict "bindings" (if (equal? this-addr '|@base-env|)
+                   (field-label "Environment Frame"))
+               (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
                                           (field-value '...)
                                           (apply vl-append padding
                                                  (map pict-of-binding
                                                       (sort bindings string<=? #:key first)))))
                (field "Rest @" env))
-              color-env)]
+       ))]
       [`("fun" ,env ,code)
+       (parameterize ([current-text-palette tp-black])
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field "Environment @" env)
                          (field "Code" code))
-              color-closure)]
+              ))]
       [`("vec" ,vec)
+       (parameterize ([current-text-palette tp-black])
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "mvec" (apply hb-append padding (map field-value vec))))
-              color-vector)]
+       ))]
       [`("cons" ,v1 ,v2)
+       (parameterize ([current-text-palette tp-black])
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
-              color-cons)]))
+              ))]))
   (define (plate p)
     (define w (pict-width p))
     (define h (pict-height p))
@@ -237,7 +218,7 @@
   (define padding 5)
 
   (define (field-label name)
-    (text name))
+    (pre-text name 'system))
   (define (field-value value)
     (parameterize ([current-text-palette tp-white])
       (bg (text value))))
@@ -262,14 +243,8 @@
          (pad padding
               (vl-append padding
                          (field-label "Waiting for a value")
-                         (field "in" ectx)
-                         #;(field "Environment @" env)
-                         (field-pict "where" (pict-env heap env))))))))
-  (define (pict-env heap env)
-    (match-let ([`("env" ,env ,bindings) (first (dict-ref heap env))])
-      (apply vl-append padding
-              (map pict-of-binding
-                    (sort bindings string<=? #:key first)))))
+                         (field "in context" ectx)
+                         (field "in environment @" env)))))))
 
   (define (pad n p)
     (hc-append (blank n)

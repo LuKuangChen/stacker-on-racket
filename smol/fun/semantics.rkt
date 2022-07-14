@@ -6,45 +6,16 @@
 (require "../../pict-of-state.rkt")
 (require "../../parse.rkt")
 (require "../../runtime.rkt")
-(require "../../string-of-state.rkt")
 
-(define (defvar-lambda-as-deffun s-exp)
-  (define (rec s-exp)
-    (match s-exp
-      [`(defvar ,x (,lambda (,@args) ,@body))
-       #:when (memv lambda '(lambda λ))
-       `(deffun (,x ,@args) ,@(map rec body))]
-      [else
-       (if (list? s-exp)
-           (map rec s-exp)
-           s-exp)]))
-  (rec s-exp))
-(define (set!-as-def-1 s-exp)
-  (define (rec s-exp)
-    (match s-exp
-      [`(set! ,x (,lambda (,@args) ,@body))
-       #:when (memv lambda '(lambda λ))
-       `(deffun (,x ,@args) ,@(map rec body))]
-      [`(set! ,x ,e)
-       `(defvar ,x ,(rec e))]
-      [else
-       (if (list? s-exp)
-           (map rec s-exp)
-           s-exp)]))
-  (rec s-exp))
-(define (begin-as-block s-exp)
-  (define (rec s-exp)
-    (match s-exp
-      [`(begin ,@e)
-       `(,block ,@(map rec e))]
-      [else
-       (if (list? s-exp)
-           (map rec s-exp)
-           s-exp)]))
-  (rec s-exp))
-(define preprocess (compose defvar-lambda-as-deffun set!-as-def-1 begin-as-block))
 (define (my-pict-of-state state)
-  ((pict-of-state #t #t) (preprocess ((s-exp-of-state #f) state))))
+  (define hide-closure? #t)
+  (define hide-env-label? #t)
+  (define hide-fun-addr? #t)
+  (define defvar-lambda-as-deffun? #t)
+  (define set!-lambda-as-def? #t)
+  (define set!-other-as-def? #t)
+  ((pict-of-state hide-closure? hide-env-label?)
+   ((s-exp-of-state hide-fun-addr? defvar-lambda-as-deffun? set!-lambda-as-def? set!-other-as-def?) state)))
 
 (define (run tracing? e)
   (define check void)
