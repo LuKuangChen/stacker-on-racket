@@ -8,4 +8,4 @@
 (define set!-lambda-as-def? #f)
 (define set!-other-as-def? #f)
 
-(include "../general-semantics.rkt")
+(include "../general-semantics.txt")
