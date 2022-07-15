@@ -146,7 +146,7 @@
         (raise (exn-rt "not a function")))))
     (else (raise (exn-rt "not a function")))))
 
-(define (eval tracing? [check : (((Listof (Id * Term)) * (Listof Term)) -> Void)] pict-of-state (e : Program))
+(define (eval tracing? enable-tco? [check : (((Listof (Id * Term)) * (Listof Term)) -> Void)] pict-of-state (e : Program))
   :
   Void
 
@@ -321,7 +321,9 @@
                 ((op-fun clos-env arg-x* body)
                  (values the-heap (calling fun arg-v* env ectx stack clos-env arg-x* body))))))
           (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* body) : State
-            (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
+            (let ([stack (if (and (empty? ectx) enable-tco?)
+                             stack
+                             (cons (values env ectx (ca-app fun arg-v*)) stack))])
               (do-call-1 the-heap stack clos-env arg-v* arg-x* body)))
           (define (do-call-1 the-heap stack clos-env arg-v* arg-x* body) : State
             (let ([def* (block-def* body)])

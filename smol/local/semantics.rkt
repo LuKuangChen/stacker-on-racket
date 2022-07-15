@@ -7,19 +7,21 @@
 (require "../../parse.rkt")
 (require "../../runtime.rkt")
 
+(define enable-tco? #t)
+(define hide-closure? #f)
+(define hide-env-label? #t)
+(define hide-fun-addr? #t)
+(define defvar-lambda-as-deffun? #f)
+(define set!-lambda-as-def? #f)
+(define set!-other-as-def? #f)
+
 (define (my-pict-of-state state)
-  (define hide-closure? #f)
-  (define hide-env-label? #t)
-  (define hide-fun-addr? #t)
-  (define defvar-lambda-as-deffun? #f)
-  (define set!-lambda-as-def? #f)
-  (define set!-other-as-def? #f)
   ((pict-of-state hide-closure? hide-env-label?)
    ((s-exp-of-state hide-fun-addr? defvar-lambda-as-deffun? set!-lambda-as-def? set!-other-as-def?) state)))
 
 (define (run tracing? e)
   (define check void)
-  (eval tracing? check my-pict-of-state (parse e)))
+  (eval tracing? enable-tco? check my-pict-of-state (parse e)))
 
 (define-syntax (my-module-begin stx)
   (syntax-case stx ()
