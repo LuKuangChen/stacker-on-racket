@@ -16,6 +16,7 @@
 (require (opaque-type-in pprint (Doc doc?))
          (typed-in pprint
                    (text : (String -> Doc))
+                   (group : (Doc -> Doc))
                    (align : (Doc -> Doc))
                    (hang : (Number Doc -> Doc))
                    (v-concat : ((Listof Doc) -> Doc))
@@ -24,6 +25,9 @@
                    (h-concat : ((Listof Doc) -> Doc))
                    (hs-concat : ((Listof Doc) -> Doc))
                    (pretty-format : (Doc -> String))))
+(require
+  (rename-in (typed-in pprint [pretty-format : (Doc Number -> String)])
+             [pretty-format pretty-format/n]))
 (require (typed-in "show.rkt" [string-of-o : (Obs -> String)]))
 (require (typed-in racket
                    [number->string : (Number -> String)]
@@ -47,7 +51,7 @@
               ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
               ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
                                         (o-list-it (obs-of-val (snd vs))))))
-              ((h-fun env name arg* def* body)
+              ((h-fun env name arg* body)
                (o-fun (type-case (Optionof '_) name
                         [(none) (none)]
                         [(some x) (some (symbol->string x))])))
@@ -201,7 +205,7 @@
                   [(ha-user it)
                    (let ([printing (format "~a" it)])
                       (type-case HeapValue (heap-ref the-heap (ha-user it))
-                        ((h-fun env name arg* def* body)
+                        ((h-fun env name arg* body)
                          (type-case (Optionof Symbol) name
                            ((some s)
                             (if hide-fun-addr?
@@ -249,34 +253,37 @@
                   (if (and defvar-lambda-as-deffun? (t-fun? e))
                       (doc-of-deffun x
                         (t-fun-arg* e)
-                        (t-fun-def* e)
                         (t-fun-body e))
-                      (doc-paren
-                        (vs-concat
+                      (group
+                        (head-body
                           (list
-                          (symbol "defvar")
-                          (doc-of-x x)
-                          (doc-of-e e)))))))
-              (define (doc-of-deffun x arg* def* body)
+                            (symbol "defvar")
+                            (doc-of-x x))
+                          (doc-of-e e))))))
+              (define (doc-of-body [body : Block]) : Doc
+                (let ([def* (block-def* body)]
+                      [exp* (block-exp* body)]
+                      [out (block-out body)])
+                  (v-concat
+                    (append
+                      (map doc-of-def def*)
+                      (append 
+                        (map doc-of-e exp*)
+                        (list (doc-of-e out)))))))
+              (define (doc-of-deffun x arg* [body : Block])
                 (head-body
                   (list
                     (symbol "deffun")
                     (doc-list
                       (cons (doc-of-x x)
                         (map doc-of-x arg*))))
-                  (v-concat
-                    (append
-                      (map doc-of-def def*)
-                      (list (doc-of-e-top body))))))
-              (define (doc-lambda arg* def* body)
+                  (doc-of-body body)))
+              (define (doc-lambda arg* [body : Doc])
                 (head-body
                  (list
                   (symbol "lambda")
                   (doc-list arg*))
-                 (v-concat
-                  (append
-                   def*
-                   (list body)))))
+                 body))
               (define (doc-app e*)
                 (doc-list e*))
               (define (doc-let bind* body)
@@ -294,19 +301,18 @@
                    (v-concat bind*)))
                  body))
               (define (doc-set! x e)
-                (if set!-other-as-def?
-                    (doc-paren
-                      (vs-concat
-                        (list
+                (group
+                  (if set!-other-as-def?
+                    (head-body
+                      (list
                         (symbol "defvar")
-                        x
-                        e)))
-                    (doc-paren
-                      (vs-concat
-                        (list
+                        x)
+                      e)
+                    (head-body
+                      (list
                         (symbol "set!")
-                        x
-                        e)))))
+                        x)
+                      e))))
               (define (doc-of-set! x e)
                 (cond
                   [(and set!-lambda-as-def? (t-fun? e))
@@ -314,10 +320,11 @@
                   [(and set!-other-as-def? (not (t-fun? e)))
                    (doc-of-def (values x e))]
                   [else
-                   (vs-concat
-                      (list
-                      (symbol "set!")
-                      (doc-of-x x)
+                   (group 
+                     (head-body
+                       (list
+                         (symbol "set!")
+                        (doc-of-x x))
                       (doc-of-e e)))]))
               (define (doc-begin e* e)
                 (if (empty? e*)
@@ -350,22 +357,21 @@
                    (doc-of-v v)]
                   [(t-var x)
                    (doc-of-x x)]
-                  [(t-fun name arg* def* body)
+                  [(t-fun name arg* body)
                    (doc-lambda
                     (map doc-of-x arg*)
-                    (map doc-of-def def*)
-                    (doc-of-e-top body))]
+                    (doc-of-body body))]
                   [(t-app fun arg*)
                    (doc-app
                     (map doc-of-e (cons fun arg*)))]
                   [(t-let bind* body)
                    (doc-let
                     (map doc-of-xe bind*)
-                    (doc-of-e-top body))]
+                    (doc-of-body body))]
                   [(t-letrec bind* body)
                    (doc-letrec
                     (map doc-of-xe bind*)
-                    (doc-of-e-top body))]
+                    (doc-of-body body))]
                   [(t-set! x e)
                    (doc-of-set! x e)]
                   [(t-begin e* e)
@@ -414,7 +420,7 @@
                            (map doc-of-xv xv*)
                            (list (doc-brack-pair (doc-of-x x) □))
                            (map doc-of-xe xe*)))
-                        (doc-of-e-top body)))
+                        (doc-of-body body)))
                     ((F-if thn els)
                      (doc-if (list □ (doc-of-e thn) (doc-of-e els))))
                     ((F-set! x)
@@ -465,8 +471,8 @@
                    (inj (cons "vec" (map string-of-v (vector->list it))))]
                   [(h-cons it)
                    (inj (list "cons" (string-of-v (fst it)) (string-of-v (snd it))))]
-                  [(h-fun env name arg* def* body)
-                   (inj (list "fun" (string-of-env env) (string-of-e (t-fun name arg* def* body))))]
+                  [(h-fun env name arg* body)
+                   (inj (list "fun" (string-of-env env) (string-of-e (t-fun name arg* body))))]
                   [(h-env env binding*)
                    (inj
                    (list
@@ -501,22 +507,23 @@
               (define (string-of-x x)
                 (pretty-format (doc-of-x x)))
               (define (string-of-e e)
-                (pretty-format (doc-of-e e)))
+                (pretty-format/n (doc-of-e e) 20))
               (define (string-of-e-top body)
                 (begin
-                  (pretty-format (doc-of-e-top body))))
+                  (pretty-format/n (doc-of-e-top body) 20)))
               (define (string-of-ha ha)
                 (pretty-format (doc-of-ha ha)))
               (define (string-of-v v)
                 (pretty-format (doc-of-v v)))
               (define (string-of-ectx ectx)
-                (pretty-format
+                (pretty-format/n
                   (ind-List (reverse (map doc-of-f ectx))
                     (text "□")
                     (lambda (IH x)
-                      (x IH))))))
+                      (x IH)))
+                  20)))
         (type-case OtherState state
-          [(calling fun arg* env ectx stack clos-env arg-x* def* body)
+          [(calling fun arg* env ectx stack clos-env arg-x* body)
            (inj (list (inj "calling")
                       (inj (string-of-e (t-app (t-quote fun) (map t-quote arg*))))
                       (inj (string-of-env env))

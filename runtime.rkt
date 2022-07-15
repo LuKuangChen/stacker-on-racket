@@ -39,13 +39,13 @@
     [(e-app fun arg*)
      (t-app (compile-e fun) (map compile-e arg*))]
     [(e-let bind* def* prelude* result)
-     (t-let (map compile-bind bind*) (letrec-of-def* def* prelude* result))]
+     (t-let (map compile-bind bind*) (block-of-def* def* prelude* result))]
     [(e-let* bind* def* prelude* result)
      (compile-let* (map compile-bind bind*)
-                   (letrec-of-def* def* prelude* result))]
+                   (block-of-def* def* prelude* result))]
     [(e-letrec bind* def* prelude* result)
      (t-letrec (map compile-bind bind*)
-               (letrec-of-def* def* prelude* result))]
+               (block-of-def* def* prelude* result))]
     [(e-set! var val)
      (t-set! var (compile-e val))]
     [(e-begin prelude* result)
@@ -70,25 +70,36 @@
     ((d-fun fun arg* def* prelude* result)
      (values fun (compile-fun (some fun) arg* def* prelude* result)))))
 (define (compile-fun name arg* def* prelude* result)
-  (t-fun name arg* (map compile-def def*) (compile-begin prelude* result)))
+  (t-fun name arg*
+    (block
+      (map compile-def def*)
+      (map compile-e prelude*)
+      (compile-e result))))
 (define (compile-bind bind)
   (values (fst bind)
           (compile-e (snd bind))))
-(define (letrec-of-def* def* prelude* result)
-  (letrec-of-def*-1 def* (compile-begin prelude* result)))
-(define (global-letrec-of-def*-1 def* body)
-  (t-letrec (map compile-def def*)
-            body))
-(define (letrec-of-def*-1 def* body)
-  (if (empty? def*)
-      body
-      (t-letrec (map compile-def def*)
-                body)))
-(define (compile-let* bind* body)
-  (ind-List bind*
-            body
-            (λ (IH bind)
-              (t-let (list bind) IH))))
+(define (block-of-def* def* prelude* result)
+  (block
+    (map compile-def def*)
+    (map compile-e prelude*)
+    (compile-e result)))
+(define (term-of-block b)
+  (cond
+    [(not (empty? (block-def* b)))
+     (t-let (list) b)]
+    [(not (empty? (block-exp* b)))
+     (t-begin (block-exp* b) (block-out b))]
+    [else
+     (block-out b)]))
+(define (compile-let* bind* [body : Block])
+  (term-of-block 
+    (ind-List bind*
+              body
+              (λ (IH bind)
+                (block
+                  (list)
+                  (list) 
+                  (t-let (list bind) IH))))))
 (define (compile-begin prelude* result)
   (t-begin
     (map compile-e prelude*)
@@ -129,8 +140,8 @@
     ((v-prim name) (op-prim name))
     ((v-addr addr)
      (type-case HeapValue (heap-ref the-heap addr)
-       ((h-fun env name arg* def* body)
-        (op-fun env arg* def* body))
+       ((h-fun env name arg* body)
+        (op-fun env arg* body))
        (else
         (raise (exn-rt "not a function")))))
     (else (raise (exn-rt "not a function")))))
@@ -222,13 +233,9 @@
                 e
                 ((t-quote v) (do-apply-k the-heap v env ectx stack))
                 ((t-var x)
-                 (do-ref the-heap x env ectx stack)
-                 #;
-                 (if (uninteresting-variable? x)
-                     (do-ref the-heap x env ectx stack)
-                     (values the-heap (ref x env ectx stack))))
-                ((t-fun name arg* def* body)
-                 (let-values (((the-heap v) (v-fun the-heap env name arg* def* body)))
+                 (do-ref the-heap x env ectx stack))
+                ((t-fun name arg* body)
+                 (let-values (((the-heap v) (v-fun the-heap env name arg* body)))
                    (do-apply-k the-heap v env ectx stack)))
                 ((t-app fun arg*) (interp-app the-heap (list) (cons fun arg*) env ectx stack))
                 ((t-let bind* body) (interp-let the-heap (list) bind* body env ectx stack))
@@ -237,7 +244,9 @@
                    (let ((ectx (list)))
                      (let ((var* (map var-of-bind bind*)))
                        (let-values (((the-heap env) (env-declare the-heap env var*)))
-                         (let ([e (t-begin (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*) body)])
+                         (let ([e (t-begin
+                                    (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*)
+                                    (term-of-block body))])
                            (do-interp the-heap e env ectx stack)))))))
                 ((t-set! var val)
                  (let ((e val))
@@ -285,16 +294,13 @@
               ((cons e prelude*)
                (let ((ectx (cons (F-begin prelude* result) ectx)))
                  (do-interp the-heap e env ectx stack)))))
-          (define (interp-let the-heap xv* xe* body env ectx stack) : State
+          (define (interp-let the-heap xv* xe* [body : Block] env ectx stack) : State
             (type-case
                 (Listof (Id * Term))
               xe*
               (empty
                (let ([stack (cons (values env ectx (ca-let)) stack)])
-                 (let-values (((the-heap env) (env-extend the-heap env xv*)))
-                   (let ((ectx (list)))
-                     (let ((e body))
-                       (do-interp the-heap e env ectx stack))))))
+                 (do-call-1 the-heap stack env (map snd xv*) (map fst xv*) body)))
               ((cons ⟨x×e⟩ xe*)
                (let ((x (fst ⟨x×e⟩)))
                  (let ((e (snd ⟨x×e⟩)))
@@ -312,24 +318,28 @@
                 ((op-prim op)
                  (let-values (((the-heap v) (delta the-heap op arg-v* env ectx stack)))
                    (do-apply-k the-heap v env ectx stack)))
-                ((op-fun clos-env arg-x* def* body)
-                 (values the-heap (calling fun arg-v* env ectx stack clos-env arg-x* def* body))))))
-          (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body) : State
+                ((op-fun clos-env arg-x* body)
+                 (values the-heap (calling fun arg-v* env ectx stack clos-env arg-x* body))))))
+          (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* body) : State
             (let ([stack (cons (values env ectx (ca-app fun arg-v*)) stack)])
+              (do-call-1 the-heap stack clos-env arg-v* arg-x* body)))
+          (define (do-call-1 the-heap stack clos-env arg-v* arg-x* body) : State
+            (let ([def* (block-def* body)])
               (let-values (((the-heap env) (env-extend/declare the-heap clos-env
                                                                 (append (map2 pair arg-x* (map some arg-v*))
                                                                         (map (lambda (def)
                                                                               (let ([name (fst def)])
                                                                                 (values name (none))))
                                                                             def*)))))
-                (let ((e (t-init! def* body)))
+                (let ((e (t-init! body)))
                   (values the-heap (called e env stack))))))
-          (define (t-init! bind* body)
+          (define (t-init! body)
             (t-begin
               (append 
-                (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*)
-                (t-begin-prelude* body))
-              (t-begin-result body)))
+                (map (lambda (xe) (t-set! (fst xe) (snd xe)))
+                     (block-def* body))
+                (block-exp* body))
+              (block-out body)))
           (define (do-equal? the-heap v1 v2)
             (let ([visited (list)])
               (local ((define (do-equal?-helper v1 v2)
@@ -591,8 +601,8 @@
               (catch
                (λ ()
                  (type-case OtherState state
-                   [(calling fun arg-v* env ectx stack clos-env arg-x* def* body)
-                    (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* def* body)]
+                   [(calling fun arg-v* env ectx stack clos-env arg-x* body)
+                    (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* body)]
                    [(called e env stack)
                     (do-interp the-heap e env (list) stack)]
                    [(returning v stack)

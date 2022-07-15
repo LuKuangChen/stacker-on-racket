@@ -14,24 +14,29 @@
 (define color-B-L (make-object color% 255 223 64))
 ;; red (#FF7D6C)
 (define color-C (make-object color% 255 127 121))
-;; green (#C1E197)
-(define color-D (make-object color% 193 225 151))
+;; dark and light green (#C1E197 & #41BC76)
+(define color-D-D (make-object color% 65 188 118))
+(define color-D-L (make-object color% 193 225 151))
 ;; black and white
 (define color-black (make-object color% 0 0 0))
 (define color-white (make-object color% 255 255 255))
+(define color-dark-grey (make-object color% 100 100 100))
+(define color-light-grey (make-object color% 155 155 155))
 
 ;; These color palettes for texts have been checked with
 ;;   https://webaim.org/resources/contrastchecker/
-(struct text-palette
-  (text background))
+(struct text-palette (text background))
 (define tp-A-D (text-palette color-white color-A-D))
 (define tp-A-L (text-palette color-white color-A-L))
 (define tp-B-D (text-palette color-black color-B-D))
 (define tp-B-L (text-palette color-black color-B-L))
 (define tp-C (text-palette color-black color-C))
-(define tp-D (text-palette color-black color-D))
+(define tp-D-D (text-palette color-black color-D-D))
+(define tp-D-L (text-palette color-black color-D-L))
 (define tp-white (text-palette color-black color-white))
 (define tp-black (text-palette color-white color-black))
+(define tp-dark-grey (text-palette color-white color-dark-grey))
+(define tp-light-grey (text-palette color-black color-light-grey))
 
 (define tp-stack tp-black)
 (define tp-stack-frame tp-B-D)
@@ -41,6 +46,11 @@
 (define tp-returned tp-A-L)
 (define tp-terminated tp-black)
 (define tp-errored tp-C)
+
+(define tp-env tp-D-D)
+(define tp-fun tp-D-L)
+(define tp-mvec tp-dark-grey)
+(define tp-cons tp-light-grey)
 
 (define current-text-palette (make-parameter tp-white))
 (define (current-text-color)
@@ -162,7 +172,7 @@
     (match-define `(,this-addr ,hv) item)
     (match hv
       [`("env" ,env ,bindings)
-       (parameterize ([current-text-palette tp-D])
+       (parameterize ([current-text-palette tp-env])
        (plate (vl-append
                (field "@" this-addr)
                (if hide-env-label?
@@ -176,20 +186,20 @@
                (field "Rest @" env))
        ))]
       [`("fun" ,env ,code)
-       (parameterize ([current-text-palette tp-black])
+       (parameterize ([current-text-palette tp-fun])
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field "Environment @" env)
                          (field "Code" code))
               ))]
-      [`("vec" ,vec)
-       (parameterize ([current-text-palette tp-black])
+      [`("vec" ,@vec)
+       (parameterize ([current-text-palette tp-mvec])
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "mvec" (apply hb-append padding (map field-value vec))))
        ))]
       [`("cons" ,v1 ,v2)
-       (parameterize ([current-text-palette tp-black])
+       (parameterize ([current-text-palette tp-cons])
        (plate (vl-append padding
                          (field "@" this-addr)
                          (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))

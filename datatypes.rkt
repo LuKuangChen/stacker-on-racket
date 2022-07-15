@@ -11,17 +11,21 @@
                    [vector-map : (('a -> 'b) (Vectorof 'a) -> (Vectorof 'b))]
                    [remove-duplicates : ((Listof 'a) -> (Listof 'a))]))
 
+(define-type Block
+  (block [def* : (Listof (Id * Term))]
+         [exp* : (Listof Term)]
+         [out : Term]))
+
 (define-type-alias CompiledProgram ((Listof (Id * Term)) * (Listof Term)))
 (define-type Term
   (t-quote [v : Val])
   (t-var [x : Id])
   (t-fun [name : (Optionof Symbol)]
          [arg* : (Listof Id)]
-         [def* : (Listof (Id * Term))]
-         [body : Term])
+         [body : Block])
   (t-app [fun : Term] [arg* : (Listof Term)])
-  (t-let [bind* : (Listof (Id * Term))] [body : Term])
-  (t-letrec [bind* : (Listof (Id * Term))] [body : Term])
+  (t-let [bind* : (Listof (Id * Term))] [body : Block])
+  (t-letrec [bind* : (Listof (Id * Term))] [body : Block])
   (t-set! [var : Id] [val : Term])
   (t-begin [prelude* : (Listof Term)] [result : Term])
   (t-if [cnd : Term] [thn : Term] [els : Term])
@@ -86,7 +90,7 @@
 (define-type HeapValue
   (h-vec [it : (Vectorof Val)])
   (h-cons [it : (Val * Val)])
-  (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
+  (h-fun [env : Env] [name : (Optionof Symbol)] [arg* : (Listof Id)] [body : Block])
   (h-env [parent : Env] [map : (Hashof Id (Optionof Val))]))
 (define-type Val
   (v-addr [it : HeapAddress])
@@ -97,8 +101,8 @@
   (v-bool [it : Boolean])
   (v-empty)
   (v-void))
-(define (v-fun [the-heap : Heap] [env : Env] name arg* def* body)
-  (let-values (((the-heap addr) (allocate! the-heap (h-fun env name arg* def* body))))
+(define (v-fun [the-heap : Heap] [env : Env] name arg* body)
+  (let-values (((the-heap addr) (allocate! the-heap (h-fun env name arg* body))))
     (values the-heap (v-addr addr))))
 (define (v-vec [the-heap : Heap] it)
   (let-values (((the-heap addr) (allocate! the-heap (h-vec it))))
@@ -202,7 +206,7 @@
 (define-type ECFrame
   (F-begin [e* : (Listof Term)] [e : Term])
   (F-app [v* : (Listof Val)] [e* : (Listof Term)])
-  (F-let [xv* : (Listof (Id * Val))] [x : Id] [xe* : (Listof (Id * Term))] [body : Term])
+  (F-let [xv* : (Listof (Id * Val))] [x : Id] [xe* : (Listof (Id * Term))] [body : Block])
   (F-if [thn : Term] [els : Term])
   (F-set! [var : Id])
   (P-def [x : Id] [d* : (Listof (Id * Term))] [e* : (Listof Term)])
@@ -283,6 +287,8 @@
                              (h-fun base-env
                                     (some 'map)
                                     (list 'f 'xs)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'xs) (t-var 'empty)))
                                           (t-var 'empty)
@@ -293,11 +299,13 @@
                                                        (t-app (t-var 'map)
                                                               (list (t-var 'f)
                                                                     (t-app (t-quote (v-prim (po-rest)))
-                                                                           (list (t-var 'xs)))))))))))
+                                                                           (list (t-var 'xs))))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-memberp))
                              (h-fun base-env
                                     (some 'member?)
                                     (list 'x 'l)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
                                           (t-quote (v-bool #f))
@@ -308,11 +316,13 @@
                                                 (t-app (t-var 'member?)
                                                       (list (t-var 'x)
                                                             (t-app (t-quote (v-prim (po-rest)))
-                                                                    (list (t-var 'l))))))))))
+                                                                    (list (t-var 'l)))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-filter))
                              (h-fun base-env
                                     (some 'filter)
                                     (list 'f 'xs)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'xs) (t-var 'empty)))
                                           (t-var 'empty)
@@ -329,11 +339,13 @@
                                                 (t-app (t-var 'filter)
                                                        (list (t-var 'f)
                                                              (t-app (t-quote (v-prim (po-rest)))
-                                                                    (list (t-var 'xs))))))))))
+                                                                    (list (t-var 'xs)))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-foldl))
                              (h-fun base-env
                                     (some 'foldl)
                                     (list 'f 'base 'l)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
                                           (t-var 'base)
@@ -346,11 +358,13 @@
                                                                   (list (t-var 'l)))
                                                            (t-var 'base)))
                                                   (t-app (t-quote (v-prim (po-rest)))
-                                                         (list (t-var 'l)))))))))
+                                                         (list (t-var 'l))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-foldr))
                              (h-fun base-env
                                     (some 'foldr)
                                     (list 'f 'base 'l)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
                                           (t-var 'base)
@@ -363,11 +377,13 @@
                                                            (t-var 'f)
                                                            (t-var 'base)
                                                            (t-app (t-quote (v-prim (po-rest)))
-                                                                  (list (t-var 'l)))))))))))
+                                                                  (list (t-var 'l))))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-andmap))
                              (h-fun base-env
                                     (some 'andmap)
                                     (list 'p? 'l)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
                                           (t-quote (v-bool #t))
@@ -379,11 +395,13 @@
                                                         (list
                                                           (t-var 'p?)
                                                           (t-app (t-quote (v-prim (po-rest)))
-                                                                 (list (t-var 'l))))))))))
+                                                                 (list (t-var 'l)))))))))))
          (the-heap (heap-set the-heap (ha-prim (pa-ormap))
                              (h-fun base-env
                                     (some 'andmap)
                                     (list 'p? 'l)
+                                    (block
+                                    (list)
                                     (list)
                                     (t-if (t-app (t-var 'equal?) (list (t-var 'l) (t-var 'empty)))
                                           (t-quote (v-bool #t))
@@ -395,17 +413,17 @@
                                                         (list
                                                           (t-var 'p?)
                                                           (t-app (t-quote (v-prim (po-rest)))
-                                                                 (list (t-var 'l))))))))))
+                                                                 (list (t-var 'l)))))))))))
          )
     (values the-heap base-env builtins)))
 
 (define-type Operator
   (op-prim [name : PrimitiveOp])
-  (op-fun [env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term]))
+  (op-fun [env : Env] [arg* : (Listof Id)] [body : Block]))
 
 (define-type OtherState
   (calling [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
-           [clos-env : Env] [arg* : (Listof Id)] [def* : (Listof (Id * Term))] [body : Term])
+           [clos-env : Env] [arg* : (Listof Id)] [body : Block])
   (called [e : Term] [env : Env] [stack : Stack])
   (returning [v : Val] [stack : Stack])
   (returned [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])

@@ -46,7 +46,7 @@
 
 
 (define (pict-loop state terminate? forward pict-of-state)
-  (define the-frame (new frame% [label "GUI"]))
+  (define the-frame (new frame% [label "Stacker"]))
   (send the-frame create-status-line)
   (define button-panel
     (new horizontal-panel%
