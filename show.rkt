@@ -13,10 +13,10 @@
     [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
     [(o-list? o) (format "'(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]
     [(o-fun? o)
+     #;
      (if (some? (o-fun-it o))
          (some-v (o-fun-it o))
          "#<procedure>")
-     #;
      (if (some? (o-fun-it o))
          (format "#<procedure:~a>" (some-v (o-fun-it o)))
          "#<procedure>")]
