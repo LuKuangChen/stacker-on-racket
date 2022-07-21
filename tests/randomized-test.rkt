@@ -53,13 +53,13 @@
    mpair
    set-left!
    set-right!
-   vref
+   vec-ref
    cons
    map
    filter)
   (o3
    ::=
-   vset!
+   vec-set!
    ;;;  foldl
    ;;;  foldr
    )

@@ -151,16 +151,16 @@
      (doc-of-x 'set-left!)]
     [(po-set-right!)
      (doc-of-x 'set-right!)]
-    [(po-vref)
-     (doc-of-x 'vref)]
+    [(po-vec-ref)
+     (doc-of-x 'vec-ref)]
     [(po-cons)
      (doc-of-x 'cons)]
     [(po-first)
      (doc-of-x 'first)]
     [(po-rest)
      (doc-of-x 'rest)]
-    [(po-vset!)
-     (doc-of-x 'vset!)]
+    [(po-vec-set!)
+     (doc-of-x 'vec-set!)]
     [(po-mvec)
      (doc-of-x 'mvec)]
     [(po-list)

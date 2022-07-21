@@ -25,7 +25,7 @@
                    z))
 
 (test-equivalent '((defvar w (mvec 1 2 3))
-                   (vset! w 2 4)
+                   (vec-set! w 2 4)
                    w))
 
 (test-equivalent '((deffun (nested-i x)
