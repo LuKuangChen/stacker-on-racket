@@ -3,6 +3,7 @@
 (require pict)
 (require (rename-in pict [text pict-text]))
 (require racket/draw)
+(require (only-in framework editor:get-current-preferred-font-size))
 
 ;;; This color palette has been checked with
 ;;;   https://color.adobe.com/zh/create/color-accessibility
@@ -62,7 +63,10 @@
   (pre-text s 'modern))
 (define (pre-text s font-family)
   (define style
-    (cons (current-text-color) font-family))
+    (cons (current-text-color)
+      (make-object font%
+        (editor:get-current-preferred-font-size)
+        font-family)))
   (if (equal? s "")
       (pict-text " " style)
       (apply vl-append
