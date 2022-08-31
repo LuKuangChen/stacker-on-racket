@@ -8,7 +8,9 @@
 (define (string-of-o o)
   (cond
     [(o-exn? o)
-     (format "error: ~a" (o-exn-it o))]
+     (format 
+       "error: please run the same program under `#lang smol/hof` for details."
+       #;(o-exn-it o))]
     [(o-con? o) (string-of-c (o-con-it o))]
     [(o-vec? o) (format "'#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
     [(o-list? o) (format "'(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]
@@ -29,8 +31,6 @@
      (error 'show "internal error ~a" o)]))
 (define (string-of-o-internal o)
   (cond
-    [(o-exn? o)
-     (format "error: ~a" (o-exn-it o))]
     [(o-con? o) (string-of-c (o-con-it o))]
     [(o-vec? o) (format "#(~a)" (string-join (vector->list (vector-map string-of-o-internal (o-vec-it o))) " "))]
     [(o-list? o) (format "(~a)" (string-join (map string-of-o-internal (o-list-it o)) " "))]

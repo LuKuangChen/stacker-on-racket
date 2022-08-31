@@ -78,6 +78,39 @@
 (define (pict-of-state hide-closure? hide-env-label?)
   (define ((pict-of-focus heap) focus)
     (match focus
+      [`("vec-setting" ,action ,env ,ectx)
+       (parameterize ([current-text-palette tp-calling])
+         (plate (vl-append padding
+                         (field-label "Changing a vector")
+                         (field-value action)
+                         #;(field-value (format "(vec-set! @~a ~a ~a)" addr i v))
+                         #;
+                         (field-pict "(the"
+                           (ht-append
+                             padding
+                             (field-value i)
+                             (field-label "-th element will be")
+                             (field-value v)
+                             (field-label ")")))
+                         (field "in context" ectx)
+                         (field "in environment @" env))))]
+      [`("setting" ,x ,v ,env ,ectx)
+       (parameterize ([current-text-palette tp-calling])
+         (plate (vl-append padding
+                         (field-pict
+                           "Changing"
+                           (ht-append
+                             padding
+                             (field-value x)
+                             (field-label "to")
+                             (field-value v)))
+                         (field "in context" ectx)
+                         (field "in environment @" env))))]
+      [`("setted" ,env ,ectx)
+       (parameterize ([current-text-palette tp-calling])
+         (plate (vl-append padding
+                         (field "in context" ectx)
+                         (field "in environment @" env))))]
       [`("calling" ,app ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
@@ -120,14 +153,20 @@
   (define (pict-of-state state)
     (define p
       (match state
+        [`("vec-setting" ,action ,env ,ectx ,stack ,heap)
+         (main-pict stack `("vec-setting" ,action ,env ,ectx) heap)]
+        [`("setting" ,x ,v ,env ,ectx ,stack ,heap)
+         (main-pict stack `("setting" ,x ,v ,env ,ectx) heap)]
+        [`("setted" ,env ,ectx ,stack ,heap)
+         (main-pict stack `("setted" ,env ,ectx) heap)]
         [`("calling" ,app ,env ,ectx ,stack ,heap)
          (main-pict stack `("calling" ,app ,env ,ectx) heap)]
         [`("called" ,body ,env ,stack ,heap)
          (main-pict stack `("called" ,body ,env) heap)]
-        [`("returned" ,v ,env ,ectx ,stack ,heap)
-         (main-pict stack `("returned" ,v ,env ,ectx) heap)]
         [`("returning" ,v ,stack ,heap)
          (main-pict stack `("returning" ,v) heap)]
+        [`("returned" ,v ,env ,ectx ,stack ,heap)
+         (main-pict stack `("returned" ,v ,env ,ectx) heap)]
         [`("terminated" ,v* ,heap)
          (main-pict empty `("terminated" ,v*) heap)]
         [`("errored" ,heap)

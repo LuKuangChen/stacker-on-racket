@@ -2,20 +2,17 @@
 (provide (all-defined-out))
 (require racket/sandbox)
 
-(sandbox-path-permissions
- (list*
-  ;;; (list 'exists "/lib64")
-  ;;; (list 'exists "/usr/lib64")
-  ;;; (list 'exists (current-directory))
-  ;;; (list 'exists "/System")
-  ;;; (list 'exists "/Users")
-  (list 'exists (current-directory))
-  (sandbox-path-permissions)
-  ))
 (define (eval-in-stacker/smol program)
   (parameterize ([sandbox-output 'string]
                  [sandbox-eval-limits (list 10 #f)]
-                 [sandbox-propagate-exceptions #f])
+                 [sandbox-propagate-exceptions #f]
+                 (sandbox-path-permissions
+                  (list*
+                   (list 'exists "/lib64")
+                   (list 'exists "/usr/lib64")
+                   (list 'exists (current-directory))
+                   (list 'exists "/System")
+                   (sandbox-path-permissions))))
     (define ev (make-module-evaluator
                 `(module m stacker/smol/hof/semantics
                    #:no-trace
@@ -37,10 +34,11 @@
 (define (test-equivalent program)
   (displayln ";; Program")
   (writeln program)
-  (with-handlers ([any/c (lambda (e)
-                           (displayln ";; exception")
-                           (displayln e)
-                           (newline))])
+  (with-handlers ([(lambda (_) #f)
+                   (lambda (e)
+                     (displayln ";; exception")
+                     (displayln e)
+                     (newline))])
     (let* ([oe-standard (eval-in-smol program)]
            [oe-step (eval-in-stacker/smol program)]
            [r (equal? oe-standard oe-step)])

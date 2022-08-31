@@ -422,6 +422,10 @@
   (op-fun [env : Env] [arg* : (Listof Id)] [body : Block]))
 
 (define-type OtherState
+  (setting [x : Id] [v : Val] [env : Env] [ectx : ECtx] [stack : Stack])
+  (setted [env : Env] [ectx : ECtx] [stack : Stack])
+  (vector-setting [addr : HeapAddress] [it : (Vectorof Val)] [i : Number] [velm : Val]
+                  [env : Env] [ectx : ECtx] [stack : Stack])
   (calling [fun : Val] [args* : (Listof Val)] [env : Env] [ectx : ECtx] [stack : Stack]
            [clos-env : Env] [arg* : (Listof Id)] [body : Block])
   (called [e : Term] [env : Env] [stack : Stack])
