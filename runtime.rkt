@@ -399,7 +399,7 @@
                    (let ((v (as-vec the-heap v)))
                      (let ((_ (unless (= (vector-length v) 2) (raise (exn-rt "right: not a pair")))))
                        (return-value the-heap (vector-ref v 1))))))
-                ((po-vlen)
+                ((po-vec-len)
                  (let ((v (list-ref v-arg* 0)))
                    (let ((v (as-vec the-heap v)))
                      (return-value the-heap (v-num (vector-length v))))))

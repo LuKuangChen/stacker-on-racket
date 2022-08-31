@@ -105,8 +105,8 @@
      (doc-of-x 'left)]
     [(po-right)
      (doc-of-x 'right)]
-    [(po-vlen)
-     (doc-of-x 'vlen)]
+    [(po-vec-len)
+     (doc-of-x 'vec-len)]
     [(po-eqp)
      (doc-of-x 'equal?)]
     [(po-equalp)

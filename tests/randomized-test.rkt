@@ -43,7 +43,7 @@
    ::=
    left
    right
-   vlen)
+   vec-len)
   (o2
    ::=
    equal?

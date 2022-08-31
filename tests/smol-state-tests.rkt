@@ -7,7 +7,7 @@
                    (set-right! p "y")
                    (left p)
                    (right p)
-                   (vlen p)
+                   (vec-len p)
                    (pair? p)
                    (pair? (mvec "g" "h"))))
 
