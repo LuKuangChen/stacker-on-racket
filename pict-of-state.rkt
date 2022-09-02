@@ -47,6 +47,7 @@
 (define tp-returned tp-A-L)
 (define tp-terminated tp-black)
 (define tp-errored tp-C)
+(define tp-mutating tp-A-L)
 
 (define tp-env tp-D-D)
 (define tp-fun tp-D-L)
@@ -79,7 +80,7 @@
   (define ((pict-of-focus heap) focus)
     (match focus
       [`("vec-setting" ,action ,env ,ectx)
-       (parameterize ([current-text-palette tp-calling])
+       (parameterize ([current-text-palette tp-mutating])
          (plate (vl-append padding
                          (field-label "Changing a vector")
                          (field-value action)
@@ -95,7 +96,7 @@
                          (field "in context" ectx)
                          (field "in environment @" env))))]
       [`("setting" ,x ,v ,env ,ectx)
-       (parameterize ([current-text-palette tp-calling])
+       (parameterize ([current-text-palette tp-mutating])
          (plate (vl-append padding
                          (field-pict
                            "Changing"
