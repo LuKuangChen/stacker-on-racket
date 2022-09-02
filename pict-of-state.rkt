@@ -43,11 +43,11 @@
 (define tp-stack-frame tp-B-D)
 (define tp-calling tp-B-D)
 (define tp-called tp-A-D)
-(define tp-returning tp-B-L)
-(define tp-returned tp-A-L)
+(define tp-returning tp-A-D)
+(define tp-returned tp-A-D)
 (define tp-terminated tp-black)
 (define tp-errored tp-C)
-(define tp-mutating tp-A-L)
+(define tp-mutating tp-A-D)
 
 (define tp-env tp-D-D)
 (define tp-fun tp-D-L)
@@ -226,7 +226,13 @@
                                           (field-value '...)
                                           (apply vl-append padding
                                                  (map pict-of-binding
-                                                      (sort bindings string<=? #:key first)))))
+                                                      (sort (filter (lambda (b)
+                                                                      (match-define (list x v) b)
+                                                                      (if hide-closure?
+                                                                          (not (equal? (format "@~a" x) v))
+                                                                          #t))
+                                                                    bindings)
+                                                            string<=? #:key first)))))
                (field "Rest @" env))
        ))]
       [`("fun" ,env ,code)

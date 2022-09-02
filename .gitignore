@@ -16,3 +16,10 @@
 *.rktd
 *.html
 *.sxref
+tests/smol-fun-tests.rkt
+tests/smol-hof-tests.rkt
+tests/smol-local-tests.rkt
+tests/smol-state-tests.rkt
+tests/smol-fun-tests.rkt
+tests/smol-hof-tests.rkt
+tests/smol-local-tests.rkt
