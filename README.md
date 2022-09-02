@@ -79,7 +79,5 @@ If you don't want to see the stack diagrams (note the second line)
 ## Language Levels
 
 1. `fun`
-2. `mut-vars`: mutable variables
-3. `vectors`: (mutable) vectors
-4. `hof`: higher-order functions
-5. `local`: local binding forms (e.g. `let` and `letrec`)
+2. `state`: mutable variables and mutable vectors
+3. `hof`: higher-order functions and `let{,rec,*}`
