@@ -51,7 +51,7 @@ You should see a screenshot like this.
 
 ## Usage
 
-If you want to see the stack diagrams
+Usually, you will use the Stacker like other Racket `#lang`s.
 
 ```
 #lang stacker/smol/fun
@@ -63,7 +63,8 @@ If you want to see the stack diagrams
 (fact 3)
 ```
 
-If you don't want to see the stack diagrams (note the second line)
+If you *only* want to see the (final) result, you can ask the stacker not to show the stack+heap diagrams (note the second line).
+This way you don't need to click through the diagrams and hence can see the result sooner.
 
 ```
 #lang stacker/smol/fun
@@ -79,5 +80,5 @@ If you don't want to see the stack diagrams (note the second line)
 ## Language Levels
 
 1. `fun`
-2. `state`: mutable variables and mutable vectors
-3. `hof`: higher-order functions and `let{,rec,*}`
+2. `state` adds mutable variables and mutable vectors
+3. `hof` adds higher-order functions and `let{,rec,*}`
