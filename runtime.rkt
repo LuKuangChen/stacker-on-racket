@@ -331,14 +331,22 @@
               (do-call-1 the-heap stack clos-env arg-v* arg-x* body)))
           (define (do-call-1 the-heap stack clos-env arg-v* arg-x* body) : State
             (let ([def* (block-def* body)])
-              (let-values (((the-heap env) (env-extend/declare the-heap clos-env
-                                                               (append (map2 pair arg-x* (map some arg-v*))
-                                                                       (map (lambda (def)
-                                                                              (let ([name (fst def)])
-                                                                                (values name (none))))
-                                                                            def*)))))
-                (let ((e (t-init! body)))
-                  (values the-heap (called e env stack))))))
+              (cond
+                [(not (= (length arg-x*)
+                         (length arg-v*)))
+                 (raise (exn-rt "arity mismatch"))
+                 #;
+                 (values the-heap (errored))]
+                [else
+                 (let-values (((the-heap env)
+                               (env-extend/declare the-heap clos-env
+                                                   (append (map2 pair arg-x* (map some arg-v*))
+                                                           (map (lambda (def)
+                                                                  (let ([name (fst def)])
+                                                                    (values name (none))))
+                                                                def*)))))
+                   (let ((e (t-init! body)))
+                     (values the-heap (called e env stack))))])))
           (define (t-init! body)
             (t-begin
              (append
