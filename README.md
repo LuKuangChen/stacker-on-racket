@@ -47,7 +47,7 @@ Run the following program in DrRacket
 
 You should see a screenshot like this.
 
-<img width="303" alt="image" src="https://user-images.githubusercontent.com/10260693/172886242-700273b3-87e6-4682-8e45-c7ec04510405.png">
+<img width="509" alt="image" src="https://user-images.githubusercontent.com/10260693/188509738-4394c575-9239-404e-a2b8-eac9fdf656f9.png">
 
 ## Usage
 
