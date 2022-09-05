@@ -479,13 +479,13 @@
                      (inj "env")
                      (inj (string-of-env env)) 
                      (inj 
-                       (ind-List (hash-keys binding*)
+                       (ind-List (envmap-keys binding*)
                         (list)
                         (lambda (IH x)
                           (cons 
                             (list
                               (string-of-x x)
-                              (string-of-optionof-v (some-v (hash-ref binding* x))))
+                              (string-of-optionof-v (some-v (envmap-ref binding* x))))
                             IH))))))]))
               (define (string-of-optionof-v ov)
                 (type-case (Optionof '_) ov

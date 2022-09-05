@@ -65,16 +65,16 @@
 (define (pre-text s font-family)
   (define style
     (cons (current-text-color)
-      (make-object font%
-        (editor:get-current-preferred-font-size)
-        font-family)))
+          (make-object font%
+            (editor:get-current-preferred-font-size)
+            font-family)))
   (if (equal? s "")
       (pict-text " " style)
       (apply vl-append
-         (map
-           (lambda (s)
-             (pict-text s style)) 
-           (string-split s "\n")))))
+             (map
+              (lambda (s)
+                (pict-text s style))
+              (string-split s "\n")))))
 
 (define (pict-of-state hide-closure? hide-env-label?)
   (define ((pict-of-focus heap) focus)
@@ -82,67 +82,67 @@
       [`("vec-setting" ,action ,env ,ectx)
        (parameterize ([current-text-palette tp-mutating])
          (plate (vl-append padding
-                         (field-label "Changing a vector")
-                         (field-value action)
-                         #;(field-value (format "(vec-set! @~a ~a ~a)" addr i v))
-                         #;
-                         (field-pict "(the"
-                           (ht-append
-                             padding
-                             (field-value i)
-                             (field-label "-th element will be")
-                             (field-value v)
-                             (field-label ")")))
-                         (field "in context" ectx)
-                         (field "in environment @" env))))]
+                           (field-label "Changing a vector")
+                           (field-value action)
+                           #;(field-value (format "(vec-set! @~a ~a ~a)" addr i v))
+                           #;
+                           (field-pict "(the"
+                                       (ht-append
+                                        padding
+                                        (field-value i)
+                                        (field-label "-th element will be")
+                                        (field-value v)
+                                        (field-label ")")))
+                           (field "in context" ectx)
+                           (field "in environment @" env))))]
       [`("setting" ,x ,v ,env ,ectx)
        (parameterize ([current-text-palette tp-mutating])
          (plate (vl-append padding
-                         (field-pict
-                           "Changing"
-                           (ht-append
+                           (field-pict
+                            "Changing"
+                            (ht-append
                              padding
                              (field-value x)
                              (field-label "to")
                              (field-value v)))
-                         (field "in context" ectx)
-                         (field "in environment @" env))))]
+                           (field "in context" ectx)
+                           (field "in environment @" env))))]
       [`("setted" ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
-                         (field "in context" ectx)
-                         (field "in environment @" env))))]
+                           (field "in context" ectx)
+                           (field "in environment @" env))))]
       [`("calling" ,app ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
-                         (field "Calling" app)
-                         (field "in context" ectx)
-                         (field "in environment @" env))))]
+                           (field "Calling" app)
+                           (field "in context" ectx)
+                           (field "in environment @" env))))]
       [`("called" ,body ,env)
        (parameterize ([current-text-palette tp-called])
-       (plate (vl-append padding
-                         (field-label "Evaluating the function body")
-                         (field-value body)
-                         (field "in environment @" env))))]
+         (plate (vl-append padding
+                           (field-label "Evaluating the body")
+                           (field-value body)
+                           (field "in environment @" env))))]
       [`("returned" ,v ,env ,ectx)
        (parameterize ([current-text-palette tp-returned])
-       (plate (vl-append padding
-                         (field "Returned" v)
-                         (field "to contect" ectx)
-                         (field "in environment @" env))))]
+         (plate (vl-append padding
+                           (field "Returned" v)
+                           (field "to contect" ectx)
+                           (field "in environment @" env))))]
       [`("returning" ,v)
        (parameterize ([current-text-palette tp-returning])
-       (plate (vl-append padding
-                         (field "Returning" v))))]
+         (plate (vl-append padding
+                           (field "Returning" v))))]
       [`("terminated" ,v*)
        (parameterize ([current-text-palette tp-terminated])
-       (plate (vl-append padding
-                         (field-label "Terminated")
-                         (field-value (string-join v* "\n")))))]
+         (plate (vl-append padding
+                           (field-label "Terminated")
+                           (field-value (string-join v* "\n")))))]
       [`("errored")
        (parameterize ([current-text-palette tp-errored])
-       (plate (vl-append padding
-                         (field-label "Errored"))))]))
+         (plate (vl-append padding
+                           (field-label "Errored"))))]))
 
   (define (main-pict stack focus heap)
     (bg (ht-append padding
@@ -177,10 +177,10 @@
 
   (define ((pict-of-stack heap) stack)
     (parameterize ([current-text-palette tp-stack])
-    (box
-     (apply vl-append
-            (field-label "Stack")
-            (map (pict-of-sf heap) (reverse stack))))))
+      (box
+       (apply vl-append
+              (field-label "Stack")
+              (map (pict-of-sf heap) (reverse stack))))))
 
   (define (is-env? heapitem)
     (match-define (list addr hv) heapitem)
@@ -217,53 +217,52 @@
     (match hv
       [`("env" ,env ,bindings)
        (parameterize ([current-text-palette tp-env])
-       (plate (vl-append
-               (field "@" this-addr)
-               (if hide-env-label?
-                   (blank)
-                   (field-label "Environment Frame"))
-               (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
-                                          (field-value '...)
-                                          (apply vl-append padding
-                                                 (map pict-of-binding
-                                                      (sort (filter (lambda (b)
-                                                                      (match-define (list x v) b)
-                                                                      (if hide-closure?
-                                                                          (not (equal? (format "@~a" x) v))
-                                                                          #t))
-                                                                    bindings)
-                                                            string<=? #:key first)))))
-               (field "Rest @" env))
-       ))]
+         (plate (vl-append
+                 (field "@" this-addr)
+                 (if hide-env-label?
+                     (blank)
+                     (field-label "Environment Frame"))
+                 (field-pict "Bindings" (if (equal? this-addr '|@base-env|)
+                                            (field-value '...)
+                                            (apply vl-append padding
+                                                   (map pict-of-binding
+                                                        (filter (lambda (b)
+                                                                  (match-define (list x v) b)
+                                                                  (if hide-closure?
+                                                                      (not (equal? (format "@~a" x) v))
+                                                                      #t))
+                                                                bindings)))))
+                 (field "Rest @" env))
+                ))]
       [`("fun" ,env ,code)
        (parameterize ([current-text-palette tp-fun])
-       (plate (vl-append padding
-                         (field "@" this-addr)
-                         (field "Environment @" env)
-                         (field "Code" code))
-              ))]
+         (plate (vl-append padding
+                           (field "@" this-addr)
+                           (field "Environment @" env)
+                           (field "Code" code))
+                ))]
       [`("vec" ,@vec)
        (parameterize ([current-text-palette tp-mvec])
-       (plate (vl-append padding
-                         (field "@" this-addr)
-                         (field-pict "mvec" (apply hb-append padding (map field-value vec))))
-       ))]
+         (plate (vl-append padding
+                           (field "@" this-addr)
+                           (field-pict "mvec" (apply hb-append padding (map field-value vec))))
+                ))]
       [`("cons" ,v1 ,v2)
        (parameterize ([current-text-palette tp-cons])
-       (plate (vl-append padding
-                         (field "@" this-addr)
-                         (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
-              ))]))
+         (plate (vl-append padding
+                           (field "@" this-addr)
+                           (field-pict "cons" (apply hb-append padding (map field-value (list v1 v2)))))
+                ))]))
   (define (plate p)
     (define w (pict-width p))
     (define h (pict-height p))
     (define r 10)
     (cc-superimpose
      (filled-rounded-rectangle
-       (+ (pict-width p) (* r 2))
-       (+ (pict-height p) (* r 2))
-       r
-       #:color (current-background-color))
+      (+ (pict-width p) (* r 2))
+      (+ (pict-height p) (* r 2))
+      r
+      #:color (current-background-color))
      p))
 
   (define (box p)
@@ -289,22 +288,22 @@
 
   (define (bg p)
     (cc-superimpose
-      (filled-rectangle
-        (pict-width p)
-        (pict-height p)
-        #:draw-border? #f
-        #:color (current-background-color))
-      p))
+     (filled-rectangle
+      (pict-width p)
+      (pict-height p)
+      #:draw-border? #f
+      #:color (current-background-color))
+     p))
 
   (define ((pict-of-sf heap) sf)
     (match-define (list env ectx ann) sf)
     (parameterize ([current-text-palette tp-stack-frame])
       (bg (frame
-         (pad padding
-              (vl-append padding
-                         (field-label "Waiting for a value")
-                         (field "in context" ectx)
-                         (field "in environment @" env)))))))
+           (pad padding
+                (vl-append padding
+                           (field-label "Waiting for a value")
+                           (field "in context" ectx)
+                           (field "in environment @" env)))))))
 
   (define (pad n p)
     (hc-append (blank n)
