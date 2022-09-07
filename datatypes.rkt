@@ -187,19 +187,23 @@
   (= (length x*)
      (length (remove-duplicates x*))))
 (define (env-set the-heap [env : Env] x v)
-  (let ((addr (some-v env)))
-    (type-case HeapValue (heap-ref the-heap addr)
-      ((h-env env map)
-       (type-case (Optionof 'a) (envmap-ref map x)
-         ((none)
-          (env-set the-heap env x v))
-         ((some _)
-          (heap-set
-           the-heap
-           addr
-           (h-env env (envmap-set map x (some v))) ))))
-      (else
-       (raise (exn-internal 'env-set "This is impossible. The address is not an env."))))))
+  (type-case Env env
+    [(none)
+     (raise (exn-rt "You are using `set!` on an undefined variable!"))]
+    [(some addr)
+     (let* ((addr (some-v env)))
+       (type-case HeapValue (heap-ref the-heap addr)
+         ((h-env env map)
+          (type-case (Optionof 'a) (envmap-ref map x)
+            ((none)
+             (env-set the-heap env x v))
+            ((some _)
+             (heap-set
+              the-heap
+              addr
+              (h-env env (envmap-set map x (some v))) ))))
+         (else
+          (raise (exn-internal 'env-set "This is impossible. The address is not an env.")))))]))
 (define (env-lookup the-heap [env : Env] x)
   (type-case (Optionof HeapAddress) env
     ((none)
