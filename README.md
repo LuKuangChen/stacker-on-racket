@@ -4,7 +4,7 @@ Another implementation of smol. This implementation presents the execution with 
 
 ## How to install, update, and uninstall
 
-Please follow these instructions to install or update
+Please follow these instructions to **install** or **update**
 
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
@@ -15,7 +15,7 @@ Please follow these instructions to install or update
 7. Click the `Install` button. (If you have already installed, you will see "Update" instead of "Install".) Most buttons will grey out immediately (except the `Abort Install`).
 8. After the color of those buttons comes back, you can close the pop-up window. This usually takes less than 1 min.
 
-To uninstall
+To **uninstall**
 
 1. Make sure you are in the `DrRacket` app.
 2. Go to the menu `File` | `Package Manager...`. A window will pop up.
