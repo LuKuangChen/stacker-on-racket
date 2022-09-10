@@ -40,15 +40,18 @@
                      (displayln e)
                      (newline))])
     (let* ([oe-standard (eval-in-smol program)]
-           [oe-step (eval-in-stacker/smol program)]
-           [r (equal? oe-standard oe-step)])
-      (when (not r)
-        (displayln "-----------------------------")
-        (displayln ";; smol")
-        (writeln oe-standard)
-        (displayln "-----------------------------")
-        (displayln ";; stacker/smol")
-        (writeln oe-step))))
+           [oe-step (eval-in-stacker/smol program)])
+      (cond
+        [(not (equal? oe-standard oe-step))
+         (displayln "-----------------------------")
+         (displayln ";; smol")
+         (writeln oe-standard)
+         (displayln "-----------------------------")
+         (displayln ";; stacker/smol")
+         (writeln oe-step)]
+        [else
+         (display "Both smol and stacker output: ")
+         (writeln oe-standard)])))
   (newline))
 
 (define (test-expect/smol program expect)

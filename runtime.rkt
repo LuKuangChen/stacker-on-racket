@@ -89,7 +89,7 @@
     [(not (empty? (block-def* b)))
      (t-let (list) b)]
     [(not (empty? (block-exp* b)))
-     (t-begin (block-exp* b) (block-out b))]
+     (t-block (block-exp* b) (block-out b))]
     [else
      (block-out b)]))
 (define (compile-let* bind* [body : Block])
@@ -182,8 +182,8 @@
                  (values the-heap (returning v stack))]
                 ((cons f ectx)
                  (type-case ECFrame f
-                   ((F-begin e* e)
-                    (interp-begin the-heap e* e env ectx stack))
+                   ((F-seq is-block e* e)
+                    (interp-seq is-block the-heap e* e env ectx stack))
                    ((F-app v* e*)
                     (let ([v* (append v* (list v))])
                       (interp-app the-heap v* e* env ectx stack)))
@@ -256,7 +256,7 @@
                    (let ((ectx (list)))
                      (let ((var* (map var-of-bind bind*)))
                        (let-values (((the-heap env) (env-declare the-heap env var*)))
-                         (let ([e (t-begin
+                         (let ([e (t-block
                                    (map (lambda (xe) (t-set! (fst xe) (snd xe))) bind*)
                                    (term-of-block body))])
                            (do-interp the-heap e env ectx stack)))))))
@@ -264,8 +264,8 @@
                  (let ((e val))
                    (let ((ectx (cons (F-set! var) ectx)))
                      (do-interp the-heap e env ectx stack))))
-                ((t-begin prelude* result)
-                 (interp-begin the-heap prelude* result env ectx stack))
+                ((t-seq is-block prelude* result)
+                 (interp-seq is-block the-heap prelude* result env ectx stack))
                 ((t-if cnd thn els)
                  (let ((e cnd))
                    (let ((ectx (cons (F-if thn els) ectx)))
@@ -296,7 +296,7 @@
               ((cons e e*)
                (let ((ectx (cons (F-app v* e*) ectx)))
                  (do-interp the-heap e env ectx stack)))))
-          (define (interp-begin the-heap prelude* result env ectx stack) : State
+          (define (interp-seq is-block the-heap prelude* result env ectx stack) : State
             (type-case
                 (Listof Term)
               prelude*
@@ -304,7 +304,7 @@
                (let ([e result])
                  (do-interp the-heap e env ectx stack)))
               ((cons e prelude*)
-               (let ((ectx (cons (F-begin prelude* result) ectx)))
+               (let ((ectx (cons (F-seq is-block prelude* result) ectx)))
                  (do-interp the-heap e env ectx stack)))))
           (define (interp-let the-heap xv* xe* [body : Block] env ectx stack) : State
             (type-case
@@ -344,9 +344,7 @@
               (cond
                 [(not (= (length arg-x*)
                          (length arg-v*)))
-                 (raise (exn-rt "arity mismatch"))
-                 #;
-                 (values the-heap (errored))]
+                 (raise (exn-rt "arity mismatch"))]
                 [else
                  (let-values (((the-heap env)
                                (env-extend/declare the-heap clos-env
@@ -358,7 +356,7 @@
                    (let ((e (t-init! body)))
                      (values the-heap (called e env stack))))])))
           (define (t-init! body)
-            (t-begin
+            (t-block
              (append
               (map (lambda (xe) (t-set! (fst xe) (snd xe)))
                    (block-def* body))

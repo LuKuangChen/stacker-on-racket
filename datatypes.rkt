@@ -27,9 +27,13 @@
   (t-let [bind* : (Listof (Id * Term))] [body : Block])
   (t-letrec [bind* : (Listof (Id * Term))] [body : Block])
   (t-set! [var : Id] [val : Term])
-  (t-begin [prelude* : (Listof Term)] [result : Term])
+  (t-seq [is-block : Boolean] [prelude* : (Listof Term)] [result : Term])
   (t-if [cnd : Term] [thn : Term] [els : Term])
   (t-cond [cnd-thn* : (Listof (Term * Term))] [els : (Optionof Term)]))
+(define (t-block prelude* result)
+  (t-seq #t prelude* result))
+(define (t-begin prelude* result)
+  (t-seq #f prelude* result))
 
 (define (t-or t1 t2)
   (t-if t1
@@ -227,7 +231,7 @@
      (raise (exn-internal 'env-lookup "Not an env.")))))
 
 (define-type ECFrame
-  (F-begin [e* : (Listof Term)] [e : Term])
+  (F-seq [is-block : Boolean] [e* : (Listof Term)] [e : Term])
   (F-app [v* : (Listof Val)] [e* : (Listof Term)])
   (F-let [xv* : (Listof (Id * Val))] [x : Id] [xe* : (Listof (Id * Term))] [body : Block])
   (F-if [thn : Term] [els : Term])

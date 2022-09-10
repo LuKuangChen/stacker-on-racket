@@ -6,10 +6,11 @@
 (require "../../parse.rkt")
 (require "../../runtime.rkt")
 
-(define pos pict-of-state)
-
 (define (my-pict-of-state state)
-  ((pos hide-closure? hide-env-label?)
+  ((;(dynamic-require "../../pict-of-state.rkt" 'pict-of-state)
+    pict-of-state 
+    hide-closure?
+    hide-env-label?)
    ((s-exp-of-state hide-fun-addr? defvar-lambda-as-deffun? set!-lambda-as-def? set!-other-as-def?) state)))
 
 (define (run tracing? e)

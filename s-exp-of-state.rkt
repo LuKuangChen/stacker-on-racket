@@ -44,47 +44,49 @@
       (string-of-o (obs v)))))
 (define (obs-of-val the-heap)
   (lambda (v)
-  (local ([define counter 0]
-          (define visited (make-hash (list)))
-          (define (obs-of-hv hv)
-            (type-case HeapValue hv
-              ((h-vec vs) (o-vec (vector-map obs-of-val vs)))
-              ((h-cons vs) (o-list (cons (obs-of-val (fst vs))
-                                        (o-list-it (obs-of-val (snd vs))))))
-              ((h-fun env name arg* body)
-               (o-fun (type-case (Optionof '_) name
-                        [(none) (none)]
-                        [(some x) (some (symbol->string x))])))
-              ((h-env _env _map)
-              (raise (exn-internal 'obs-of-val "Impossible.")))))
-          [define obs-of-val
-            (lambda (v)
-              (type-case
-                  Val
-                v
-                ((v-str it) (o-con (c-str it)))
-                ((v-num it) (o-con (c-num it)))
-                ((v-bool it) (o-con (c-bool it)))
-                ((v-char it) (o-con (c-char it)))
-                ((v-prim name) (o-fun (some (pretty-format (doc-of-prim name)))))
-                ((v-empty) (o-list '()))
-                ((v-void) (o-void))
-                ((v-addr addr)
-                 (type-case (Optionof (Optionof Number)) (hash-ref visited addr)
-                   [(none)
-                    (begin
-                      (hash-set! visited addr (none))
-                      (let ([o (obs-of-hv (heap-ref the-heap addr))])
-                        (type-case (Optionof Number) (some-v (hash-ref visited addr))
-                          [(none) o]
-                          [(some id) (o-rec id o)])))]
-                   [(some optionof-id)
-                    (begin
-                      (when (equal? optionof-id (none))
-                        (hash-set! visited addr (some counter))
-                        (set! counter (add1 counter)))
-                      (o-var (some-v (some-v (hash-ref visited addr)))))]))))])
-    (obs-of-val v))))
+    (local ([define counter 0]
+            (define obs-of-hv
+              (lambda (visited)
+                (lambda (hv)
+                  (type-case HeapValue hv
+                    ((h-vec vs) (o-vec (vector-map (obs-of-val visited) vs)))
+                    ((h-cons vs) (o-list (cons ((obs-of-val visited) (fst vs))
+                                               (o-list-it ((obs-of-val visited) (snd vs))))))
+                    ((h-fun env name arg* body)
+                     (o-fun (type-case (Optionof '_) name
+                              [(none) (none)]
+                              [(some x) (some (symbol->string x))])))
+                    ((h-env _env _map)
+                     (raise (exn-internal 'obs-of-val "Impossible.")))))))
+            [define obs-of-val
+              (lambda (visited)
+                (lambda (v)
+                  (type-case
+                      Val
+                    v
+                    ((v-str it) (o-con (c-str it)))
+                    ((v-num it) (o-con (c-num it)))
+                    ((v-bool it) (o-con (c-bool it)))
+                    ((v-char it) (o-con (c-char it)))
+                    ((v-prim name) (o-fun (some (pretty-format (doc-of-prim name)))))
+                    ((v-empty) (o-list '()))
+                    ((v-void) (o-void))
+                    ((v-addr addr)
+                     (type-case (Optionof '_) (hash-ref visited addr)
+                       [(none)
+                        (let* ([bx (box (none))]
+                               [visited (hash-set visited addr bx)])
+                          (let ([o ((obs-of-hv visited) (heap-ref the-heap addr))])
+                            (type-case (Optionof Number) (unbox bx)
+                              [(none) o]
+                              [(some id) (o-rec id o)])))]
+                       [(some bx)
+                        (begin
+                          (when (equal? (unbox bx) (none))
+                            (set-box! bx (some counter))
+                            (set! counter (add1 counter)))
+                          (o-var (some-v (unbox bx))))])))))])
+      ((obs-of-val (hash (list))) v))))
 
 (define (symbol x)
   (text x))
@@ -204,17 +206,17 @@
                 (type-case HeapAddress it
                   [(ha-user it)
                    (let ([printing (format "~a" it)])
-                      (type-case HeapValue (heap-ref the-heap (ha-user it))
-                        ((h-fun env name arg* body)
-                         (type-case (Optionof Symbol) name
-                           ((some s)
-                            (if hide-fun-addr?
-                                (format "~a" s)
-                                (string-append printing (format ".~a" s))))
-                           ((none)
-                            printing)))
-                        (else
-                         printing)))]
+                     (type-case HeapValue (heap-ref the-heap (ha-user it))
+                       ((h-fun env name arg* body)
+                        (type-case (Optionof Symbol) name
+                          ((some s)
+                           (if hide-fun-addr?
+                               (format "~a" s)
+                               (string-append printing (format ".~a" s))))
+                          ((none)
+                           printing)))
+                       (else
+                        printing)))]
                   [(ha-prim it)
                    (string-of-primitive-address it)]))
               (define (doc-of-ha ha)
@@ -252,32 +254,32 @@
                 (local ((define-values (x e) def))
                   (if (and defvar-lambda-as-deffun? (t-fun? e))
                       (doc-of-deffun x
-                        (t-fun-arg* e)
-                        (t-fun-body e))
+                                     (t-fun-arg* e)
+                                     (t-fun-body e))
                       (group
-                        (head-body
-                          (list
-                            (symbol "defvar")
-                            (doc-of-x x))
-                          (doc-of-e e))))))
+                       (head-body
+                        (list
+                         (symbol "defvar")
+                         (doc-of-x x))
+                        (doc-of-e e))))))
               (define (doc-of-body [body : Block]) : Doc
                 (let ([def* (block-def* body)]
                       [exp* (block-exp* body)]
                       [out (block-out body)])
                   (v-concat
+                   (append
+                    (map doc-of-def def*)
                     (append
-                      (map doc-of-def def*)
-                      (append 
-                        (map doc-of-e exp*)
-                        (list (doc-of-e out)))))))
+                     (map doc-of-e exp*)
+                     (list (doc-of-e out)))))))
               (define (doc-of-deffun x arg* [body : Block])
                 (head-body
-                  (list
-                    (symbol "deffun")
-                    (doc-list
-                      (cons (doc-of-x x)
-                        (map doc-of-x arg*))))
-                  (doc-of-body body)))
+                 (list
+                  (symbol "deffun")
+                  (doc-list
+                   (cons (doc-of-x x)
+                         (map doc-of-x arg*))))
+                 (doc-of-body body)))
               (define (doc-lambda arg* [body : Doc])
                 (head-body
                  (list
@@ -302,16 +304,16 @@
                  body))
               (define (doc-set! x e)
                 (group
-                  (if set!-other-as-def?
-                    (head-body
+                 (if set!-other-as-def?
+                     (head-body
                       (list
-                        (symbol "defvar")
-                        x)
+                       (symbol "defvar")
+                       x)
                       e)
-                    (head-body
+                     (head-body
                       (list
-                        (symbol "set!")
-                        x)
+                       (symbol "set!")
+                       x)
                       e))))
               (define (doc-of-set! x e)
                 (cond
@@ -320,19 +322,19 @@
                   [(and set!-other-as-def? (not (t-fun? e)))
                    (doc-of-def (values x e))]
                   [else
-                   (group 
-                     (head-body
-                       (list
-                         (symbol "set!")
-                        (doc-of-x x))
-                      (doc-of-e e)))]))
+                   (group
+                    (head-body
+                     (list
+                      (symbol "set!")
+                      (doc-of-x x))
+                     (doc-of-e e)))]))
               (define (doc-begin e* e)
                 (if (empty? e*)
                     e
                     (head-body
-                      (list
-                        (symbol "begin"))
-                        (v-concat (append e* (list e))))))
+                     (list
+                      (symbol "begin"))
+                     (v-concat (append e* (list e))))))
               (define (doc-if e*)
                 (doc-paren
                  (hs-concat
@@ -347,7 +349,7 @@
                   ee*)))
               (define (doc-of-e-top e) : Doc
                 (type-case Term e
-                  [(t-begin e* e)
+                  [(t-seq b e* e)
                    (v-concat (map doc-of-e (append e* (list e))))]
                   [else
                    (doc-of-e e)]))
@@ -374,8 +376,8 @@
                     (doc-of-body body))]
                   [(t-set! x e)
                    (doc-of-set! x e)]
-                  [(t-begin e* e)
-                   (doc-begin (map doc-of-e e*) (doc-of-e e))]
+                  [(t-seq is-block e* e)
+                   (doc-of-seq is-block (map doc-of-e e*) (doc-of-e e))]
                   [(t-if cnd thn els)
                    (doc-if (map doc-of-e (list cnd thn els)))]
                   [(t-cond cnd-thn* els)
@@ -387,6 +389,10 @@
                             [(none) (list)]
                             [(some e)
                              (list (values (t-var 'else) e))]))))]))
+              (define (doc-of-seq is-block e* e)
+                (if is-block 
+                    (v-concat (append e* (list e)))
+                    (doc-begin e* e)))
               (define (doc-of-xe xe)
                 (local [(define-values (x e) xe)]
                   (doc-of-ee (values (t-var x) e))))
@@ -405,22 +411,22 @@
               (define (doc-of-f f)
                 (lambda ([□ : Doc])
                   (type-case ECFrame f
-                    ((F-begin e* e)
-                     (doc-begin (cons □ (map doc-of-e e*)) (doc-of-e e)))
+                    ((F-seq is-block e* e)
+                     (doc-of-seq is-block (cons □ (map doc-of-e e*)) (doc-of-e e)))
                     ((F-app v* e*)
                      (doc-app (append
-                       (map doc-of-v v*)
-                       (cons
-                        □
-                        (map doc-of-e e*)))))
+                               (map doc-of-v v*)
+                               (cons
+                                □
+                                (map doc-of-e e*)))))
                     ((F-let xv* x xe* body)
                      (doc-let
-                       (append*
-                          (list
-                           (map doc-of-xv xv*)
-                           (list (doc-brack-pair (doc-of-x x) □))
-                           (map doc-of-xe xe*)))
-                        (doc-of-body body)))
+                      (append*
+                       (list
+                        (map doc-of-xv xv*)
+                        (list (doc-brack-pair (doc-of-x x) □))
+                        (map doc-of-xe xe*)))
+                      (doc-of-body body)))
                     ((F-if thn els)
                      (doc-if (list □ (doc-of-e thn) (doc-of-e els))))
                     ((F-set! x)
@@ -441,7 +447,7 @@
                 (inj (map s-exp-of-sf stack)))
               (define (s-exp-of-heap heap)
                 (let* ([heap (heap-heap-it heap)]
-                       [interesting-items 
+                       [interesting-items
                         (map
                          (lambda (key)
                            (pair key (some-v (hash-ref heap key))))
@@ -475,18 +481,18 @@
                    (inj (list "fun" (string-of-env env) (string-of-e (t-fun name arg* body))))]
                   [(h-env env binding*)
                    (inj
-                   (list
+                    (list
                      (inj "env")
-                     (inj (string-of-env env)) 
-                     (inj 
-                       (ind-List (envmap-keys binding*)
-                        (list)
-                        (lambda (IH x)
-                          (cons 
-                            (list
-                              (string-of-x x)
-                              (string-of-optionof-v (some-v (envmap-ref binding* x))))
-                            IH))))))]))
+                     (inj (string-of-env env))
+                     (inj
+                      (ind-List (envmap-keys binding*)
+                                (list)
+                                (lambda (IH x)
+                                  (cons
+                                   (list
+                                    (string-of-x x)
+                                    (string-of-optionof-v (some-v (envmap-ref binding* x))))
+                                   IH))))))]))
               (define (string-of-optionof-v ov)
                 (type-case (Optionof '_) ov
                   [(none)
@@ -498,7 +504,7 @@
                   [(none)
                    "💣"]
                   [(some ha)
-                  (string-of-ha ha)]))
+                   (string-of-ha ha)]))
               (define (s-exp-of-sf sf)
                 (local ((define-values (env ectx ann) sf))
                   (inj (list (string-of-env env) (string-of-ectx ectx) (string-of-ann ann)))))
@@ -517,19 +523,19 @@
                 (pretty-format (doc-of-v v)))
               (define (string-of-ectx ectx)
                 (pretty-format/n
-                  (ind-List (reverse (map doc-of-f ectx))
-                    (text "□")
-                    (lambda (IH x)
-                      (x IH)))
-                  20)))
+                 (ind-List (reverse (map doc-of-f ectx))
+                           (text "□")
+                           (lambda (IH x)
+                             (x IH)))
+                 20)))
         (type-case OtherState state
           [(vector-setting addr it i velm env ectx stack)
            (inj (list (inj "vec-setting")
                       (inj (string-of-e (t-app (t-quote (v-prim (po-vec-set!)))
                                                (list
-                                                 (t-quote (v-addr addr))
-                                                 (t-quote (v-num i))
-                                                 (t-quote velm)))))
+                                                (t-quote (v-addr addr))
+                                                (t-quote (v-num i))
+                                                (t-quote velm)))))
                       #;(inj (string-of-ha addr))
                       #;(inj (number->string i))
                       #;(inj (string-of-v velm))
