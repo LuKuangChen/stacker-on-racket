@@ -311,8 +311,7 @@
                 (Listof (Id * Term))
               xe*
               (empty
-               (let ([stack (cons (values env ectx (ca-let)) stack)])
-                 (do-call-1 the-heap stack env (map snd xv*) (map fst xv*) body)))
+               (enter-block the-heap env ectx (ca-let) stack env (map snd xv*) (map fst xv*) body))
               ((cons ⟨x×e⟩ xe*)
                (let ((x (fst ⟨x×e⟩)))
                  (let ((e (snd ⟨x×e⟩)))
@@ -335,20 +334,23 @@
             (let ((the-heap (env-set the-heap env x v)))
               (continute-setted the-heap env ectx stack)))
           (define (do-call the-heap fun arg-v* env ectx stack clos-env arg-x* body) : State
+            (enter-block the-heap env ectx (ca-app fun arg-v*) stack clos-env arg-v* arg-x* body))
+          (define (enter-block the-heap env ectx ctx-ann stack base-env v* x* body) : State
+            ;; tail-call optimization
             (let ([stack (if (and (empty? ectx) enable-tco?)
                              stack
-                             (cons (values env ectx (ca-app fun arg-v*)) stack))])
-              (do-call-1 the-heap stack clos-env arg-v* arg-x* body)))
-          (define (do-call-1 the-heap stack clos-env arg-v* arg-x* body) : State
+                             (cons (values env ectx ctx-ann) stack))])
+              (enter-block-2 the-heap stack base-env v* x* body)))
+          (define (enter-block-2 the-heap stack base-env v* x* body) : State
             (let ([def* (block-def* body)])
               (cond
-                [(not (= (length arg-x*)
-                         (length arg-v*)))
+                [(not (= (length x*)
+                         (length v*)))
                  (raise (exn-rt "arity mismatch"))]
                 [else
                  (let-values (((the-heap env)
-                               (env-extend/declare the-heap clos-env
-                                                   (append (map2 pair arg-x* (map some arg-v*))
+                               (env-extend/declare the-heap base-env
+                                                   (append (map2 pair x* (map some v*))
                                                            (map (lambda (def)
                                                                   (let ([name (fst def)])
                                                                     (values name (none))))
