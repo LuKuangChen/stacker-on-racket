@@ -81,4 +81,4 @@ This way you don't need to click through the configurations and hence can see th
 
 1. `fun`
 2. `state` adds mutable variables and mutable vectors
-3. `hof` adds higher-order functions and `let{,rec,*}`
+3. `hof` adds first-class functions and `let{,rec,*}`
