@@ -38,7 +38,7 @@ First, make sure you are in the Racket language:
 Run the following program in DrRacket
 
 ```racket
-#lang stacker/smol/fun
+#lang stacker/smol/hof
 
 (defvar x 2)
 (defvar y 3)
@@ -54,7 +54,7 @@ You should see a screenshot like this.
 Usually, you will use the Stacker like other Racket `#lang`s.
 
 ```
-#lang stacker/smol/fun
+#lang stacker/smol/hof
 
 (deffun (fact n)
   (if (zero? n)
@@ -67,7 +67,7 @@ If you *only* want to see the (final) result, you can ask the stacker not to sho
 This way you don't need to click through the configurations and hence can see the result sooner.
 
 ```
-#lang stacker/smol/fun
+#lang stacker/smol/hof
 #:no-trace
 
 (deffun (fact n)
