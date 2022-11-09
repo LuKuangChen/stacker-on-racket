@@ -144,8 +144,8 @@
        ((h-fun env name arg* body)
         (op-fun env arg* body))
        (else
-        (raise (exn-rt "not a function")))))
-    (else (raise (exn-rt "not a function")))))
+        (raise (exn-rt "expecting a function, given something else")))))
+    (else (raise (exn-rt "expecting a function, given something else")))))
 
 (define-syntax-rule
   (let-args ([(v ...) arg*]) . body)
@@ -410,12 +410,12 @@
                 ((po-left)
                  (let-args (((v) v-arg*))
                            (let ((v (as-vec the-heap v)))
-                             (let ((_ (unless (= (vector-length v) 2) (raise (exn-rt "left: not a pair")))))
+                             (let ((_ (unless (= (vector-length v) 2) (raise (exn-rt "left: expecting a pair, given something else")))))
                                (return-value the-heap (vector-ref v 0))))))
                 ((po-right)
                  (let-args (((v) v-arg*))
                            (let ((v (as-vec the-heap v)))
-                             (let ((_ (unless (= (vector-length v) 2) (raise (exn-rt "right: not a pair")))))
+                             (let ((_ (unless (= (vector-length v) 2) (raise (exn-rt "right: expecting a pair, given something else")))))
                                (return-value the-heap (vector-ref v 1))))))
                 ((po-vec-len)
                  (let-args (((v) v-arg*))
@@ -584,19 +584,19 @@
           (define (as-num (v : Val))
             :
             Number
-            (type-case Val v ((v-num it) it) (else (raise (exn-rt "not a number")))))
+            (type-case Val v ((v-num it) it) (else (raise (exn-rt "expecting a number, given something else")))))
           (define (as-str (v : Val))
             :
             String
-            (type-case Val v ((v-str it) it) (else (raise (exn-rt "not a string")))))
+            (type-case Val v ((v-str it) it) (else (raise (exn-rt "expecting a string, given something else")))))
           (define (as-bool (v : Val))
             :
             Boolean
-            (type-case Val v ((v-bool it) it) (else (raise (exn-rt "not a boolean")))))
+            (type-case Val v ((v-bool it) it) (else (raise (exn-rt "expecting a boolean, given something else")))))
           (define (as-char (v : Val))
             :
             Char
-            (type-case Val v ((v-char it) it) (else (raise (exn-rt "not a char")))))
+            (type-case Val v ((v-char it) it) (else (raise (exn-rt "expecting a char, given something else")))))
           (define (functional-vector-set vec i elm)
             (let ((lst (vector->list vec)))
               (let ((pre (take lst i))

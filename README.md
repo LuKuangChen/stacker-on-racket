@@ -82,3 +82,28 @@ This way you don't need to click through the configurations and hence can see th
 1. `fun`
 2. `state` adds mutable variables and mutable vectors
 3. `hof` adds first-class functions and `let{,rec,*}`
+
+## Grammar
+
+Here is a glossary of `smol` grammar, where `d` stands for definitions, `e` stands for expressions, `c` stands for constants, and `x` and `f` are identifiers (variables).
+
+```
+d ::= (defvar x e)
+    | (deffun (f x ...) body)
+e ::= c
+    | x
+    | (lambda (x ...) body)
+    | (λ (x ...) body)
+    | (let ([x e] ...) body)
+    | (letrec ([x e] ...) body)
+    | (let* ([x e] ...) body)
+    | (begin e ... e)
+    | (set! x e)
+    | (if e e e)
+    | (cond [e e] ... [else e])
+    | (cond [e e] ...)
+    | (e e ...)
+
+body    ::= d ... e ... e
+program ::= d ... e ...
+```
