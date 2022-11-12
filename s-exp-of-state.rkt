@@ -382,7 +382,7 @@
                    (doc-if (map doc-of-e (list cnd thn els)))]
                   [(t-cond cnd-thn* els)
                    (doc-cond
-                    (map doc-of-ee
+                    (map doc-of-vee
                          (append
                           cnd-thn*
                           (type-case (Optionof '_) els
@@ -390,7 +390,7 @@
                             [(some e)
                              (list (values (t-var 'else) e))]))))]))
               (define (doc-of-seq is-block e* e)
-                (if is-block 
+                (if is-block
                     (v-concat (append e* (list e)))
                     (doc-begin e* e)))
               (define (doc-of-xe xe)
@@ -400,6 +400,13 @@
                 (local [(define-values (e1 e2) ee)]
                   (doc-brack
                    (hs-concat
+                    (list
+                     (doc-of-e e1)
+                     (doc-of-e e2))))))
+              (define (doc-of-vee [ee : (Term * Term)])
+                (local [(define-values (e1 e2) ee)]
+                  (doc-brack
+                   (vs-concat
                     (list
                      (doc-of-e e1)
                      (doc-of-e e2))))))

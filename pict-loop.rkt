@@ -2,6 +2,12 @@
 (provide pict-loop)
 (require pict)
 (require racket/gui)
+(require web-server/servlet
+         web-server/servlet-env)
+
+(require pict
+         net/base64
+         file/convertible)
 
 (define-values (forward!
                 backward!
@@ -43,50 +49,67 @@
      (lambda ()
        (pair? future)))))
 
-
-
 (define (pict-loop state terminate? forward pict-of-state)
-  (define the-frame (new frame% [label "Stacker"]))
-  (send the-frame create-status-line)
-  (define button-panel
-    (new horizontal-panel%
-         [parent the-frame]))
-  (define the-canvas
-    (new canvas%
-         [parent the-frame]
-         [paint-callback
-          (lambda (canvas dc)
-            (let ([current-pict (what-is-now)])
-              (when current-pict
-                (send dc clear)
-                (send canvas min-width (add1 (inexact->exact (ceiling (pict-width current-pict)))))
-                (send canvas min-height (add1 (inexact->exact (ceiling (pict-height current-pict)))))
-                (send the-prev-button enable (has-past?))
-                (send the-next-button enable (or (has-future?) (not (terminate? state))))
-                (send the-frame set-status-text (if (terminate? state) "terminated" "still running"))
-                (send the-frame resize 10 10)
-                (draw-pict current-pict dc 1 1))))]))
-  (define the-prev-button
-    (new button%
-         [label "Previous"]
-         [parent button-panel]
-         [callback
-          (lambda (_button _event)
-            (let ([item (backward!)])
-              (send the-frame refresh)))]))
-  (define the-next-button
-    (new button%
-         [label "Next"]
-         [parent button-panel]
-         [callback
-          (lambda (_button _event)
-            (if (has-future?)
-                (forward!)
-                (unless (terminate? state)
-                  (step!)))
-            (send the-frame refresh))]))
+  ; render: request -> doesn't return
+  ; Produces an HTML page of the content of the BLOG.
+
+  (define (prevable?)
+    (has-past?))
+
+  (define (nextable?)
+    (or (has-future?)
+        (not (terminate? state))))
+
+  (define (render request)
+    (define (response-generator embed/url)
+      (response/xexpr
+       `(html (head (title "Stacker"))
+              (body
+               (div ((style "display: flex; flex-direction: row;"))
+                (form ((action ,(embed/url handle-prev)))
+                      (input ((type "submit")
+                              (value "Prev")
+                              ,@(if (prevable?) '() '((disabled ""))))))
+                (form ((action ,(embed/url handle-next)))
+                      (input ((type "submit")
+                              (value "Next")
+                              ,@(if (nextable?) '() '((disabled "")))))))
+               ,(display-state)
+               ;;;  (pre ,(format "~a" (prevable?)))
+               ;;;  (pre ,(format "~a" (nextable?)))
+               ;;;  (pre ,(format "~a" (has-future?)))
+               ;;;  (pre ,(format "~a" (terminate? state)))
+               ;;;  (pre ,(format "~a" state))
+               ))))
+
+    (define (handle-prev request)
+      (backward!)
+      (render request))
+
+    (define (handle-next request)
+      (if (has-future?)
+          (forward!)
+          (unless (terminate? state)
+            (step!)))
+      (render request))
+
+    (send/suspend/dispatch response-generator))
+
+  (define (pict->data-uri pict)
+    (format "data:image/svg+xml;base64,~a"
+            (base64-encode (convert pict 'svg-bytes))))
+
+  (define (display-state)
+    `(img ([src ,(pict->data-uri (what-is-now))]
+           [width "100%"]
+           [height "100%"])))
+
+  (define (start request)
+    (render request))
+
   (define (step!)
     (set! state (forward state))
     (add-future (pict-of-state state)))
   (add-future (pict-of-state state))
-  (send the-frame show #t))
+
+  (serve/servlet start))

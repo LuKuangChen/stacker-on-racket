@@ -1,6 +1,7 @@
 #lang racket
 (provide pict-of-state)
 (require pict)
+(require pict/code)
 (require (rename-in pict [text pict-text]))
 (require racket/draw)
 (require (only-in framework editor:get-current-preferred-font-size))
@@ -60,7 +61,26 @@
 (define (current-background-color)
   (text-palette-background (current-text-palette)))
 
+(define (bg p)
+  (cc-superimpose
+   (filled-rectangle
+    (pict-width p)
+    (pict-height p)
+    #:draw-border? #f
+    #:color (current-background-color))
+   p))
+
+(define (code-pict code)
+  (parameterize ([current-text-palette tp-white]
+                 [get-current-code-font-size editor:get-current-preferred-font-size])
+    (bg
+     (codeblock-pict
+      (string-append "#lang smol/hof\n" code)
+      #:keep-lang-line? #f))))
+
 (define (text s)
+  (code-pict s)
+  #;
   (pre-text s 'modern))
 (define (pre-text s font-family)
   (define style
@@ -93,7 +113,7 @@
                                         (field-label "-th element will be")
                                         (field-value v)
                                         (field-label ")")))
-                           (field "in context" ectx)
+                           (field-pict "in context" (code-pict ectx))
                            (field "in environment @" env))))]
       [`("setting" ,x ,v ,env ,ectx)
        (parameterize ([current-text-palette tp-mutating])
@@ -105,30 +125,30 @@
                              (field-value x)
                              (field-label "to")
                              (field-value v)))
-                           (field "in context" ectx)
+                           (field-pict "in context" (code-pict ectx))
                            (field "in environment @" env))))]
       [`("setted" ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
-                           (field "in context" ectx)
+                           (field-pict "in context" (code-pict ectx))
                            (field "in environment @" env))))]
       [`("calling" ,app ,env ,ectx)
        (parameterize ([current-text-palette tp-calling])
          (plate (vl-append padding
                            (field "Calling" app)
-                           (field "in context" ectx)
+                           (field-pict "in context" (code-pict ectx))
                            (field "in environment @" env))))]
       [`("called" ,body ,env)
        (parameterize ([current-text-palette tp-called])
          (plate (vl-append padding
                            (field-label "Evaluating the body")
-                           (field-value body)
+                           (code-pict body)
                            (field "in environment @" env))))]
       [`("returned" ,v ,env ,ectx)
        (parameterize ([current-text-palette tp-returned])
          (plate (vl-append padding
                            (field "Returned" v)
-                           (field "to contect" ectx)
+                           (field-pict "to context" (code-pict ectx))
                            (field "in environment @" env))))]
       [`("returning" ,v)
        (parameterize ([current-text-palette tp-returning])
@@ -138,7 +158,7 @@
        (parameterize ([current-text-palette tp-terminated])
          (plate (vl-append padding
                            (field-label "Terminated")
-                           (field-value (string-join v* "\n")))))]
+                           (code-pict (string-join v* "\n")))))]
       [`("errored")
        (parameterize ([current-text-palette tp-errored])
          (plate (vl-append padding
@@ -172,8 +192,8 @@
          (main-pict empty `("terminated" ,v*) heap)]
         [`("errored" ,heap)
          (main-pict empty `("errored") heap)]))
-    (define dim (max (pict-width p) (pict-height p)))
-    (scale p (min 1.2 (/ 700 (pict-height p)) (/ 1200 (pict-width p)))))
+    (ht-append (vl-append p (blank 1))
+               (blank 1)))
 
   (define ((pict-of-stack heap) stack)
     (parameterize ([current-text-palette tp-stack])
@@ -239,7 +259,9 @@
          (plate (vl-append padding
                            (field "@" this-addr)
                            (field "Environment @" env)
-                           (field "Code" code))
+                           (field-pict
+                            "Code"
+                            (code-pict code)))
                 ))]
       [`("vec" ,@vec)
        (parameterize ([current-text-palette tp-mvec])
@@ -269,7 +291,7 @@
     (frame (bg (pad padding p))))
   (define (pict-of-binding binding)
     (match-define (list x v) binding)
-    (ht-append padding
+    (hc-append padding
                (field-value x)
                (field-label "↦")
                (field-value v)))
@@ -286,15 +308,6 @@
   (define (field name value)
     (field-pict name (field-value value)))
 
-  (define (bg p)
-    (cc-superimpose
-     (filled-rectangle
-      (pict-width p)
-      (pict-height p)
-      #:draw-border? #f
-      #:color (current-background-color))
-     p))
-
   (define ((pict-of-sf heap) sf)
     (match-define (list env ectx ann) sf)
     (parameterize ([current-text-palette tp-stack-frame])
@@ -302,7 +315,7 @@
            (pad padding
                 (vl-append padding
                            (field-label "Waiting for a value")
-                           (field "in context" ectx)
+                           (field-pict "in context" (code-pict ectx))
                            (field "in environment @" env)))))))
 
   (define (pad n p)
