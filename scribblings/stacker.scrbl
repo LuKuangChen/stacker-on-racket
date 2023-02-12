@@ -1,6 +1,5 @@
 #lang scribble/manual
-@require[@for-label[stacker
-                    racket/base]]
+@require[@for-label[racket/base]]
 
 @title{stacker}
 @author{lukc}

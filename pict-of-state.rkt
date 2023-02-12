@@ -74,13 +74,15 @@
   (parameterize ([current-text-palette tp-white]
                  [get-current-code-font-size editor:get-current-preferred-font-size])
     (bg
+     (text code)
+     #;
      (codeblock-pict
       (string-append "#lang smol/hof\n" code)
       #:keep-lang-line? #f))))
 
 (define (text s)
-  (code-pict s)
-  #;
+  ;;; (code-pict s)
+  ;;; #;
   (pre-text s 'modern))
 (define (pre-text s font-family)
   (define style

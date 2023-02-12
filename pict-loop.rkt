@@ -14,7 +14,8 @@
                 what-is-now
                 add-future
                 has-past?
-                has-future?)
+                has-future?
+                get-position)
   (let ([past '()]
         [future '()]
         [now #f])
@@ -47,7 +48,14 @@
      (lambda ()
        (pair? past))
      (lambda ()
-       (pair? future)))))
+       (pair? future))
+     (lambda ()
+       (define i (length (append past (and now (list now)))))
+       (define n
+        (+ (length past)
+           (length future)
+           (if now 1 0)))
+       (format "~a of ~a" i n)))))
 
 (define (pict-loop state terminate? forward pict-of-state)
   ; render: request -> doesn't return
@@ -60,6 +68,8 @@
     (or (has-future?)
         (not (terminate? state))))
 
+  (define ever-terminated? #f)
+
   (define (render request)
     (define (response-generator embed/url)
       (response/xexpr
@@ -68,18 +78,19 @@
                (div ((style "display: flex; flex-direction: row;"))
                 (form ((action ,(embed/url handle-prev)))
                       (input ((type "submit")
-                              (value "Prev")
+                              (value "Previous")
                               ,@(if (prevable?) '() '((disabled ""))))))
+                ,(string-append
+                   (get-position)
+                   (begin
+                    (when (terminate? state)
+                      (set! ever-terminated? #t))
+                    (if ever-terminated? "" "+")))
                 (form ((action ,(embed/url handle-next)))
                       (input ((type "submit")
                               (value "Next")
                               ,@(if (nextable?) '() '((disabled "")))))))
                ,(display-state)
-               ;;;  (pre ,(format "~a" (prevable?)))
-               ;;;  (pre ,(format "~a" (nextable?)))
-               ;;;  (pre ,(format "~a" (has-future?)))
-               ;;;  (pre ,(format "~a" (terminate? state)))
-               ;;;  (pre ,(format "~a" state))
                ))))
 
     (define (handle-prev request)
@@ -101,8 +112,9 @@
 
   (define (display-state)
     `(img ([src ,(pict->data-uri (what-is-now))]
-           [width "100%"]
-           [height "100%"])))
+           #;#:
+           [max-width "100%"]
+           [max-height "100%"])))
 
   (define (start request)
     (render request))
@@ -110,6 +122,7 @@
   (define (step!)
     (set! state (forward state))
     (add-future (pict-of-state state)))
+
   (add-future (pict-of-state state))
 
   (serve/servlet start))
