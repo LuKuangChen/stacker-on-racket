@@ -1,5 +1,10 @@
 # stacker
 
+**⚠️⚠️⚠️ This (DrRacket-based) stacker has been superseded by a new, web-based stacker ⚠️⚠️⚠️**
+> https://github.com/LuKuangChen/stacker-2023
+
+-----
+
 Another implementation of smol. This implementation presents the execution with a stack-based model.
 
 ## How to install, update, and uninstall
